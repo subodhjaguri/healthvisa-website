@@ -18,7 +18,7 @@ export function getServerHostUrl(service: Services) {
 			return 'https://jq3fpv5xg5.execute-api.ap-south-1.amazonaws.com/dev';
 		case 'product':
 			return 'https://yc9tn3t71i.execute-api.ap-south-1.amazonaws.com/dev';
-			return 'http://localhost:3004';
+
 		case 'card':
 			return 'https://g64d6g3v75.execute-api.ap-south-1.amazonaws.com/dev';
 		case 'order':
