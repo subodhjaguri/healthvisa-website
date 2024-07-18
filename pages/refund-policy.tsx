@@ -16,7 +16,8 @@ const RefundPolicyPage = () => {
 					policy. This policy outlines the procedures for seeking a refund,
 					eligibility criteria, processing timelines, exceptions, our commitment
 					to adhering to local laws and regulations, and additional measures to
-					protect both our customers' rights and the integrity of our services{' '}
+					protect both our customers&apos; rights and the integrity of our
+					services{' '}
 				</p>
 				<ul>
 					<li>
@@ -61,9 +62,9 @@ const RefundPolicyPage = () => {
 						meets the eligibility criteria, HealthiFam will process the refund
 						within 7 business days. The refund will be made using the same
 						payment method used for the original purchase. Please note that
-						the time taken for the refund to reflect in the customer's account
-						may vary depending on the payment provider and the customer's
-						bank.
+						the time taken for the refund to reflect in the customer&apos;s
+						account may vary depending on the payment provider and the
+						customer&apos;s bank.
 					</li>
 					<li>
 						Exceptions: HealthiFam reserves the right to withhold refunds
@@ -82,7 +83,7 @@ const RefundPolicyPage = () => {
 						Compliance with Local Laws and Regulations: At HealthiFam, we are
 						committed to complying with all applicable local laws and
 						regulations pertaining to refund policies for health services and
-						prepaid cards. This ensures that our customers' rights are
+						prepaid cards. This ensures that our customers&apos; rights are
 						protected and that the refund policy adheres to the highest
 						ethical standards.
 					</li>
@@ -94,7 +95,7 @@ const RefundPolicyPage = () => {
 						utilized within the specified time frame.
 					</li>
 					<li>
-						Customer-Centric Approach: We understand that each customer's
+						Customer-Centric Approach: We understand that each customer&apos;s
 						situation is unique, and we aim to handle refund requests with
 						empathy and consideration. Our customer support team is available
 						Monday to Saturday between 9am to 9pm to address any questions or
