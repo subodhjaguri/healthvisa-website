@@ -1,0 +1,84 @@
+import {PurchaseFieldType} from '@healthvisa/models/admin/products/PurchaseFiledType';
+import {Button, Form, Input} from 'antd';
+import * as React from 'react';
+
+interface IDynamicComponentProps {
+	title: string;
+	setComponentType: (x: PurchaseFieldType) => void;
+}
+
+export const DateInput: React.FC<IDynamicComponentProps> = (props) => {
+	const onFinish = async (values: any) => {
+		const field = {
+			name: values.name,
+			order: values.orderNo,
+			type: props.title,
+			metadata: {label: values.label},
+		};
+		props.setComponentType(field);
+	};
+
+	return (
+		<div className="w-[100%] border-2 mt-4 p-3">
+			<div className="w-[100%]">
+				<h1>{props.title} available fields</h1>
+			</div>
+			<div className="w-[100%] p-4 justify-between">
+				<Form
+					scrollToFirstError
+					layout="vertical"
+					// name="dateinput"
+					className="w-full"
+					initialValues={{remember: true}}
+					onFinish={onFinish}
+					autoComplete="off"
+				>
+					<Form.Item
+						label="Name"
+						name="name"
+						className="w-[100%]"
+						rules={[
+							{
+								required: true,
+								message: 'Please enter Name',
+							},
+						]}
+					>
+						<Input placeholder="Enter Name" />
+					</Form.Item>
+					<Form.Item
+						label="Order Number"
+						name="orderNo"
+						className="w-[100%]"
+						rules={[
+							{
+								required: true,
+								message: 'Please enter Order Number',
+								type: 'integer',
+							},
+						]}
+					>
+						<Input type="number" placeholder="Enter Order Number" />
+					</Form.Item>
+					<Form.Item
+						label="Label Text"
+						name="label"
+						className="w-[100%]"
+						rules={[
+							{
+								required: true,
+								message: 'Please enter Label',
+							},
+						]}
+					>
+						<Input placeholder="Enter label" />
+					</Form.Item>
+
+					<Button type="primary" htmlType="submit">
+						Submit
+					</Button>
+				</Form>
+			</div>
+		</div>
+	);
+};

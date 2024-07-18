@@ -1,0 +1,101 @@
+import {Layout} from '@healthvisa/components';
+import {Skeleton} from 'antd';
+import React from 'react';
+import {BiCategoryAlt} from 'react-icons/bi';
+import {FaUsers} from 'react-icons/fa';
+import {MdMedicalServices} from 'react-icons/md';
+import {GiMedicines} from 'react-icons/gi';
+import {RiVipCrown2Fill, RiAdminFill} from 'react-icons/ri';
+
+export const Dashboard = () => {
+	// const {isLoading, data} = useDashboardData();
+	console.log('dashboard');
+	return (
+		<Layout>
+			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+				<h2 className="text-lg">Peoples</h2>
+				{false ? (
+					<Skeleton active />
+				) : (
+					<div className="flex p-5 flex-wrap justify-center">
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#56b5ac] rounded-lg">
+							<RiAdminFill className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									1
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Admins
+								</span>
+							</div>
+						</div>
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#465CA8] rounded-lg">
+							<FaUsers className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									5
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Users
+								</span>
+							</div>
+						</div>
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#E5095A] rounded-lg">
+							<RiVipCrown2Fill className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									4
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Members
+								</span>
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+			<div className="flex flex-col mt-4 bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+				<h2 className="text-lg">Categories</h2>
+				{false ? (
+					<Skeleton active />
+				) : (
+					<div className="flex p-5 flex-wrap justify-center">
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg">
+							<BiCategoryAlt className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									41
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Categories
+								</span>
+							</div>
+						</div>
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
+							<GiMedicines className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									5
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Products
+								</span>
+							</div>
+						</div>
+						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg">
+							<MdMedicalServices className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									78
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Services
+								</span>
+							</div>
+						</div>
+					</div>
+				)}
+			</div>
+		</Layout>
+	);
+};
