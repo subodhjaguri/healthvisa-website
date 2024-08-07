@@ -30,6 +30,7 @@ export interface ILabAppointment {
 	optionSelected: string;
 	createdAt: string;
 	updatedAt: string;
+	metadata: any;
 }
 
 export type GetLabAppointmentResponse = ILabAppointment[];

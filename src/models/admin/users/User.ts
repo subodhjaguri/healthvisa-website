@@ -17,6 +17,7 @@ export interface IUserNew {
 	isActive: boolean;
 	createdAt: Date;
 	updatedAt: Date;
+	isEHR: boolean;
 }
 
 export type GetUserResponse = IUserNew[];
@@ -121,6 +122,7 @@ export interface INewMember {
 	userId: string;
 	status: string;
 	appliedFor: string;
+	createdAt: string;
 }
 
 export type GetNewMemberResponse = INewMember[];

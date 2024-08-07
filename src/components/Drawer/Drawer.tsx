@@ -48,94 +48,22 @@ export const DrawerComponent = () => {
 	};
 
 	console.log('getCurrentRoute: ', getCurrentRoute(router), router.pathname);
-	const AdminRoutes: NavigationLink[] = [
-		{
-			name: 'Dashboard',
-			path: '/admin/dashboard',
-			icon: <MdOutlineDashboard />,
-		},
-		{
-			name: 'Locations',
-			title: 'location',
-			icon: <MdOutlineDashboard />,
-			subRoutes: [
-				{
-					name: 'Areas',
-					path: '/admin/area',
-					icon: <MdLocationOn />,
-				},
-				{
-					name: 'Cities',
-					path: '/admin/city',
-					icon: <MdLocationCity />,
-				},
-				{
-					name: 'States',
-					path: '/admin/state',
-					icon: <MdLocationCity />,
-				},
-			],
-		},
-		{
-			name: 'Properties',
-			title: 'property',
-			icon: <AppstoreOutlined />,
-			subRoutes: [
-				{
-					name: 'Property List',
-					path: '/admin/properties',
-					icon: <AppstoreOutlined />,
-				},
-				{
-					name: 'Property Parts',
-					path: '/admin/property-parts',
-					icon: <MdLocationOn />,
-				},
-				{
-					name: 'Property Types',
-					path: '/admin/property-types',
-					icon: <MdLocationCity />,
-				},
-			],
-		},
-		{
-			name: 'Peoples',
-			title: 'Peoples',
-			icon: <AppstoreOutlined />,
-			subRoutes: [
-				{
-					name: 'Admins',
-					path: '/admin/users',
-					icon: <FaUsers />,
-				},
-				{
-					name: 'Users',
-					path: '/admin/users',
-					icon: <FaUsers />,
-				},
-			],
-		},
-		{
-			name: 'Notifications',
-			path: '/admin/notification',
-			icon: <NotificationOutlined />,
-		},
-	];
 
 	const items: MenuProps['items'] = [
 		getItem('Dashboard', '/admin/dashboard', <MdOutlineDashboard />),
 		getItem('Products and Services', 'products', <MdOutlineMedicalServices />, [
 			// getItem('Areas', '/admin/area', <MdLocationOn />),
-			getItem('Categories', '/admin/categories', <BiCategoryAlt />),
-			getItem('Products', '/admin/products', <GiMedicines />),
+			getItem('Services', '/admin/categories', <BiCategoryAlt />),
+			getItem('Doctors', '/admin/products', <GiMedicines />),
+			getItem('Diagnostics', '/admin/diagnostics', <GiMedicines />),
 		]),
 
 		getItem(<p className="p-0 m-0 w-[188px]">Peoples</p>, 'peoples', <MdPeople />, [
 			getItem('Users', '/admin/users', <FaUsers />),
 		]),
 		getItem('Doctor Appointments', '/admin/orders', <FaBoxOpen />),
-		getItem('Lab Appointments', '/admin/lab-appointments', <FaBoxOpen />),
-		getItem('Requests', '/admin/new-members', <MdAdminPanelSettings />),
+		getItem('Diagnostic services', '/admin/lab-appointments', <FaBoxOpen />),
+		getItem('User Requests', '/admin/new-members', <MdAdminPanelSettings />),
 	];
 	const onClick: MenuProps['onClick'] = (e) => {
 		router.push(e.key);

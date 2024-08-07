@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 import {Layout} from '@healthvisa/components';
 import {Skeleton} from 'antd';
 import React from 'react';
@@ -6,10 +8,12 @@ import {FaUsers} from 'react-icons/fa';
 import {MdMedicalServices} from 'react-icons/md';
 import {GiMedicines} from 'react-icons/gi';
 import {RiVipCrown2Fill, RiAdminFill} from 'react-icons/ri';
+import {useRouter} from 'next/router';
 
 export const Dashboard = () => {
 	// const {isLoading, data} = useDashboardData();
 	console.log('dashboard');
+	const router = useRouter();
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
@@ -29,7 +33,9 @@ export const Dashboard = () => {
 								</span>
 							</div>
 						</div>
-						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#465CA8] rounded-lg">
+						<div
+							onClick={() => router.push('/admin/users')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#465CA8] rounded-lg">
 							<FaUsers className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
@@ -60,36 +66,42 @@ export const Dashboard = () => {
 					<Skeleton active />
 				) : (
 					<div className="flex p-5 flex-wrap justify-center">
-						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg">
+						<div
+							// onClick={() => router.push('/admin/categories')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg">
 							<BiCategoryAlt className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									41
+									6
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Categories
 								</span>
 							</div>
 						</div>
-						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
-							<GiMedicines className="text-white" size={30} />
-							<div className="flex flex-col justify-center">
-								<span className=" text-right  text-white text-4xl font-bold">
-									5
-								</span>
-								<span className=" text-right  text-white text-xs uppercase opacity-70">
-									Products
-								</span>
-							</div>
-						</div>
-						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg">
+						<div
+							onClick={() => router.push('/admin/categories')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg">
 							<MdMedicalServices className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									78
+									21
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Services
+								</span>
+							</div>
+						</div>
+						<div
+							onClick={() => router.push('/admin/diagnostics')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
+							<GiMedicines className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									9
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Diagnostics
 								</span>
 							</div>
 						</div>

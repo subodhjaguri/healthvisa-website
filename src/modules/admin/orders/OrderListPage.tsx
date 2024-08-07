@@ -46,6 +46,7 @@ export const OrderListPage = () => {
 					doctor: order.items[0].name,
 					discount: `₹${formatPrice(order.discount)}`,
 					id: order.id,
+					appointment: order.items[0].metadata.bookings[0],
 
 					// description: generateDescription(order),
 			  }))
@@ -105,6 +106,17 @@ export const OrderListPage = () => {
 			key: 'discount',
 			render: (discount) => <span className="font-bold">{discount}</span>,
 		},
+		{
+			title: 'Appointment Details',
+			dataIndex: 'appointment',
+			key: 'appointment',
+			render: (appointment) => (
+				<div className="font-bold">
+					<div>{moment(appointment.date).format('DD MMM YYYY')}</div>
+					<div>{appointment.slot}</div>
+				</div>
+			),
+		},
 
 		{
 			title: 'Payment',
@@ -158,7 +170,7 @@ export const OrderListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h2 className="text-xl font-bold">Orders</h2>
+				<h2 className="text-xl font-bold">Doctor Appointments</h2>
 				<Button type="primary" className="self-end mb-2 w-[90px]">
 					<CSVLink data={orderArray} filename="OrderList" target="_blank">
 						Export

@@ -1,31 +1,26 @@
 import {Layout} from '@healthvisa/components';
-import {useDeleteProduct, useProduct} from '@healthvisa/models/admin/products/useProduct';
+import {useDeleteProduct} from '@healthvisa/models/admin/products/useProduct';
 import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
-import router from 'next/router';
 import React from 'react';
-import {useCategories} from '@healthvisa/models/admin/category/useCategories';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
-import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
+import {useDiagnosticItems} from '@healthvisa/models/admin/lab-appointments/useLab';
 
 const {confirm} = Modal;
 interface DataType {
 	index: number;
 	Id: string;
 	Name: string;
-	Type: string;
-	Price: number;
-	Image: string;
-	DiscountPrice: number;
-	CategoryName: string;
+	Discount: string;
+	Availability: string;
 	CreatedOn: string;
+	Labs: string[];
 }
 
-export const ProductListPage = () => {
-	const {isLoading, data: productList} = useProduct();
-	const {data: categoryList} = useCategories();
+export const DiagnosticListPage = () => {
+	const {isLoading, data: diagnosticItems} = useDiagnosticItems();
 	const deleteProduct = useDeleteProduct();
 
 	const handleDelete = async (id: string) => {
@@ -54,23 +49,24 @@ export const ProductListPage = () => {
 			},
 		});
 	};
+	const Labs: any = {
+		'655226191e32a308b449dbda': 'The Lab Plus, Diagnostic and Healthcare',
+		'655226941e32a308b449dbdb': 'NIDAN EXCELLENCE DIAGNOSTICS',
+		'65f9102bc418d083faeda140': 'B Healthcare',
+	};
+
 	const productsArray: DataType[] =
-		productList && productList?.length > 0
-			? productList.map((product, index) => ({
+		diagnosticItems && diagnosticItems?.length > 0
+			? diagnosticItems.map((product, index) => ({
 					index: index + 1,
 					Id: product.id,
 					Name: product.name,
-					CategoryName:
-						categoryList && categoryList.length > 0
-							? (categoryList?.find(
-									(category) => category.id === product.categoryId,
-							  )?.category as string)
-							: 'N/A',
-					Type: product?.type,
-					Price: product?.price,
-					DiscountPrice: product?.discountPrice,
-					Image: product?.image.url,
 					CreatedOn: moment(product.createdAt).format('DD MMM YYYY'),
+					Discount: `${product.discount} %`,
+					Availability:
+						product.metadata.availability || product.metadata.availability2,
+					Visits: product.availableVisits,
+					Labs: product.labs,
 			  }))
 			: [];
 	const columns: ColumnsType<DataType> = [
@@ -80,30 +76,42 @@ export const ProductListPage = () => {
 			key: 'index',
 		},
 		{
-			title: 'Product/Service',
+			title: 'Name',
 			dataIndex: 'Name',
 			key: 'name',
 		},
 		{
-			title: 'Category Name',
-			dataIndex: 'CategoryName',
-			key: 'categoryName',
-		},
-		{
-			title: 'Type',
-			dataIndex: 'Type',
-			key: 'type',
-		},
-		{
-			title: 'Price',
-			dataIndex: 'Price',
-			key: 'price',
-			render: (price, record) => (
+			title: 'Lab',
+			dataIndex: 'Labs',
+			key: 'labs',
+			render: (record) => (
 				<div>
-					<span className="font-bold">{`₹${formatPrice(price)}`}</span>
-					<span className="text-xs ml-1 line-through">
-						{`₹${formatPrice(record.DiscountPrice)}`}
-					</span>
+					{record.map((lab) => (
+						<div className="capitalize">{Labs[lab]}</div>
+					))}
+				</div>
+			),
+		},
+		{
+			title: 'Availability',
+			dataIndex: 'Availability',
+			key: 'availability',
+		},
+		{
+			title: 'Discount',
+			dataIndex: 'Discount',
+			key: 'discount',
+		},
+
+		{
+			title: 'Visits',
+			dataIndex: 'Visits',
+			key: 'visits',
+			render: (record) => (
+				<div>
+					{record.map((visit) => (
+						<div className="capitalize">{visit} Visit</div>
+					))}
 				</div>
 			),
 		},
@@ -118,8 +126,9 @@ export const ProductListPage = () => {
 			render: (text, record) => (
 				<Space size="middle">
 					<Button
+						disabled
 						size="small"
-						onClick={() => router.push(`/admin/products/${record.Id}`)}
+						// onClick={() => router.push(`/admin/products/${record.Id}`)}
 						type="default"
 						style={{
 							color: '#1990FF',
@@ -130,6 +139,7 @@ export const ProductListPage = () => {
 						Edit
 					</Button>
 					<Button
+						disabled
 						size="small"
 						onClick={() => showModal(record.Id)}
 						type="default"
@@ -149,15 +159,17 @@ export const ProductListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h1 className="text-xl font-bold">Doctors</h1>
+				<h1 className="text-xl font-bold">Diagnostics</h1>
 				<Button
+					disabled
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/products/create')}>
+					// onClick={() => router.push('/admin/products/create')}
+				>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink data={productsArray} filename="ProductList" target="_blank">
+					<CSVLink data={productsArray} filename="Diagnostics" target="_blank">
 						Export
 					</CSVLink>
 				</Button>

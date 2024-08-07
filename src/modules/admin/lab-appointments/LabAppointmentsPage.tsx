@@ -31,7 +31,7 @@ const {Option} = Select;
 export const LabAppointmentsPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const {data: DiagnosticItems} = useDiagnosticItems();
-	const {data} = useGetLabAppointments();
+	const {isLoading: loading, data} = useGetLabAppointments();
 	const labs = [
 		{
 			name: 'The Lab Plus, Diagnostic and healthcare',
@@ -50,6 +50,18 @@ export const LabAppointmentsPage = () => {
 			id: '655226941e32a308b449dbdb',
 			description:
 				"Nidan excellence Diagnostic Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at NIDAN, we're dedicated to providing you with the best possible care for a healthier life.",
+		},
+		{
+			id: '65f9102bc418d083faeda140',
+			name: 'B Healthcare',
+			shortAddress: 'Mira Road east, Thane',
+			fullAddress:
+				'The Lab Plus , Diagnostic and Healthcare,A2-001/002, Ground floor,Prabhakar CHS, Shanti nagar Sector 4,Mira Road east,  Thane - 401107',
+			description:
+				'The Lab Plus is an NABL Accredited and ISO Certified lab with Specialized Reference Pathology Services run by senior and expert MD Pathologist , Dr Ashish Bhosle. It  is a fast emerging as the credible brand in the area of Diagnostic Health Services. The Lab Plus is driven by the sole objective of providing to its patients,the accuracy of quality reports ensured by qualified & experienced pathologists, radiologists, dentist, speciality doctors. dedicated & skilled technical team and world class top-of-the-line equipment.',
+			certificate: '',
+			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/Bhealthcare.png',
+			availability: '24 hours',
 		},
 	];
 
@@ -89,6 +101,10 @@ export const LabAppointmentsPage = () => {
 					lab: labs.find((item) => item.id === appointment.labId)?.name,
 					visit: appointment.visit,
 					id: appointment.id,
+					Option: appointment.optionSelected,
+					tests: appointment?.metadata?.tests
+						? appointment?.metadata?.tests.join(', ')
+						: '',
 			  }))
 			: [];
 
@@ -116,10 +132,30 @@ export const LabAppointmentsPage = () => {
 			render: (visit) => <span className="font-semibold capitalize">{visit}</span>,
 		},
 		{
+			title: 'Option',
+			dataIndex: 'Option',
+			key: 'option',
+			render: (option) => (
+				<span className="font-semibold capitalize">{option}</span>
+			),
+		},
+		{
 			title: 'Test',
 			dataIndex: 'test',
 			key: 'test',
 		},
+		// {
+		// 	title: 'Test',
+		// 	dataIndex: 'tests',
+		// 	key: 'tests',
+		// 	render: (tests) => (
+		// 		<div className="font-semibold capitalize">
+		// 			{tests.map((test) => (
+		// 				<div>{test}</div>
+		// 			))}
+		// 		</div>
+		// 	),
+		// },
 		{
 			title: 'Amount',
 			dataIndex: 'Amount',
@@ -173,7 +209,7 @@ export const LabAppointmentsPage = () => {
 						Export
 					</CSVLink>
 				</Button>
-				{isLoading ? (
+				{isLoading || loading ? (
 					<Skeleton active />
 				) : (
 					<Table
@@ -183,6 +219,16 @@ export const LabAppointmentsPage = () => {
 						columns={columns}
 						dataSource={appointmentsArray}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
+						expandable={{
+							expandedRowRender: (record) => (
+								<div className="flex gap-3 ml-10">
+									<p className="font-semibold ">Tests selected</p>
+									<div className="capitalize flex gap-2">
+										{record.tests}
+									</div>
+								</div>
+							),
+						}}
 					/>
 				)}
 			</div>

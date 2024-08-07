@@ -1,13 +1,14 @@
 import {Layout} from '@healthvisa/components';
 
-import {Button, message, Modal, Skeleton, Space, Table, Tag} from 'antd';
+import {Button, Checkbox, message, Modal, Skeleton, Space, Table, Tag} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
-import React from 'react';
+import React, {useState} from 'react';
 import {useDeleteUser, useUser} from '@healthvisa/models/admin/users/useUser';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {CSVLink} from 'react-csv';
+import {CheckboxProps} from 'antd/es/checkbox';
 
 const {confirm} = Modal;
 interface DataType {
@@ -17,12 +18,13 @@ interface DataType {
 	userName: string;
 	status: boolean;
 	createdOn: string;
+	isEHR: boolean;
 }
 
 export const UserListPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const deleteUser = useDeleteUser();
-
+	const [isEHR, setIsEHR] = useState(false);
 	const handleDelete = async (id: string) => {
 		deleteUser.mutate(
 			{id},
@@ -60,6 +62,7 @@ export const UserListPage = () => {
 					userName: user?.userName,
 					status: user?.isActive,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
+					isEHR: user.isEHR,
 			  }))
 			: [];
 
@@ -109,8 +112,7 @@ export const UserListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Edit
 					</Button>
 
@@ -123,15 +125,16 @@ export const UserListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Delete
 					</Button>
 				</Space>
 			),
 		},
 	];
-
+	const onChange: CheckboxProps['onChange'] = (e) => {
+		setIsEHR(e.target.checked);
+	};
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
@@ -139,8 +142,7 @@ export const UserListPage = () => {
 				<Button
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/users/create')}
-				>
+					onClick={() => router.push('/admin/users/create')}>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">
@@ -148,6 +150,9 @@ export const UserListPage = () => {
 						Export
 					</CSVLink>
 				</Button>
+				<div className="my-2">
+					<Checkbox onChange={onChange}>Show EHR Users</Checkbox>
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (
@@ -156,7 +161,9 @@ export const UserListPage = () => {
 						rowKey={(obj) => obj.key}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={userArray}
+						dataSource={
+							isEHR ? userArray.filter((user) => user.isEHR) : userArray
+						}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

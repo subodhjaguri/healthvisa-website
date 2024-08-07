@@ -128,8 +128,7 @@ export const CategoryListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Edit
 					</Button>
 
@@ -142,8 +141,7 @@ export const CategoryListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Delete
 					</Button>
 				</Space>
@@ -155,15 +153,13 @@ export const CategoryListPage = () => {
 		<Layout>
 			<div
 				className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid"
-				key={key_}
-			>
-				<h2 className="text-xl font-bold">Category List</h2>
+				key={key_}>
+				<h2 className="text-xl font-bold">Services</h2>
 
 				<Button
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/categories/create')}
-				>
+					onClick={() => router.push('/admin/categories/create')}>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">

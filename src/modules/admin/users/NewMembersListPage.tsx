@@ -19,6 +19,7 @@ import {
 	EHRRequestParams,
 	NewMemberUpdateRequestParams,
 } from '@healthvisa/models/admin/users/User';
+import moment from 'moment';
 
 const {confirm} = Modal;
 
@@ -134,6 +135,7 @@ export const NewMembersListPage = () => {
 						usersArray?.find((u) => u.id === user.userId)?.mobileNumber ?? '',
 					id: user.id,
 					userId: user.userId,
+					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
 			  }))
 			: [];
 
@@ -155,11 +157,15 @@ export const NewMembersListPage = () => {
 		},
 
 		{
-			title: 'Applied For',
+			title: 'Requested For',
 			dataIndex: 'appliedFor',
 			key: 'appliedFor',
 		},
-
+		{
+			title: 'Requested On',
+			dataIndex: 'createdOn',
+			key: 'createdOn',
+		},
 		{
 			title: 'Action',
 			key: 'action',
