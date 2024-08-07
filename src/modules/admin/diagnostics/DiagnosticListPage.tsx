@@ -86,7 +86,7 @@ export const DiagnosticListPage = () => {
 			key: 'labs',
 			render: (record) => (
 				<div>
-					{record.map((lab) => (
+					{record.map((lab: string) => (
 						<div className="capitalize">{Labs[lab]}</div>
 					))}
 				</div>
@@ -109,7 +109,7 @@ export const DiagnosticListPage = () => {
 			key: 'visits',
 			render: (record) => (
 				<div>
-					{record.map((visit) => (
+					{record.map((visit: string) => (
 						<div className="capitalize">{visit} Visit</div>
 					))}
 				</div>
