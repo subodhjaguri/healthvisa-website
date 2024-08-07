@@ -25,6 +25,7 @@ interface DataType {
 	Amount: string;
 	visit: string;
 	id: string;
+	tests: string;
 }
 
 const {Option} = Select;
@@ -220,6 +221,7 @@ export const LabAppointmentsPage = () => {
 						dataSource={appointmentsArray}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 						expandable={{
+							// eslint-disable-next-line react/no-unstable-nested-components
 							expandedRowRender: (record) => (
 								<div className="flex gap-3 ml-10">
 									<p className="font-semibold ">Tests selected</p>
