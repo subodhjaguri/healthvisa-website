@@ -148,7 +148,8 @@ export const OrderListPage = () => {
 						defaultValue={Status}
 						// value={Status}
 						onChange={(value) => UpdateStatus(id, value)}
-						style={{width: 180}}>
+						style={{width: 180}}
+					>
 						<Option value="placed">
 							<Tag color="blue">Placed</Tag>
 						</Option>

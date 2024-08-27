@@ -182,7 +182,8 @@ export const NewMembersListPage = () => {
 								color: '#1990FF',
 								border: '1px solid #1990FF',
 								padding: '0 10px',
-							}}>
+							}}
+						>
 							Allow Access
 						</Button>
 					)}
@@ -199,7 +200,8 @@ export const NewMembersListPage = () => {
 					bordered={false}
 					defaultValue={status}
 					onChange={(value) => UpdateStatus(id, value)}
-					style={{width: 140}}>
+					style={{width: 140}}
+				>
 					<Option value="active">
 						<Tag color="blue">Active</Tag>
 					</Option>
