@@ -126,7 +126,8 @@ export const ProductListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Edit
 					</Button>
 					<Button
@@ -138,7 +139,8 @@ export const ProductListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Delete
 					</Button>
 				</Space>
@@ -153,7 +155,8 @@ export const ProductListPage = () => {
 				<Button
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/products/create')}>
+					onClick={() => router.push('/admin/products/create')}
+				>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">

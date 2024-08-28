@@ -135,7 +135,8 @@ export const DiagnosticListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Edit
 					</Button>
 					<Button
@@ -148,7 +149,8 @@ export const DiagnosticListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Delete
 					</Button>
 				</Space>

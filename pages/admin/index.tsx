@@ -30,22 +30,21 @@ const login = () => {
 					name="basic"
 					initialValues={{remember: true}}
 					onFinish={onFinish}
-					autoComplete="off">
+					autoComplete="off"
+				>
 					<Form.Item
 						label="Email"
 						name="email"
-						rules={[
-							{required: true, message: 'Please input your username!'},
-						]}>
+						rules={[{required: true, message: 'Please input your username!'}]}
+					>
 						<Input />
 					</Form.Item>
 
 					<Form.Item
 						label="Password"
 						name="password"
-						rules={[
-							{required: true, message: 'Please input your password!'},
-						]}>
+						rules={[{required: true, message: 'Please input your password!'}]}
+					>
 						<Input.Password />
 					</Form.Item>
 
@@ -55,7 +54,8 @@ const login = () => {
 							// disabled={loginAccount.isLoading}
 							style={{width: '100%'}}
 							type="primary"
-							htmlType="submit">
+							htmlType="submit"
+						>
 							Login
 						</Button>
 					</div>

@@ -68,8 +68,8 @@ export const UserListPage = () => {
 
 	const columns: ColumnsType<DataType> = [
 		{
-			title: 'Sr. No.',
-			dataIndex: 'index',
+			title: 'Unique ID',
+			dataIndex: 'uniqueId',
 			key: 'index',
 		},
 		{
@@ -82,6 +82,16 @@ export const UserListPage = () => {
 			title: 'Mobile Number',
 			dataIndex: 'mobileNumber',
 			key: 'mobileNumber',
+		},
+		{
+			title: 'EHR',
+			dataIndex: 'ehr',
+			key: 'ehr',
+			render: (_, {isEHR}) => {
+				const color = isEHR === false ? 'volcano' : 'green';
+
+				return <Tag color={color}>{isEHR === true ? 'Active' : 'Inactive'}</Tag>;
+			},
 		},
 		{
 			title: 'Status',
@@ -99,6 +109,21 @@ export const UserListPage = () => {
 			key: 'createdOn',
 		},
 		{
+			title: 'Expiry Date',
+			dataIndex: 'expiryDate',
+			key: 'expiryDate',
+		},
+		{
+			title: 'Membership',
+			dataIndex: 'membership',
+			key: 'membership',
+		},
+		{
+			title: 'Note',
+			dataIndex: 'note',
+			key: 'note',
+		},
+		{
 			title: 'Action',
 			key: 'action',
 			render: (text, record) => (
@@ -112,7 +137,8 @@ export const UserListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Edit
 					</Button>
 
@@ -125,7 +151,8 @@ export const UserListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase">
+						className="uppercase"
+					>
 						Delete
 					</Button>
 				</Space>
@@ -142,7 +169,8 @@ export const UserListPage = () => {
 				<Button
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/users/create')}>
+					onClick={() => router.push('/admin/users/create')}
+				>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">

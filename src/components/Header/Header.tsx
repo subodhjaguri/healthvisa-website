@@ -32,12 +32,14 @@ export const Header = () => {
 							<Menu.Item
 								onClick={logoutHandler}
 								key="five"
-								icon={<ExportOutlined />}>
+								icon={<ExportOutlined />}
+							>
 								Logout
 							</Menu.Item>
 						</Menu>
 					}
-					trigger="click">
+					trigger="click"
+				>
 					<li className="flex flex-row justify-between items-center list-none text-black">
 						<Avatar src="https://joeschmoe.io/api/v1/random" />
 						<span className="text-base mx-2 cursor-pointer hover:text-blue-500">
