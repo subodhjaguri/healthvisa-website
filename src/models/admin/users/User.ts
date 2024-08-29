@@ -13,7 +13,7 @@ export interface IUserNew {
 	mobileNumber: string;
 	name: string;
 	userName: string;
-	metadata: object;
+	metadata: any;
 	isActive: boolean;
 	createdAt: Date;
 	updatedAt: Date;
