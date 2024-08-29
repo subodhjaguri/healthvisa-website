@@ -19,12 +19,13 @@ interface DataType {
 	status: boolean;
 	createdOn: string;
 	isEHR: boolean;
+	isMembership: boolean;
 }
 
 export const UserListPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const deleteUser = useDeleteUser();
-	const [isEHR, setIsEHR] = useState(false);
+	const [isEHRChecked, setIsEHR] = useState(false);
 	const handleDelete = async (id: string) => {
 		deleteUser.mutate(
 			{id},
@@ -63,6 +64,8 @@ export const UserListPage = () => {
 					status: user?.isActive,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
 					isEHR: user.isEHR,
+					isMembership: user?.metadata?.membershipDetail?.length > 0,
+					uniqueId: `HF-${user.uniqueId}`,
 			  }))
 			: [];
 
@@ -109,20 +112,30 @@ export const UserListPage = () => {
 			key: 'createdOn',
 		},
 		{
-			title: 'Expiry Date',
-			dataIndex: 'expiryDate',
-			key: 'expiryDate',
-		},
-		{
 			title: 'Membership',
-			dataIndex: 'membership',
-			key: 'membership',
+			dataIndex: 'isMembership',
+			key: 'isMembership',
+			render: (_, {isMembership}) => {
+				const color = isMembership === false ? 'volcano' : 'green';
+
+				return (
+					<Tag color={color}>
+						{isMembership === true ? 'Active' : 'Inactive'}
+					</Tag>
+				);
+			},
 		},
-		{
-			title: 'Note',
-			dataIndex: 'note',
-			key: 'note',
-		},
+		// {
+		// 	title: 'Expiry Date',
+		// 	dataIndex: 'expiryDate',
+		// 	key: 'expiryDate',
+		// },
+
+		// {
+		// 	title: 'Note',
+		// 	dataIndex: 'note',
+		// 	key: 'note',
+		// },
 		{
 			title: 'Action',
 			key: 'action',
@@ -137,8 +150,7 @@ export const UserListPage = () => {
 							border: '1px solid #1990FF',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Edit
 					</Button>
 
@@ -151,8 +163,7 @@ export const UserListPage = () => {
 							border: '1px solid red',
 							padding: '0 10px',
 						}}
-						className="uppercase"
-					>
+						className="uppercase">
 						Delete
 					</Button>
 				</Space>
@@ -169,8 +180,7 @@ export const UserListPage = () => {
 				<Button
 					type="primary"
 					className="self-end mb-2"
-					onClick={() => router.push('/admin/users/create')}
-				>
+					onClick={() => router.push('/admin/users/create')}>
 					Add New
 				</Button>
 				<Button type="primary" className="self-end mb-2 w-[90px]">
@@ -190,7 +200,9 @@ export const UserListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={
-							isEHR ? userArray.filter((user) => user.isEHR) : userArray
+							isEHRChecked
+								? userArray.filter((user) => user.isEHR)
+								: userArray
 						}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>

@@ -1,13 +1,9 @@
 import {Layout} from '@healthvisa/components';
-
-import {Button, message, Select, Skeleton, Space, Table, Tag} from 'antd';
+import {Button, message, Select, Skeleton, Table, Tag, Modal, Input} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
-
-import React from 'react';
+import React, {useState} from 'react';
 import {useUser} from '@healthvisa/models/admin/users/useUser';
-
 import moment from 'moment';
-
 import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
 import {
@@ -26,13 +22,21 @@ interface DataType {
 	visit: string;
 	id: string;
 	tests: string;
+	note: string;
+	metadata: any;
 }
 
 const {Option} = Select;
+const {TextArea} = Input;
+
 export const LabAppointmentsPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const {data: DiagnosticItems} = useDiagnosticItems();
-	const {isLoading: loading, data} = useGetLabAppointments();
+	const {isLoading: loading, data, refetch} = useGetLabAppointments();
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [note, setNote] = useState('');
+	const [currentAppointment, setCurrentAppointment] = useState<DataType>();
+
 	const labs = [
 		{
 			name: 'The Lab Plus, Diagnostic and healthcare',
@@ -65,7 +69,6 @@ export const LabAppointmentsPage = () => {
 			availability: '24 hours',
 		},
 	];
-
 	const updateLabAppointment = useUpdateLabAppointment();
 	const UpdateStatus = async (id: string, status: string) => {
 		const body: LabAppointmentUpdateRequestParams = {
@@ -106,8 +109,43 @@ export const LabAppointmentsPage = () => {
 					tests: appointment?.metadata?.tests
 						? appointment?.metadata?.tests.join(', ')
 						: '',
+					note: appointment.metadata?.note || '',
+					metadata: appointment.metadata,
 			  }))
 			: [];
+
+	const showModal = (record: DataType) => {
+		setIsModalVisible(true);
+		setNote(record.note);
+		setCurrentAppointment(record);
+	};
+
+	const handleOk = async () => {
+		if (currentAppointment) {
+			const body: LabAppointmentUpdateRequestParams = {
+				id: currentAppointment.id,
+				metadata: {
+					...currentAppointment.metadata,
+					note,
+				},
+			};
+
+			updateLabAppointment.mutate(body, {
+				onSuccess: (res) => {
+					message.success('Note Updated Successfully');
+					refetch();
+					setIsModalVisible(false);
+				},
+				onError: (errors: any) => {
+					message.error(errors?.errors.data.message);
+				},
+			});
+		}
+	};
+
+	const handleCancel = () => {
+		setIsModalVisible(false);
+	};
 
 	const columns: ColumnsType<DataType> = [
 		{
@@ -115,7 +153,6 @@ export const LabAppointmentsPage = () => {
 			dataIndex: 'User',
 			key: 'user',
 		},
-
 		{
 			title: 'Mobile',
 			dataIndex: 'Mobile',
@@ -145,43 +182,36 @@ export const LabAppointmentsPage = () => {
 			dataIndex: 'test',
 			key: 'test',
 		},
-		// {
-		// 	title: 'Test',
-		// 	dataIndex: 'tests',
-		// 	key: 'tests',
-		// 	render: (tests) => (
-		// 		<div className="font-semibold capitalize">
-		// 			{tests.map((test) => (
-		// 				<div>{test}</div>
-		// 			))}
-		// 		</div>
-		// 	),
-		// },
 		{
 			title: 'Amount',
 			dataIndex: 'Amount',
 			key: 'amount',
 			render: (amount) => <span className="font-bold">{amount}</span>,
 		},
-
 		{
 			title: 'Booked On',
 			dataIndex: 'CreatedOn',
 			key: 'createdOn',
 		},
 		{
+			title: 'Note',
+			key: 'note',
+			render: (_, record) => (
+				<Button type="link" onClick={() => showModal(record)}>
+					View/Edit
+				</Button>
+			),
+		},
+		{
 			title: 'Status',
 			key: 'status',
 			dataIndex: 'Status',
-			// eslint-disable-next-line camelcase
 			render: (_, {Status, id}) => (
 				<Select
 					bordered={false}
 					defaultValue={Status}
-					// value={Status}
 					onChange={(value) => UpdateStatus(id, value)}
-					style={{width: 180}}
-				>
+					style={{width: 180}}>
 					<Option value="placed">
 						<Tag color="blue">Placed</Tag>
 					</Option>
@@ -207,8 +237,7 @@ export const LabAppointmentsPage = () => {
 					<CSVLink
 						data={appointmentsArray}
 						filename="OrderList"
-						target="_blank"
-					>
+						target="_blank">
 						Export
 					</CSVLink>
 				</Button>
@@ -217,13 +246,12 @@ export const LabAppointmentsPage = () => {
 				) : (
 					<Table
 						size="middle"
-						rowKey={(obj) => obj.Mobile}
+						rowKey={(obj) => obj.id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={appointmentsArray}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 						expandable={{
-							// eslint-disable-next-line react/no-unstable-nested-components
 							expandedRowRender: (record) => (
 								<div className="flex gap-3 ml-10">
 									<p className="font-semibold ">Tests selected</p>
@@ -235,6 +263,22 @@ export const LabAppointmentsPage = () => {
 						}}
 					/>
 				)}
+
+				{/* Note Modal */}
+				<Modal
+					centered
+					title="View/Edit Note"
+					visible={isModalVisible}
+					onOk={handleOk}
+					onCancel={handleCancel}
+					okText="Save">
+					<TextArea
+						rows={6}
+						value={note}
+						onChange={(e) => setNote(e.target.value)}
+						placeholder="Write your note here..."
+					/>
+				</Modal>
 			</div>
 		</Layout>
 	);

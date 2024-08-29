@@ -18,6 +18,7 @@ export interface IUserNew {
 	createdAt: Date;
 	updatedAt: Date;
 	isEHR: boolean;
+	uniqueId: number;
 }
 
 export type GetUserResponse = IUserNew[];

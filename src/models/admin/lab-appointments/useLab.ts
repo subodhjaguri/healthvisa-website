@@ -15,7 +15,7 @@ import {
 	GetLabAppointmentResponse,
 	getLabAppointments,
 	LabAppointmentUpdateRequestParams,
-	updateLabAppointmet,
+	updateLabAppointment,
 } from './Lab';
 
 export function useGetLabAppointments(
@@ -74,7 +74,7 @@ export function useUpdateLabAppointment(
 ): UseMutationResult<any, XHRErrorResponse, LabAppointmentUpdateRequestParams> {
 	const queryClient = useQueryClient();
 	return useMutation(
-		(reqParams: LabAppointmentUpdateRequestParams) => updateLabAppointmet(reqParams),
+		(reqParams: LabAppointmentUpdateRequestParams) => updateLabAppointment(reqParams),
 		{
 			mutationKey: [LabKeys.UpdateLabAppointments],
 			retry: 2, // Try at least Thrice before giving up

@@ -76,17 +76,23 @@ export function getDiagnosticItems(): Promise<GetDiagnosticItemResponse> {
 // Update Lab appointment status
 export interface LabAppointmentUpdateRequestParams {
 	id: string;
-	status: string;
+	status?: string;
+	metadata?: any;
 }
-export function updateLabAppointmet({
+
+export function updateLabAppointment({
 	...requestBody
 }: LabAppointmentUpdateRequestParams): Promise<any> {
-	const {id, status} = requestBody;
-	const data: Record<string, Primitive> = {
+	const {id, status, metadata} = requestBody;
+
+	// Use Record<string, unknown> or explicitly define the types for the data object
+	const data: Record<string, unknown> = {
 		id,
 		status,
+		metadata,
 	};
-	return ajaxPatch<Record<string, Primitive>, any>({
+
+	return ajaxPatch<Record<string, unknown>, any>({
 		data,
 		url: `${getApiUrl(Service, LabAPI.UpdateLabAppointments)}/${id}`,
 	});
