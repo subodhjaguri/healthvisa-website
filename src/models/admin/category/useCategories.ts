@@ -17,11 +17,13 @@ import {
 	deleteCategory,
 	getCategories,
 	getCategoriesByTags,
+	getCategoriesCount,
 	GetCategoriesResponse,
 	getCategoryById,
 	GetCategoryByIdRequestParams,
 	GetCategoryByIdResponse,
 	GetCategoryRequestParams,
+	GetCountResponse,
 	ICategoryNew,
 	updateCategoryWithImage,
 	updateCategoryWithoutImage,
@@ -190,4 +192,25 @@ export function useUpdateCategoryWithoutImage(
 			},
 		},
 	);
+}
+
+// /**
+//  * Categories react-query wrapper
+//  */
+export function useCategoriesCount(
+	queryOptions?: Partial<
+		Omit<
+			UseQueryOptions<
+				GetCountResponse,
+				XHRErrorResponse,
+				GetCountResponse,
+				[CategoriesKeys.GetCategoriesCount]
+			>,
+			'queryKey' | 'queryFn'
+		>
+	>,
+): UseQueryResult<GetCountResponse, XHRErrorResponse> {
+	return useQuery([CategoriesKeys.GetCategoriesCount], () => getCategoriesCount(), {
+		...queryOptions,
+	});
 }

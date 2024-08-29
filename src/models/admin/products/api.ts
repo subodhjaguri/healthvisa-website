@@ -10,6 +10,7 @@ export enum ProductKeys {
 	DeleteProduct = 'deleteProduct',
 	UpdateProductWithImage = 'updateProduct',
 	UpdateProductWithoutImage = 'updateWithoutImage',
+	GetProductCount = 'productcount',
 }
 
 /**
@@ -17,6 +18,7 @@ export enum ProductKeys {
  */
 export enum ProductAPI {
 	GetProduct = '/products',
+	GetProductCount = '/products/count',
 	ProductById = '/products',
 	AddProduct = '/product/upload/Product%2F',
 	DeleteProduct = '/products',

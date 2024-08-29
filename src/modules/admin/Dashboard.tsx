@@ -9,10 +9,15 @@ import {MdMedicalServices} from 'react-icons/md';
 import {GiMedicines} from 'react-icons/gi';
 import {RiVipCrown2Fill, RiAdminFill} from 'react-icons/ri';
 import {useRouter} from 'next/router';
+import {useCategoriesCount} from '@healthvisa/models/admin/category/useCategories';
+import {useProductCount} from '@healthvisa/models/admin/products/useProduct';
+import {useUser} from '@healthvisa/models/admin/users/useUser';
 
 export const Dashboard = () => {
-	// const {isLoading, data} = useDashboardData();
-	console.log('dashboard');
+	const {data} = useCategoriesCount();
+	const {data: products} = useProductCount();
+	const {data: userList} = useUser();
+
 	const router = useRouter();
 	return (
 		<Layout>
@@ -35,26 +40,45 @@ export const Dashboard = () => {
 						</div>
 						<div
 							onClick={() => router.push('/admin/users')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#465CA8] rounded-lg"
-						>
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#465CA8] rounded-lg">
 							<FaUsers className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									5
+									{userList?.length || 0}
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Users
 								</span>
 							</div>
 						</div>
-						<div className="w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#E5095A] rounded-lg">
+						<div
+							onClick={() => router.push('/admin/users')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#E5095A] rounded-lg">
 							<RiVipCrown2Fill className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									4
+									{
+										userList?.filter(
+											(user) =>
+												user.metadata?.membershipDetail?.length,
+										).length
+									}
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Members
+								</span>
+							</div>
+						</div>
+						<div
+							onClick={() => router.push('/admin/users')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#aa2ca2] rounded-lg">
+							<MdMedicalServices className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									{userList?.filter((user) => user.isEHR).length}
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									EHR Users
 								</span>
 							</div>
 						</div>
@@ -70,8 +94,7 @@ export const Dashboard = () => {
 					<div className="flex p-5 flex-wrap justify-start">
 						<div
 							// onClick={() => router.push('/admin/categories')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg"
-						>
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg">
 							<BiCategoryAlt className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
@@ -84,12 +107,11 @@ export const Dashboard = () => {
 						</div>
 						<div
 							onClick={() => router.push('/admin/categories')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg"
-						>
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg">
 							<MdMedicalServices className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									21
+									{data?.count || 0}
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Services
@@ -98,8 +120,7 @@ export const Dashboard = () => {
 						</div>
 						<div
 							onClick={() => router.push('/admin/diagnostics')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg"
-						>
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
 							<GiMedicines className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
@@ -120,23 +141,21 @@ export const Dashboard = () => {
 				) : (
 					<div className="flex p-5 flex-wrap justify-start items-center">
 						<div
-							// onClick={() => router.push('/admin/categories')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg"
-						>
+							onClick={() => router.push('/admin/products')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#93C841] rounded-lg">
 							<BiCategoryAlt className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									6
+									{products?.count || 0}
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Doctor Consultaion
 								</span>
 							</div>
 						</div>
-						<div
+						{/* <div
 							onClick={() => router.push('/admin/categories')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#aa2ca2] rounded-lg"
-						>
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#aa2ca2] rounded-lg">
 							<MdMedicalServices className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
@@ -146,15 +165,14 @@ export const Dashboard = () => {
 									Diagnostics Services
 								</span>
 							</div>
-						</div>
+						</div> */}
 						<div
-							onClick={() => router.push('/admin/diagnostics')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#0f39d2] rounded-lg"
-						>
+							// onClick={() => router.push('/admin/diagnostics')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#0f39d2] rounded-lg">
 							<GiMedicines className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									9
+									3
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Wellness Services
@@ -162,13 +180,12 @@ export const Dashboard = () => {
 							</div>
 						</div>
 						<div
-							onClick={() => router.push('/admin/diagnostics')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#e5cf08] rounded-lg"
-						>
+							// onClick={() => router.push('/admin/diagnostics')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#e5cf08] rounded-lg">
 							<GiMedicines className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
 								<span className=" text-right  text-white text-4xl font-bold">
-									9
+									2
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Other Services

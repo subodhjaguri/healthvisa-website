@@ -189,3 +189,16 @@ export function updateProductWithImage(reqBody: ProductUpdateRequestParams) {
 		},
 	});
 }
+
+export type GetCountResponse = {
+	count: number;
+};
+
+/**
+ * Get all products count
+ */
+export function getProductsCount(): Promise<GetCountResponse> {
+	return ajaxGet<GetCountResponse>({
+		url: getApiUrl(Service, ProductAPI.GetProductCount),
+	});
+}

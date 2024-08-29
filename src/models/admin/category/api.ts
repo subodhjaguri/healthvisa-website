@@ -10,6 +10,7 @@ export enum CategoriesKeys {
 	DeleteCategory = 'deleteCategory',
 	UpdateCategoryWithImage = 'updateCategory',
 	UpdateCategoryWithoutImage = 'updateWithoutImage',
+	GetCategoriesCount = '/categories/count',
 }
 
 /**
@@ -22,6 +23,7 @@ export enum CategoriesAPI {
 	DeleteCategory = '/categories',
 	UpdateCategoryWithImage = '/category/update/Category%2F',
 	UpdateCategoryWithoutImage = '/category/update/Category%2F',
+	GetCategoriesCount = '/categories/count',
 }
 
 export const Service: Services = 'product';

@@ -137,3 +137,16 @@ export function updateCategoryWithImage(reqBody: CategoryUpdateRequestParams) {
 		},
 	});
 }
+
+export type GetCountResponse = {
+	count: number;
+};
+
+/**
+ * Get all getCategories count
+ */
+export function getCategoriesCount(): Promise<GetCountResponse> {
+	return ajaxGet<GetCountResponse>({
+		url: getApiUrl(Service, CategoriesAPI.GetCategoriesCount),
+	});
+}

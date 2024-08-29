@@ -12,6 +12,7 @@ import {XHRErrorResponse} from '@healthvisa/utils';
 import {
 	addProduct,
 	deleteProduct,
+	GetCountResponse,
 	getProduct,
 	getProductByCategory,
 	getProductById,
@@ -19,6 +20,7 @@ import {
 	GetProductByIdResponse,
 	GetProductRequestParams,
 	GetProductResponse,
+	getProductsCount,
 	IProductNew,
 	ProductDeleteRequestParams,
 	ProductUpdateRequestParams,
@@ -199,4 +201,25 @@ export function useUpdateProductWithoutImage(
 			},
 		},
 	);
+}
+
+// /**
+//  * Categories react-query wrapper
+//  */
+export function useProductCount(
+	queryOptions?: Partial<
+		Omit<
+			UseQueryOptions<
+				GetCountResponse,
+				XHRErrorResponse,
+				GetCountResponse,
+				[ProductKeys.GetProductCount]
+			>,
+			'queryKey' | 'queryFn'
+		>
+	>,
+): UseQueryResult<GetCountResponse, XHRErrorResponse> {
+	return useQuery([ProductKeys.GetProductCount], () => getProductsCount(), {
+		...queryOptions,
+	});
 }
