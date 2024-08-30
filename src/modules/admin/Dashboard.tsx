@@ -105,7 +105,7 @@ export const Dashboard = () => {
 								</span>
 							</div>
 						</div>
-						<div
+						{/* <div
 							onClick={() => router.push('/admin/categories')}
 							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#2CAA4E] rounded-lg">
 							<MdMedicalServices className="text-white" size={30} />
@@ -117,20 +117,7 @@ export const Dashboard = () => {
 									Services
 								</span>
 							</div>
-						</div>
-						<div
-							onClick={() => router.push('/admin/diagnostics')}
-							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
-							<GiMedicines className="text-white" size={30} />
-							<div className="flex flex-col justify-center">
-								<span className=" text-right  text-white text-4xl font-bold">
-									9
-								</span>
-								<span className=" text-right  text-white text-xs uppercase opacity-70">
-									Diagnostics
-								</span>
-							</div>
-						</div>
+						</div> */}
 					</div>
 				)}
 			</div>
@@ -150,6 +137,19 @@ export const Dashboard = () => {
 								</span>
 								<span className=" text-right  text-white text-xs uppercase opacity-70">
 									Doctor Consultaion
+								</span>
+							</div>
+						</div>
+						<div
+							onClick={() => router.push('/admin/diagnostics')}
+							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#999999] rounded-lg">
+							<GiMedicines className="text-white" size={30} />
+							<div className="flex flex-col justify-center">
+								<span className=" text-right  text-white text-4xl font-bold">
+									9
+								</span>
+								<span className=" text-right  text-white text-xs uppercase opacity-70">
+									Diagnostics
 								</span>
 							</div>
 						</div>
