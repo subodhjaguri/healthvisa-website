@@ -80,6 +80,21 @@ export const UserListPage = () => {
 			dataIndex: 'name',
 			key: 'name',
 		},
+		{
+			title: 'Age',
+			dataIndex: 'age',
+			key: 'age',
+		},
+		{
+			title: 'Gender',
+			dataIndex: 'gender',
+			key: 'gender',
+		},
+		{
+			title: 'Address',
+			dataIndex: 'address',
+			key: 'address',
+		},
 
 		{
 			title: 'Mobile Number',
@@ -112,6 +127,11 @@ export const UserListPage = () => {
 			key: 'createdOn',
 		},
 		{
+			title: 'Expiry Date',
+			dataIndex: 'expiry date',
+			key: 'expiry date',
+		},
+		{
 			title: 'Membership',
 			dataIndex: 'isMembership',
 			key: 'isMembership',
@@ -124,6 +144,11 @@ export const UserListPage = () => {
 					</Tag>
 				);
 			},
+		},
+		{
+			title: 'Membership ID',
+			dataIndex: 'membershipId',
+			key: 'membershipId',
 		},
 		// {
 		// 	title: 'Expiry Date',

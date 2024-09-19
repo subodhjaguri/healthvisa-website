@@ -56,6 +56,8 @@ export const DrawerComponent = () => {
 			getItem('Services', '/admin/categories', <BiCategoryAlt />),
 			getItem('Doctors', '/admin/products', <GiMedicines />),
 			getItem('Diagnostics', '/admin/diagnostics', <GiMedicines />),
+			getItem('Wellnes Services', '/admin/wellness-services', <GiMedicines />),
+			getItem('Other Services', '/admin/other-services', <GiMedicines />),
 		]),
 
 		getItem(<p className="p-0 m-0 w-[188px]">Peoples</p>, 'peoples', <MdPeople />, [

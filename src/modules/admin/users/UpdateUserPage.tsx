@@ -3,6 +3,7 @@ import {UserUpdateRequestParams} from '@healthvisa/models/admin/users/User';
 import {useUpdateUser, useUserById} from '@healthvisa/models/admin/users/useUser';
 import {Button, Checkbox, Form, Input, message, Select, Skeleton} from 'antd';
 import type {CheckboxChangeEvent} from 'antd/es/checkbox';
+import TextArea from 'antd/lib/input/TextArea';
 
 import {useRouter} from 'next/router';
 import React, {useEffect, useState} from 'react';
@@ -22,23 +23,24 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 		}
 	}, [data]);
 	const onFinish = async (values: any) => {
-		const body: UserUpdateRequestParams = {
-			id: ID,
-			mobileNumber: values.mobileNo,
-			name: values.name,
-			userName: values.userName,
-			metadata: {membershipDetail: []},
-			isActive: values.status,
-		};
-		updateUser.mutate(body, {
-			onSuccess: (res) => {
-				message.success('User Updated Successfully');
-				router.push('/admin/users');
-			},
-			onError: (errors: any) => {
-				message.error(errors?.errors.data.message);
-			},
-		});
+		console.log(values);
+		// const body: UserUpdateRequestParams = {
+		// 	id: ID,
+		// 	mobileNumber: values.mobileNo,
+		// 	name: values.name,
+		// 	userName: values.userName,
+		// 	metadata: {membershipDetail: []},
+		// 	isActive: values.status,
+		// };
+		// updateUser.mutate(body, {
+		// 	onSuccess: (res) => {
+		// 		message.success('User Updated Successfully');
+		// 		router.push('/admin/users');
+		// 	},
+		// 	onError: (errors: any) => {
+		// 		message.error(errors?.errors.data.message);
+		// 	},
+		//});
 	};
 	const onChange = (e: CheckboxChangeEvent) => {
 		setStatus(e.target.checked);
@@ -59,8 +61,7 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 									color: 'black',
 								}}
 								className="w-24"
-								type="primary"
-							>
+								type="primary">
 								Back
 							</Button>
 						</div>
@@ -72,8 +73,7 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 								className="w-full"
 								initialValues={{remember: true}}
 								onFinish={onFinish}
-								autoComplete="off"
-							>
+								autoComplete="off">
 								<div className="flex justify-between flex-wrap w-full">
 									<Form.Item
 										label="Name"
@@ -85,9 +85,8 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 												required: true,
 												message: 'Please enter your Name',
 											},
-										]}
-									>
-										<Input placeholder="Enter your Name" />
+										]}>
+										<Input placeholder="Enter Name" />
 									</Form.Item>
 									<Form.Item
 										label="User Name"
@@ -99,11 +98,89 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 												required: true,
 												message: 'Please enter your User Name',
 											},
-										]}
-									>
-										<Input placeholder="Enter your User Name" />
+										]}>
+										<Input placeholder="Enter User Name" />
 									</Form.Item>
 								</div>
+
+								<div className="flex justify-between flex-wrap w-full">
+									<Form.Item
+										label="Age"
+										name="age"
+										className="w-[49%]"
+										rules={[
+											{
+												message: 'Please Enter your Age',
+											},
+											{
+												type: 'number',
+												min: 0,
+												message: 'Age cannot be negative',
+											},
+										]}>
+										<Input
+											placeholder="Enter Age"
+											type="number"
+											min={0}
+										/>
+									</Form.Item>
+									<Form.Item
+										label="Address"
+										name="address"
+										className="w-[49%]"
+										rules={[
+											{
+												message: 'Please enter your Address',
+											},
+										]}>
+										<TextArea placeholder="Enter Address" rows={2} />
+									</Form.Item>
+								</div>
+								<div className="flex justify-between flex-wrap w-full">
+									<Form.Item
+										label="Gender"
+										name="gender"
+										className="w-[49%]"
+										rules={[
+											{
+												message: 'Please select your Gender',
+											},
+										]}>
+										<Select placeholder="Select your Gender">
+											<Select.Option value="male">
+												Male
+											</Select.Option>
+											<Select.Option value="female">
+												Female
+											</Select.Option>
+											<Select.Option value="other">
+												Other
+											</Select.Option>
+										</Select>
+									</Form.Item>
+									<Form.Item
+										label="Membership"
+										name="membership"
+										className="w-[49%]"
+										rules={[
+											{
+												message:
+													'Please select Membership status',
+											},
+										]}>
+										<Select
+											placeholder="Select Membership Status"
+											defaultValue="false">
+											<Select.Option value="true">
+												Active
+											</Select.Option>
+											<Select.Option value="false">
+												Inactive
+											</Select.Option>
+										</Select>
+									</Form.Item>
+								</div>
+
 								<div className="flex justify-between flex-wrap w-full">
 									<Form.Item
 										label="Mobile Number"
@@ -115,16 +192,14 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 												required: true,
 												message: 'Please enter Mobile number',
 											},
-										]}
-									>
+										]}>
 										<Input placeholder="Enter Mobile number" />
 									</Form.Item>
 									<Form.Item
 										label="Status"
 										className="w-[49%]"
 										name="status"
-										initialValue={data?.isActive}
-									>
+										initialValue={data?.isActive}>
 										<Select
 											style={{width: '100%'}}
 											options={[
@@ -140,22 +215,43 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 										/>
 									</Form.Item>
 								</div>
+								<div className="flex justify-between flex-wrap w-full">
+									<Form.Item
+										label="EHR"
+										name="ehr"
+										className="w-[49%]"
+										rules={[
+											{
+												message: 'Please select EHR status',
+											},
+										]}>
+										<Select
+											placeholder="Select EHR Status"
+											defaultValue="false">
+											<Select.Option value="true">
+												Active
+											</Select.Option>
+											<Select.Option value="false">
+												Inactive
+											</Select.Option>
+										</Select>
+									</Form.Item>
+								</div>
+
 								<div className="flex ">
 									<Button
 										loading={updateUser.isLoading}
 										style={{background: '#198753'}}
 										className="w-24 mr-3"
 										type="primary"
-										htmlType="submit"
-									>
+										htmlType="submit">
 										Update
 									</Button>
 									<Button
 										onClick={() => router.back()}
 										style={{background: '#F8F9FA', color: 'black'}}
 										className="w-24"
-										type="primary"
-									>
+										type="primary">
 										Cancel
 									</Button>
 								</div>

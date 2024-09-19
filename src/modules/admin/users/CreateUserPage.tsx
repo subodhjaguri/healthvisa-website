@@ -5,6 +5,9 @@ import {Button, Checkbox, Form, Input, message} from 'antd';
 import {useRouter} from 'next/router';
 import type {CheckboxChangeEvent} from 'antd/es/checkbox';
 import React, {useState} from 'react';
+import {log} from 'console';
+import {Select} from 'antd';
+import TextArea from 'antd/lib/input/TextArea';
 
 export const CreateUserPage = () => {
 	const router = useRouter();
@@ -13,22 +16,23 @@ export const CreateUserPage = () => {
 	const [status, setStatus] = useState(false);
 
 	const onFinish = (values: any) => {
-		const body: AddUserPostResponse = {
-			mobileNumber: values.mobileNo,
-			name: values.name,
-			userName: values.userName,
-			metadata: {membershipDetail: []},
-			isActive: status,
-		};
-		addUser.mutate(body, {
-			onSuccess: (res) => {
-				message.success('Added Successfully..!');
-				router.push('/admin/users');
-			},
-			onError: (errors: any) => {
-				message.error(errors?.errors.data.message);
-			},
-		});
+		console.log(values);
+		// const body: AddUserPostResponse = {
+		// 	mobileNumber: values.mobileNo,
+		// 	name: values.name,
+		// 	userName: values.userName,
+		// 	metadata: {membershipDetail: []},
+		// 	isActive: status,
+		// };
+		// addUser.mutate(body, {
+		// 	onSuccess: (res) => {
+		// 		message.success('Added Successfully..!');
+		// 		router.push('/admin/users');
+		// 	},
+		// 	onError: (errors: any) => {
+		// 		message.error(errors?.errors.data.message);
+		// 	},
+		// });
 	};
 	const onChange = (e: CheckboxChangeEvent) => {
 		setStatus(e.target.checked);
@@ -45,8 +49,7 @@ export const CreateUserPage = () => {
 							color: 'black',
 						}}
 						className="w-24"
-						type="primary"
-					>
+						type="primary">
 						Back
 					</Button>
 				</div>
@@ -58,8 +61,7 @@ export const CreateUserPage = () => {
 						className="w-full"
 						initialValues={{remember: true}}
 						onFinish={onFinish}
-						autoComplete="off"
-					>
+						autoComplete="off">
 						<div className="flex justify-between flex-wrap w-full">
 							<Form.Item
 								label="Name"
@@ -70,9 +72,8 @@ export const CreateUserPage = () => {
 										required: true,
 										message: 'Please Enter your Name',
 									},
-								]}
-							>
-								<Input placeholder="Enter your Name" />
+								]}>
+								<Input placeholder="Enter Name" />
 							</Form.Item>
 							<Form.Item
 								label="User Name"
@@ -83,11 +84,78 @@ export const CreateUserPage = () => {
 										required: true,
 										message: 'Please enter your User Name',
 									},
-								]}
-							>
-								<Input placeholder="Enter your User Name" />
+								]}>
+								<Input placeholder="Enter User Name" />
 							</Form.Item>
 						</div>
+						<div className="flex justify-between flex-wrap w-full">
+							<Form.Item
+								label="Age"
+								name="age"
+								className="w-[49%]"
+								rules={[
+									{
+										message: 'Please Enter your Age',
+									},
+									{
+										type: 'number',
+										min: 0,
+										message: 'Age cannot be negative',
+									},
+								]}>
+								<Input placeholder="Enter Age" type="number" min={0} />
+							</Form.Item>
+							<Form.Item
+								label="Address"
+								name="address"
+								className="w-[49%]"
+								rules={[
+									{
+										message: 'Please enter your Address',
+									},
+								]}>
+								<TextArea placeholder="Enter Address" rows={2} />
+							</Form.Item>
+						</div>
+						<div className="flex justify-between flex-wrap w-full">
+							<Form.Item
+								label="Gender"
+								name="gender"
+								className="w-[49%]"
+								rules={[
+									{
+										message: 'Please select your Gender',
+									},
+								]}>
+								<Select placeholder="Select Gender">
+									<Select.Option value="male">Male</Select.Option>
+									<Select.Option value="female">Female</Select.Option>
+									<Select.Option value="other">Other</Select.Option>
+								</Select>
+							</Form.Item>
+							<Form.Item
+								label="Membership"
+								name="membership"
+								className="w-[49%]">
+								<Select
+									options={[
+										{
+											value: true,
+											label: 'Active',
+										},
+										{
+											value: false,
+											label: 'In-Active',
+										},
+									]}
+									placeholder="Select Membership Status"
+									defaultValue="false">
+									<Select.Option value="true">Active</Select.Option>
+									<Select.Option value="false">Inactive</Select.Option>
+								</Select>
+							</Form.Item>
+						</div>
+
 						<div className="flex justify-between flex-wrap w-full">
 							<Form.Item
 								label="Mobile Number"
@@ -100,16 +168,35 @@ export const CreateUserPage = () => {
 										required: true,
 										message: 'Please enter valid Mobile Number',
 									},
-								]}
-							>
+								]}>
 								<Input
 									placeholder="Enter Mobile Number (Don't use 91 or +91)"
 									maxLength={10}
-									type="number"
+									type="tel"
 								/>
 							</Form.Item>
 							<Form.Item label="Status" className="w-[49%]" name="status">
 								<Checkbox onChange={onChange}> Active</Checkbox>
+							</Form.Item>
+						</div>
+						<div className="flex justify-between flex-wrap w-full">
+							<Form.Item label="EHR" name="ehr" className="w-[49%]">
+								<Select
+									options={[
+										{
+											value: true,
+											label: 'Active',
+										},
+										{
+											value: false,
+											label: 'In-Active',
+										},
+									]}
+									placeholder="Select EHR Status"
+									defaultValue="false">
+									<Select.Option value="true">Active</Select.Option>
+									<Select.Option value="false">Inactive</Select.Option>
+								</Select>
 							</Form.Item>
 						</div>
 						<div className="flex ">
@@ -118,16 +205,14 @@ export const CreateUserPage = () => {
 								style={{background: '#198753'}}
 								className="w-24 mr-3"
 								type="primary"
-								htmlType="submit"
-							>
+								htmlType="submit">
 								Add
 							</Button>
 							<Button
 								onClick={() => router.back()}
 								style={{background: '#F8F9FA', color: 'black'}}
 								className="w-24"
-								type="primary"
-							>
+								type="primary">
 								Cancel
 							</Button>
 						</div>

@@ -167,7 +167,7 @@ export const Dashboard = () => {
 							</div>
 						</div> */}
 						<div
-							// onClick={() => router.push('/admin/diagnostics')}
+							onClick={() => router.push('/admin/wellness-services')}
 							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#0f39d2] rounded-lg">
 							<GiMedicines className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
@@ -180,7 +180,7 @@ export const Dashboard = () => {
 							</div>
 						</div>
 						<div
-							// onClick={() => router.push('/admin/diagnostics')}
+							onClick={() => router.push('/admin/other-services')}
 							className="cursor-pointer w-56 h-fit p-2 flex items-center justify-between mx-6 mb-6 border bg-[#e5cf08] rounded-lg">
 							<GiMedicines className="text-white" size={30} />
 							<div className="flex flex-col justify-center">
