@@ -174,7 +174,7 @@ export const NewMembersListPage = () => {
 					{['membership', 'EHR'].includes(record.appliedFor) && (
 						<Button
 							loading={allowEHR.isLoading || selectMembership.isLoading}
-							disabled={['completed' || 'rejected'].includes(record.status)}
+							disabled={['completed', 'rejected'].includes(record.status)}
 							size="small"
 							onClick={() => allowAccess(record.appliedFor, record.userId)}
 							type="default"
@@ -182,8 +182,7 @@ export const NewMembersListPage = () => {
 								color: '#1990FF',
 								border: '1px solid #1990FF',
 								padding: '0 10px',
-							}}
-						>
+							}}>
 							Allow Access
 						</Button>
 					)}
@@ -200,8 +199,7 @@ export const NewMembersListPage = () => {
 					bordered={false}
 					defaultValue={status}
 					onChange={(value) => UpdateStatus(id, value)}
-					style={{width: 140}}
-				>
+					style={{width: 140}}>
 					<Option value="active">
 						<Tag color="blue">Active</Tag>
 					</Option>
