@@ -1,0 +1,28 @@
+{
+	"folders": [
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/classes"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/css"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/database"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/fonts"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/images"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/js"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/sql"
+		},
+		{
+			"path": "E:/xampp/htdocs/EventManagementSystems/utils"
+		}
+	]
+}

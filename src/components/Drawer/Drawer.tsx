@@ -17,7 +17,6 @@ import Link from 'next/link';
 import {getActiveRoute, getCurrentRoute} from '@healthvisa/utils/common/DrawerState';
 import {BiCategoryAlt} from 'react-icons/bi';
 import {GiMedicines} from 'react-icons/gi';
-import Image from 'next/image';
 
 export const DrawerComponent = () => {
 	const router = useRouter();
@@ -74,11 +73,12 @@ export const DrawerComponent = () => {
 				<Link href="/admin/dashboard">
 					{/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
 					<a className="pt-[6px]">
-						<Image
+						{/* eslint-disable-next-line jsx-a11y/alt-text */}
+						<img
 							src="/logo.png"
 							height={55}
 							width={250}
-							objectFit="contain"
+							className="object-contain"
 						/>
 					</a>
 				</Link>
