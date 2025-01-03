@@ -173,7 +173,7 @@ export const NewMembersListPage = () => {
 				<Space size="middle">
 					{['membership', 'EHR'].includes(record.appliedFor) && (
 						<Button
-							loading={allowEHR.isLoading || selectMembership.isLoading}
+							// loading={allowEHR.isLoading || selectMembership.isLoading}
 							disabled={['completed', 'rejected'].includes(record.status)}
 							size="small"
 							onClick={() => allowAccess(record.appliedFor, record.userId)}
