@@ -740,6 +740,55 @@ const PrivacyPolicyPage = () => {
 				</p>
 			</div>
 			<div>
+				<h2 className="text-lg font-bold"> 9. Delete Account</h2>
+				<p>
+					If you wish to delete your account from our application, you can do so
+					by following these steps:
+				</p>
+				<ol style={{marginLeft: '20px'}}>
+					<li>
+						Open the app and navigate to the <strong>home page</strong>.
+					</li>
+					<li>
+						Tap the <strong>menu icon</strong> in the top header.
+					</li>
+					<li>
+						Select <strong>“Delete My Account”</strong> from the available
+						options.
+					</li>
+					<li>
+						A confirmation message will appear, informing you that this action
+						is <strong>irreversible</strong>.
+					</li>
+					<li>
+						If you confirm by selecting <strong>“Delete”</strong>, your
+						account and all associated data will be permanently deleted from
+						our database.
+					</li>
+				</ol>
+
+				<h3>Important Notes:</h3>
+				<ul>
+					<li>
+						Once deleted, your account <strong>cannot be recovered</strong>.
+					</li>
+					<li>
+						Any personal data linked to your account will be{' '}
+						<strong>permanently erased</strong> in accordance with our data
+						retention policy.
+					</li>
+					<li>
+						If you need assistance with account deletion, you can contact us
+						at <a href="mailto:healthifam@gmail.com">healthifam@gmail.com</a>.
+					</li>
+				</ul>
+
+				<p>
+					By using this feature, you acknowledge that you understand and accept
+					the consequences of permanent account deletion.
+				</p>
+			</div>
+			<div>
 				<h2 className="text-lg font-bold text-center underline">Schedule</h2>
 				<h2 className=" font-bold text-center underline">
 					Indicative List of Information by Nature of Service
