@@ -32,6 +32,7 @@ interface DataType {
 	status: string;
 	id: string;
 	userId: string;
+	metadata?: any;
 }
 
 export const NewMembersListPage = () => {
@@ -84,7 +85,7 @@ export const NewMembersListPage = () => {
 			},
 		});
 	};
-	const allowAccess = async (appliedFor: string, userId: string) => {
+	const allowAccess = async (appliedFor: string, userId: string, metadata:any) => {
 		if (appliedFor === 'EHR') {
 			const body: EHRRequestParams = {
 				id: userId,
@@ -102,7 +103,7 @@ export const NewMembersListPage = () => {
 		if (appliedFor === 'membership') {
 			const body: AddMembershipTransactionRequestParams = {
 				userId,
-				membershipId: '633b0a4e54d6933158b38f27',
+				membershipId: metadata?.membershipId || '633b0a4e54d6933158b38f27',
 				optedAt: new Date(),
 				isActive: true,
 				metadata: {},
@@ -136,6 +137,7 @@ export const NewMembersListPage = () => {
 					id: user.id,
 					userId: user.userId,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
+					metadata: user?.metadata || {},
 			  }))
 			: [];
 
@@ -176,7 +178,13 @@ export const NewMembersListPage = () => {
 							// loading={allowEHR.isLoading || selectMembership.isLoading}
 							disabled={['completed', 'rejected'].includes(record.status)}
 							size="small"
-							onClick={() => allowAccess(record.appliedFor, record.userId)}
+							onClick={() =>
+								allowAccess(
+									record.appliedFor,
+									record.userId,
+									record?.metadata || {},
+								)
+							}
 							type="default"
 							style={{
 								color: '#1990FF',
@@ -186,6 +194,25 @@ export const NewMembersListPage = () => {
 							Allow Access
 						</Button>
 					)}
+					{record.appliedFor === 'order medicine' &&
+						record?.metadata?.document && (
+							<Button
+								size="small"
+								onClick={() =>
+									window.open(
+										`https://hv-documents.s3.ap-south-1.amazonaws.com/${record?.metadata?.document}`,
+										'_blank',
+									)
+								}
+								type="default"
+								style={{
+									color: '#1990FF',
+									border: '1px solid #1990FF',
+									padding: '0 10px',
+								}}>
+								View Prescription
+							</Button>
+						)}
 				</Space>
 			),
 		},

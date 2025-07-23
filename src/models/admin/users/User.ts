@@ -124,6 +124,7 @@ export interface INewMember {
 	status: string;
 	appliedFor: string;
 	createdAt: string;
+	metadata?: any;
 }
 
 export type GetNewMemberResponse = INewMember[];
