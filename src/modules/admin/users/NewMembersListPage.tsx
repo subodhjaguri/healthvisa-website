@@ -244,7 +244,7 @@ export const NewMembersListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h2 className="text-xl font-bold">List of New Members</h2>
+				<h2 className="text-xl font-bold">List of User Requests</h2>
 				{/* <Button
 					type="primary"
 					className="self-end mb-2"
