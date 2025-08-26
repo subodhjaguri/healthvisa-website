@@ -1,7 +1,7 @@
 import {Layout} from '@healthvisa/components';
 import {Button, message, Select, Skeleton, Table, Tag, Modal, Input} from 'antd';
-import { Typography } from 'antd';
-const { Link } = Typography;
+import {Typography} from 'antd';
+const {Link} = Typography;
 import {ColumnsType} from 'antd/lib/table';
 import React, {useState} from 'react';
 import {useUser} from '@healthvisa/models/admin/users/useUser';
@@ -70,6 +70,32 @@ export const LabAppointmentsPage = () => {
 			certificate: '',
 			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/Bhealthcare.png',
 			availability: '24 hours',
+		},
+
+		{
+			id: '687c98fd5180756e429abec1',
+			name: 'Quantum Hitech Imaging & Pathology ',
+			shortAddress: 'Near Payyade Hotel Mira Road 401107',
+			fullAddress:
+				'Atharva Building Opp Deepak Hospital, Near Payyade Hotel Mira Road 401107 ',
+			description:
+				"Quantum Hitech Imaging & pathology Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at Quantum, we're dedicated to providing you with the best possible care for a healthier life.",
+			certificate: '',
+			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/quantumLablogo_square.png',
+			availability: '24 hours',
+		},
+
+		{
+			id: '687c997f5180756e429abec2',
+			name: 'Pratham MRI & CT Centre',
+			shortAddress: 'near reliance energy mira bhayandar, Phatak road',
+			fullAddress:
+				'Shop No 1 & 2 Salsar commerical centre, near reliance energy mira bhayandar, Phatak Road.',
+			description:
+				"Pratham Imaging & pathology Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at Pratham, we're dedicated to providing you with the best possible care for a healthier life.",
+			certificate: '',
+			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/prathamLab.webp',
+			availability: '9am to 10pm',
 		},
 	];
 	const updateLabAppointment = useUpdateLabAppointment();
@@ -174,33 +200,33 @@ export const LabAppointmentsPage = () => {
 			render: (visit) => <span className="font-semibold capitalize">{visit}</span>,
 		},
 		{
-  title: 'Option',
-  dataIndex: 'Option',
-  key: 'option',
-  render: (option, record) => (
-    <>
-      <div className="font-semibold capitalize">{option}</div>
-      {option === 'prescription' && record?.prescription && (
-        // <Button
-        //   size="small"
-        //   onClick={() => window.open(`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`,'_blank')}
-        //   type="link"
-        //   style={{ color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px' }}
-        // >
-        //   View Prescription
-        // </Button>
+			title: 'Option',
+			dataIndex: 'Option',
+			key: 'option',
+			render: (option, record) => (
+				<>
+					<div className="font-semibold capitalize">{option}</div>
+					{option === 'prescription' && record?.prescription && (
+						// <Button
+						//   size="small"
+						//   onClick={() => window.open(`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`,'_blank')}
+						//   type="link"
+						//   style={{ color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px' }}
+						// >
+						//   View Prescription
+						// </Button>
 
-		 <Link
-          href={`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`}
-          target="_blank"
-        //   style={{ marginLeft: 8 }}
-        >
-          View
-        </Link>
-      )}
-    </>
-  ),
-},
+						<Link
+							href={`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`}
+							target="_blank"
+							//   style={{ marginLeft: 8 }}
+						>
+							View
+						</Link>
+					)}
+				</>
+			),
+		},
 		{
 			title: 'Test',
 			dataIndex: 'test',
