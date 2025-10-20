@@ -136,7 +136,9 @@ export const LabAppointmentsPage = () => {
 					id: appointment.id,
 					Option: appointment.optionSelected,
 					tests: appointment?.metadata?.tests
-						? appointment.metadata.tests.map((test) => test.name).join(', ')
+						? appointment?.metadata?.tests
+								.map((test: any) => test?.name)
+								.join(', ')
 						: '',
 					note: appointment.metadata?.note || '',
 					metadata: appointment.metadata,
