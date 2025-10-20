@@ -136,7 +136,7 @@ export const LabAppointmentsPage = () => {
 					id: appointment.id,
 					Option: appointment.optionSelected,
 					tests: appointment?.metadata?.tests
-						? appointment?.metadata?.tests.join(', ')
+						? appointment.metadata.tests.map((test) => test.name).join(', ')
 						: '',
 					note: appointment.metadata?.note || '',
 					metadata: appointment.metadata,
@@ -306,7 +306,7 @@ export const LabAppointmentsPage = () => {
 								<div className="flex gap-3 ml-10">
 									<p className="font-semibold ">Tests selected</p>
 									<div className="capitalize flex gap-2">
-										{record.tests}
+										{record?.tests || ''}
 									</div>
 								</div>
 							),
