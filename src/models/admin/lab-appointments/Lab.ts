@@ -46,6 +46,25 @@ export function getLabAppointments(): Promise<GetLabAppointmentResponse> {
 	});
 }
 
+export interface ILab {
+	id: string;
+	name: string;
+	shortAddress?: string;
+	fullAddress: string;
+	description: string;
+	certificate?: string;
+	image?: string;
+	availability?: string;
+}
+
+export type GetLabsResponse = ILab[];
+
+export function getLabs(): Promise<GetLabsResponse> {
+	return ajaxGet<GetLabsResponse>({
+		url: getApiUrl(Service, LabAPI.GetLabs),
+	});
+}
+
 export type VisitType = 'home' | 'lab' | 'center';
 
 export interface IDiagnosticItem {

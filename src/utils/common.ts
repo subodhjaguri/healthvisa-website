@@ -2,46 +2,33 @@ export type Services = 'authentication' | 'product' | 'card' | 'order';
 
 /**
  * Checks whether the function is being invoked in Server or Client.
- * @returns True if this function is beinvoked in Next Server, False if it is in browser.
+ * @returns True if this function is being invoked in Next Server, False if it is in browser.
  */
 export function isServer() {
 	return typeof window === 'undefined';
 }
 
+// ─── Backend host configuration ───────────────────────────────────────────
+// After backend consolidation, all 4 services live behind ONE base URL.
+// Flip API_TARGET between 'local' and 'aws' depending on where the backend
+// is running. Replace AWS_BASE_URL after `serverless deploy`.
+const API_TARGET: 'local' | 'aws' = 'aws';
+
+// Use 127.0.0.1 (forced IPv4) so this doesn't collide with Next.js dev server
+// when both default to localhost:3000 — the backend listens on IPv4 only.
+const LOCAL_DEV_HOST = 'http://127.0.0.1:3000';
+const AWS_BASE_URL =
+	'https://bs57d6oqyi.execute-api.ap-south-1.amazonaws.com/dev';
+
+const API_BASE_URL = API_TARGET === 'local' ? LOCAL_DEV_HOST : AWS_BASE_URL;
+
 /**
- * Provides with Web Application Entrypoint.
- * @returns Host Address for Web Server.
+ * Backend host URL. After consolidation, every service returns the same URL.
+ * The `service` argument is kept for backward compatibility with callers.
  */
-export function getServerHostUrl(service: Services) {
-	switch (service) {
-		case 'authentication':
-			return 'https://jq3fpv5xg5.execute-api.ap-south-1.amazonaws.com/dev';
-		case 'product':
-			return 'https://yc9tn3t71i.execute-api.ap-south-1.amazonaws.com/dev';
-
-		case 'card':
-			return 'https://g64d6g3v75.execute-api.ap-south-1.amazonaws.com/dev';
-		case 'order':
-			return 'https://74dbzyaatc.execute-api.ap-south-1.amazonaws.com/dev';
-		default:
-			return 'https://jq3fpv5xg5.execute-api.ap-south-1.amazonaws.com/dev';
-	}
+export function getServerHostUrl(_service: Services) {
+	return API_BASE_URL;
 }
-
-// export function getServerHostUrl(service: Services) {
-// 	switch (service) {
-// 		case 'authentication':
-// 			return 'http://192.168.29.167:3001';
-// 		case 'product':
-// 			return 'http://192.168.29.167:3004';
-// 		case 'card':
-// 			return 'http://192.168.29.167:3002';
-// 		case 'order':
-// 			return 'http://192.168.29.167:3003';
-// 		default:
-// 			return 'http://192.168.29.167:3001';
-// 	}
-// }
 
 /**
  * Creates URI based on Application Hosting.

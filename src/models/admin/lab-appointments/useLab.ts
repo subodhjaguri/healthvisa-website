@@ -14,6 +14,8 @@ import {
 	getDiagnosticItems,
 	GetLabAppointmentResponse,
 	getLabAppointments,
+	GetLabsResponse,
+	getLabs,
 	LabAppointmentUpdateRequestParams,
 	updateLabAppointment,
 } from './Lab';
@@ -60,6 +62,26 @@ export function useDiagnosticItems(
 		refetchOnWindowFocus: false, // Frequency of Change would be Low
 		staleTime: 300000, // 5 minutes
 		cacheTime: 3600000, // 1 hour
+		...queryOptions,
+	});
+}
+
+export function useGetLabs(
+	queryOptions?: Partial<
+		Omit<
+			UseQueryOptions<
+				GetLabsResponse,
+				XHRErrorResponse,
+				GetLabsResponse,
+				[LabKeys.GetLabs]
+			>,
+			'queryKey' | 'queryFn'
+		>
+	>,
+): UseQueryResult<GetLabsResponse, XHRErrorResponse> {
+	return useQuery([LabKeys.GetLabs], () => getLabs(), {
+		refetchOnWindowFocus: true,
+		staleTime: 60000, // 1 min — labs rarely change
 		...queryOptions,
 	});
 }

@@ -6,6 +6,7 @@ import {Services} from '@healthvisa/utils';
 export enum LabKeys {
 	GetLabAppointments = 'getLabAppointments',
 	GetDiagnostics = 'getDiagnostics',
+	GetLabs = 'getLabs',
 	UpdateLabAppointments = 'updateLabAppointments',
 }
 
@@ -15,6 +16,7 @@ export enum LabKeys {
 export enum LabAPI {
 	GetLabAppointments = '/lab-appointments',
 	GetDiagnostics = '/diagnostic-items',
+	GetLabs = '/labs',
 	UpdateLabAppointments = '/lab-appointments',
 }
 
