@@ -11,6 +11,7 @@ import {CSVLink} from 'react-csv';
 import {
 	useDiagnosticItems,
 	useGetLabAppointments,
+	useGetLabs,
 	useUpdateLabAppointment,
 } from '@healthvisa/models/admin/lab-appointments/useLab';
 import {LabAppointmentUpdateRequestParams} from '@healthvisa/models/admin/lab-appointments/Lab';
@@ -35,69 +36,11 @@ const {TextArea} = Input;
 export const LabAppointmentsPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const {data: DiagnosticItems} = useDiagnosticItems();
+	const {data: labs = []} = useGetLabs();
 	const {isLoading: loading, data, refetch} = useGetLabAppointments();
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [note, setNote] = useState('');
 	const [currentAppointment, setCurrentAppointment] = useState<DataType>();
-
-	const labs = [
-		{
-			name: 'The Lab Plus, Diagnostic and healthcare',
-			shortAddress: 'Mira Road east,  Thane',
-			fullAddress:
-				'The Lab Plus , Diagnostic and Healthcare,A2-001/002, Ground floor,Prabhakar CHS, Shanti nagar Sector 4,Mira Road east,  Thane - 401107',
-			id: '655226191e32a308b449dbda',
-			description:
-				'The Lab Plus is an NABL Accredited and ISO Certified lab with Specialized Reference Pathology Services run by senior and expert MD Pathologist , Dr Ashish Bhosle. It  is a fast emerging as the credible brand in the area of Diagnostic Health Services. The Lab Plus is driven by the sole objective of providing to its patients,the accuracy of quality reports ensured by qualified & experienced pathologists, radiologists, dentist, speciality doctors. dedicated & skilled technical team and world class top-of-the-line equipment.',
-		},
-		{
-			name: 'NIDAN EXCELLENCE DIAGNOSTICS ',
-			shortAddress: 'Sheetal Nagar Mira Road east',
-			fullAddress:
-				'Saurabh Bldg,Sheetal palace,opp. MTNL, Sheetal Nagar Mira Road east, Mira Bhayandar, Thane -401107 ',
-			id: '655226941e32a308b449dbdb',
-			description:
-				"Nidan excellence Diagnostic Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at NIDAN, we're dedicated to providing you with the best possible care for a healthier life.",
-		},
-		{
-			id: '65f9102bc418d083faeda140',
-			name: 'B Healthcare',
-			shortAddress: 'Mira Road east, Thane',
-			fullAddress:
-				'The Lab Plus , Diagnostic and Healthcare,A2-001/002, Ground floor,Prabhakar CHS, Shanti nagar Sector 4,Mira Road east,  Thane - 401107',
-			description:
-				'The Lab Plus is an NABL Accredited and ISO Certified lab with Specialized Reference Pathology Services run by senior and expert MD Pathologist , Dr Ashish Bhosle. It  is a fast emerging as the credible brand in the area of Diagnostic Health Services. The Lab Plus is driven by the sole objective of providing to its patients,the accuracy of quality reports ensured by qualified & experienced pathologists, radiologists, dentist, speciality doctors. dedicated & skilled technical team and world class top-of-the-line equipment.',
-			certificate: '',
-			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/Bhealthcare.png',
-			availability: '24 hours',
-		},
-
-		{
-			id: '687c98fd5180756e429abec1',
-			name: 'Quantum Hitech Imaging & Pathology ',
-			shortAddress: 'Near Payyade Hotel Mira Road 401107',
-			fullAddress:
-				'Atharva Building Opp Deepak Hospital, Near Payyade Hotel Mira Road 401107 ',
-			description:
-				"Quantum Hitech Imaging & pathology Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at Quantum, we're dedicated to providing you with the best possible care for a healthier life.",
-			certificate: '',
-			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/quantumLablogo_square.png',
-			availability: '24 hours',
-		},
-
-		{
-			id: '687c997f5180756e429abec2',
-			name: 'Pratham MRI & CT Centre',
-			shortAddress: 'near reliance energy mira bhayandar, Phatak road',
-			fullAddress:
-				'Shop No 1 & 2 Salsar commerical centre, near reliance energy mira bhayandar, Phatak Road.',
-			description:
-				"Pratham Imaging & pathology Centre opitomizes healthcare excellence with its world-class machinery and facilities. Our cutting-edge technology and top-tier expertise ensure swift, precise, and superior diagnostic services. Your health is priceless to us, and at Pratham, we're dedicated to providing you with the best possible care for a healthier life.",
-			certificate: '',
-			image: 'https://hv-documents.s3.ap-south-1.amazonaws.com/Labs/prathamLab.webp',
-			availability: '9am to 10pm',
-		},
-	];
 	const updateLabAppointment = useUpdateLabAppointment();
 	const UpdateStatus = async (id: string, status: string) => {
 		const body: LabAppointmentUpdateRequestParams = {
