@@ -12,7 +12,7 @@ export function isServer() {
 // After backend consolidation, all 4 services live behind ONE base URL.
 // Flip API_TARGET between 'local' and 'aws' depending on where the backend
 // is running. Replace AWS_BASE_URL after `serverless deploy`.
-const API_TARGET: 'local' | 'aws' = 'aws';
+const API_TARGET = 'aws' as 'local' | 'aws';
 
 // Use 127.0.0.1 (forced IPv4) so this doesn't collide with Next.js dev server
 // when both default to localhost:3000 — the backend listens on IPv4 only.
