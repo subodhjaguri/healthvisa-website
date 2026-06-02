@@ -1,5 +1,6 @@
 import {Layout} from '@healthvisa/components';
 import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
+import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React, {useEffect, useState} from 'react';
@@ -79,6 +80,17 @@ export const CategoryListPage = () => {
 			key: 'index',
 		},
 		{
+			title: 'Image',
+			dataIndex: 'image',
+			key: 'image',
+			render: (url: string) =>
+				url ? (
+					<ThumbPreview src={url} />
+				) : (
+					<span className="text-xs text-gray-400">—</span>
+				),
+		},
+		{
 			title: 'Category Name',
 			dataIndex: 'category',
 			key: 'category',
@@ -99,21 +111,6 @@ export const CategoryListPage = () => {
 			dataIndex: 'createdOn',
 			key: 'createdOn',
 		},
-		// {
-		// 	title: 'Image',
-		// 	dataIndex: 'image',
-		// 	key: 'image',
-		// 	// render: (text) => (
-		// 	// 	// <a target="_blank" href={text} rel="noreferrer">
-		// 	// 	// 	View Image
-		// 	// 	// </a>
-		// 	// 	<Image
-		// 	// 		width={50}
-		// 	// 		src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-		// 	// 	/>
-		// 	// ),
-		// },
-
 		{
 			title: 'Action',
 			key: 'action',
@@ -157,20 +154,22 @@ export const CategoryListPage = () => {
 				className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid"
 				key={key_}
 			>
-				<h2 className="text-xl font-bold">Services</h2>
-
-				<Button
-					type="primary"
-					className="self-end mb-2"
-					onClick={() => router.push('/admin/categories/create')}
-				>
-					Add New
-				</Button>
-				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink data={productsArray} filename="CategoryList" target="_blank">
-						Export
-					</CSVLink>
-				</Button>
+				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<h2 className="text-xl font-bold">Services</h2>
+					<div className="flex items-center gap-2 flex-wrap">
+						<Button
+							type="primary"
+							onClick={() => router.push('/admin/categories/create')}
+						>
+							Add New
+						</Button>
+						<Button type="primary">
+							<CSVLink data={productsArray} filename="CategoryList" target="_blank">
+								Export
+							</CSVLink>
+						</Button>
+					</div>
+				</div>
 
 				{isLoading ? (
 					<Skeleton active />

@@ -1,10 +1,6 @@
 import {ajaxDelete, ajaxGet, ajaxPost, getApiUrl} from '@healthvisa/utils';
 import {CategoriesAPI, Service} from './api';
 
-export interface ITags {
-	tags: 'string';
-}
-
 export interface ICategoryNew {
 	id: string;
 	category: string;
@@ -14,7 +10,10 @@ export interface ICategoryNew {
 		path: string;
 	};
 	status: boolean;
-	tags: ITags[];
+	// Group tags, e.g. ["Specialist"], ["DTC"], ["Health"].
+	tags: string[];
+	/** Default discount percent for products in this category (drives auto-calc). */
+	discount?: number;
 	createdby: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -32,6 +31,7 @@ export type GetCategoriesResponse = ICategoryNew[];
 export function getCategories(): Promise<GetCategoriesResponse> {
 	return ajaxGet<GetCategoriesResponse>({
 		url: getApiUrl(Service, CategoriesAPI.GetCategories),
+		query: {filter: '{"order": "createdAt DESC"}'},
 	});
 }
 

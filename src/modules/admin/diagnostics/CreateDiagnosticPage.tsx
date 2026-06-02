@@ -1,8 +1,8 @@
 import {Layout} from '@healthvisa/components';
 import {
-	useAddCategory,
-	useCategories,
-} from '@healthvisa/models/admin/category/useCategories';
+	useAddDiagnostic,
+	useGetLabs,
+} from '@healthvisa/models/admin/lab-appointments/useLab';
 import {
 	Button,
 	Form,
@@ -17,22 +17,37 @@ import Dragger from 'antd/lib/upload/Dragger';
 import {UploadFile} from 'antd/lib/upload/interface';
 import {useRouter} from 'next/router';
 import React, {useState} from 'react';
-import TextArea from 'antd/lib/input/TextArea';
 
-// The tag values the app actually groups categories by on the home screen.
-export const CATEGORY_TAG_OPTIONS = [
-	{value: 'Specialist', label: 'Specialist'},
-	{value: 'SuperSpecialist', label: 'Super Specialist'},
-	{value: 'DTC', label: 'DTC (Diagnostic)'},
-	{value: 'AO', label: 'AO'},
-	{value: 'Health', label: 'Health / Wellness'},
-	{value: 'Pharmacy', label: 'Pharmacy'},
+// Diagnostic images are stored as raw S3 keys; the backend find endpoint does
+// NOT wrap them into {url}. Build the URL from this base for admin previews.
+export const S3_UPLOADS_BASE =
+	'https://hv-documents.s3.ap-south-1.amazonaws.com/uploads/';
+
+export const VISIT_OPTIONS = [
+	{value: 'lab', label: 'Lab Visit'},
+	{value: 'home', label: 'Home Visit'},
+	{value: 'center', label: 'Center Visit'},
 ];
 
-export const CreateCategoryPage = () => {
+export const buildDiagnosticFormData = (
+	values: any,
+	file: RcFile | null,
+	id?: string,
+) => {
+	const formData = new FormData();
+	if (file) formData.append('', file);
+	if (id) formData.append('id', id);
+	formData.append('name', values.name);
+	formData.append('discount', String(values.discount ?? 0));
+	formData.append('availableVisits', JSON.stringify(values.visits ?? []));
+	formData.append('labs', JSON.stringify(values.labs ?? []));
+	return formData;
+};
+
+export const CreateDiagnosticPage = () => {
 	const router = useRouter();
-	const {data: categoryList} = useCategories();
-	const addCategory = useAddCategory();
+	const {data: labs} = useGetLabs();
+	const addDiagnostic = useAddDiagnostic();
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
 	const onFinish = (values: any) => {
@@ -40,24 +55,18 @@ export const CreateCategoryPage = () => {
 			message.error('Please add an image');
 			return;
 		}
-		const formData = new FormData();
-		formData.append('', fileList[0] as RcFile);
-		formData.append('category', values.category);
-		formData.append('description', values.description ?? '');
-		formData.append('status', JSON.stringify(values.status ?? true));
-		formData.append('tags', JSON.stringify(values.tags ?? []));
-		formData.append('discount', String(values.discount ?? 0));
-		formData.append('createdBy', 'admin');
-
-		addCategory.mutate(formData, {
-			onSuccess: () => {
-				message.success('Added Successfully..!');
-				router.push('/admin/categories');
+		addDiagnostic.mutate(
+			buildDiagnosticFormData(values, fileList[0] as RcFile),
+			{
+				onSuccess: () => {
+					message.success('Added Successfully..!');
+					router.push('/admin/diagnostics');
+				},
+				onError: (errors: any) => {
+					message.error(errors?.errors?.data?.message ?? 'Failed to add');
+				},
 			},
-			onError: (errors: any) => {
-				message.error(errors?.errors?.data?.message ?? 'Failed to add');
-			},
-		});
+		);
 	};
 
 	const uploadProps: UploadProps = {
@@ -75,7 +84,7 @@ export const CreateCategoryPage = () => {
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid">
 				<div className="flex justify-between items-center pr-4">
-					<h1 className="text-xl font-bold">Add New Category</h1>
+					<h1 className="text-xl font-bold">Add New Diagnostic</h1>
 					<Button
 						onClick={() => router.back()}
 						style={{background: '#F8F9FA', color: 'black'}}
@@ -86,66 +95,60 @@ export const CreateCategoryPage = () => {
 					</Button>
 				</div>
 				<div className="w-full">
-					{categoryList ? (
+					{labs ? (
 						<Form
 							scrollToFirstError
 							layout="vertical"
-							name="create-category"
+							name="create-diagnostic"
 							className="w-full"
-							initialValues={{status: true}}
+							initialValues={{visits: ['lab']}}
 							onFinish={onFinish}
 							autoComplete="off"
 						>
 							<div className="flex justify-between flex-wrap w-full">
 								<Form.Item
-									label="Category Name"
-									name="category"
+									label="Name"
+									name="name"
 									className="w-[49%]"
-									rules={[{required: true, message: 'Please enter category'}]}
+									rules={[{required: true, message: 'Please enter name'}]}
 								>
-									<Input placeholder="e.g. Cardiologist" />
-								</Form.Item>
-
-								<Form.Item
-									label="Tags (home-screen grouping)"
-									className="w-[49%]"
-									name="tags"
-									rules={[{required: true, message: 'Please select tags'}]}
-								>
-									<Select
-										mode="multiple"
-										style={{width: '100%'}}
-										placeholder="Select group(s)"
-										options={CATEGORY_TAG_OPTIONS}
-									/>
+									<Input placeholder="e.g. Sonography" />
 								</Form.Item>
 
 								<Form.Item
 									label="Discount %"
 									name="discount"
 									className="w-[49%]"
-									tooltip="Default discount for products in this category (drives the product price auto-calc)."
 									rules={[{required: true, message: 'Please enter discount %'}]}
 								>
 									<InputNumber min={0} max={100} style={{width: '100%'}} />
 								</Form.Item>
 
-								<Form.Item label="Status" className="w-[49%]" name="status">
-									<Select
-										style={{width: '100%'}}
-										options={[
-											{value: true, label: 'Active'},
-											{value: false, label: 'In-Active'},
-										]}
-									/>
+								<Form.Item
+									label="Visit types"
+									name="visits"
+									className="w-[49%]"
+									rules={[{required: true, message: 'Select at least one'}]}
+								>
+									<Select mode="multiple" options={VISIT_OPTIONS} />
 								</Form.Item>
 
 								<Form.Item
-									label="Description"
-									name="description"
+									label="Labs that offer this"
+									name="labs"
 									className="w-[49%]"
+									tooltip="Which labs appear under this diagnostic in the app."
 								>
-									<TextArea placeholder="Enter description" rows={2} />
+									<Select
+										mode="multiple"
+										showSearch
+										optionFilterProp="label"
+										placeholder="Select labs"
+										options={(labs ?? []).map((l) => ({
+											value: l.id,
+											label: l.name,
+										}))}
+									/>
 								</Form.Item>
 
 								<Form.Item label="Image" name="image" className="w-[49%]">
@@ -160,7 +163,7 @@ export const CreateCategoryPage = () => {
 							</div>
 							<div className="flex">
 								<Button
-									loading={addCategory.isLoading}
+									loading={addDiagnostic.isLoading}
 									style={{background: '#198753'}}
 									className="w-24 mr-3"
 									type="primary"

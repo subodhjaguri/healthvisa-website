@@ -28,6 +28,7 @@ export type GetUserResponse = IUserNew[];
 export function getUser(): Promise<GetUserResponse> {
 	return ajaxGet<GetUserResponse>({
 		url: getApiUrl(Service, UserAPI.GetUser),
+		query: {filter: '{"order": "createdAt DESC"}'},
 	});
 }
 /**

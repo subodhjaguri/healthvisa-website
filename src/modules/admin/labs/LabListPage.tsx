@@ -1,7 +1,6 @@
 import {Layout} from '@healthvisa/components';
 import {
-	useDeleteDiagnostic,
-	useDiagnosticItems,
+	useDeleteLab,
 	useGetLabs,
 } from '@healthvisa/models/admin/lab-appointments/useLab';
 import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
@@ -10,9 +9,8 @@ import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React from 'react';
 import {ExclamationCircleFilled} from '@ant-design/icons';
-import moment from 'moment';
 import {CSVLink} from 'react-csv';
-import {S3_UPLOADS_BASE} from './CreateDiagnosticPage';
+import {LAB_S3_BASE} from './CreateLabPage';
 
 const {confirm} = Modal;
 interface DataType {
@@ -20,24 +18,16 @@ interface DataType {
 	Id: string;
 	Name: string;
 	Image: string;
-	Discount: string;
-	Visits: string[];
-	Labs: string[];
-	CreatedOn: string;
+	ShortAddress: string;
+	Certificate: string;
 }
 
-export const DiagnosticListPage = () => {
-	const {isLoading, data: diagnosticItems} = useDiagnosticItems();
-	const {data: labs} = useGetLabs();
-	const deleteDiagnostic = useDeleteDiagnostic();
-
-	const labMap: Record<string, string> = {};
-	(labs ?? []).forEach((l) => {
-		labMap[l.id] = l.name;
-	});
+export const LabListPage = () => {
+	const {isLoading, data: labs} = useGetLabs();
+	const deleteLab = useDeleteLab();
 
 	const handleDelete = (id: string) => {
-		deleteDiagnostic.mutate(
+		deleteLab.mutate(
 			{id},
 			{
 				onSuccess: () => {
@@ -51,7 +41,7 @@ export const DiagnosticListPage = () => {
 	};
 	const showModal = (id: string) => {
 		confirm({
-			title: 'Are you sure you want to delete this diagnostic?',
+			title: 'Are you sure you want to delete this lab?',
 			icon: <ExclamationCircleFilled />,
 			content: '',
 			okText: 'Yes',
@@ -63,24 +53,22 @@ export const DiagnosticListPage = () => {
 		});
 	};
 
-	const productsArray: DataType[] =
-		diagnosticItems && diagnosticItems.length > 0
-			? diagnosticItems.map((d, index) => ({
+	const rows: DataType[] =
+		labs && labs.length > 0
+			? labs.map((l, index) => ({
 					index: index + 1,
-					Id: d.id,
-					Name: d.name,
-					Image: d.image ? `${S3_UPLOADS_BASE}${d.image}` : '',
-					Discount: `${d.discount} %`,
-					Visits: d.availableVisits ?? [],
-					Labs: d.labs ?? [],
-					CreatedOn: moment(d.createdAt).format('DD MMM YYYY'),
+					Id: l.id,
+					Name: l.name,
+					Image: l.image ? `${LAB_S3_BASE}${l.image}` : '',
+					ShortAddress: l.shortAddress || l.fullAddress || '',
+					Certificate: l.certificate || '—',
 			  }))
 			: [];
 
 	const columns: ColumnsType<DataType> = [
 		{title: 'Sr. No.', dataIndex: 'index', key: 'index'},
 		{
-			title: 'Image',
+			title: 'Logo',
 			dataIndex: 'Image',
 			key: 'image',
 			render: (url: string) =>
@@ -91,36 +79,8 @@ export const DiagnosticListPage = () => {
 				),
 		},
 		{title: 'Name', dataIndex: 'Name', key: 'name'},
-		{
-			title: 'Labs',
-			dataIndex: 'Labs',
-			key: 'labs',
-			render: (ids: string[]) => (
-				<div>
-					{(ids ?? []).map((labId) => (
-						<div key={labId} className="capitalize">
-							{labMap[labId] ?? labId}
-						</div>
-					))}
-				</div>
-			),
-		},
-		{title: 'Discount', dataIndex: 'Discount', key: 'discount'},
-		{
-			title: 'Visits',
-			dataIndex: 'Visits',
-			key: 'visits',
-			render: (visits: string[]) => (
-				<div>
-					{(visits ?? []).map((v) => (
-						<div key={v} className="capitalize">
-							{v} Visit
-						</div>
-					))}
-				</div>
-			),
-		},
-		{title: 'Created On', dataIndex: 'CreatedOn', key: 'createdOn'},
+		{title: 'Address', dataIndex: 'ShortAddress', key: 'shortAddress'},
+		{title: 'Certificate', dataIndex: 'Certificate', key: 'certificate'},
 		{
 			title: 'Action',
 			key: 'action',
@@ -128,7 +88,7 @@ export const DiagnosticListPage = () => {
 				<Space size="middle">
 					<Button
 						size="small"
-						onClick={() => router.push(`/admin/diagnostics/${record.Id}`)}
+						onClick={() => router.push(`/admin/labs/${record.Id}`)}
 						type="default"
 						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
 						className="uppercase"
@@ -153,16 +113,16 @@ export const DiagnosticListPage = () => {
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h1 className="text-xl font-bold">Diagnostics</h1>
+					<h1 className="text-xl font-bold">Labs</h1>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"
-							onClick={() => router.push('/admin/diagnostics/create')}
+							onClick={() => router.push('/admin/labs/create')}
 						>
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={productsArray} filename="Diagnostics" target="_blank">
+							<CSVLink data={rows} filename="Labs" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
@@ -177,7 +137,7 @@ export const DiagnosticListPage = () => {
 						rowKey={(obj) => obj.Id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={productsArray}
+						dataSource={rows}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

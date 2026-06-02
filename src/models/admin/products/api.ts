@@ -20,10 +20,12 @@ export enum ProductAPI {
 	GetProduct = '/products',
 	GetProductCount = '/products/count',
 	ProductById = '/products',
-	AddProduct = '/product/upload/Product%2F',
+	// Upload under the "uploads/" prefix so the read URL (S3_INITIAL_PATH + image)
+	// resolves; backend stores the image field relative to that prefix.
+	AddProduct = '/product/upload/uploads%2Fdoctors%2F',
 	DeleteProduct = '/products',
-	UpdateProductWithImage = '/product/update/Product%2F',
-	UpdateProductWithoutImage = '/product/update/Product%2F',
+	UpdateProductWithImage = '/product/update/uploads%2Fdoctors%2F',
+	UpdateProductWithoutImage = '/product/update/uploads%2Fdoctors%2F',
 }
 
 export const Service: Services = 'product';

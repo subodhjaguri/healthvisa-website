@@ -176,18 +176,21 @@ export const UserListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h2 className="text-xl font-bold">List of Users</h2>
-				<Button
-					type="primary"
-					className="self-end mb-2"
-					onClick={() => router.push('/admin/users/create')}>
-					Add New
-				</Button>
-				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink data={userArray} filename="UserList" target="_blank">
-						Export
-					</CSVLink>
-				</Button>
+				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<h2 className="text-xl font-bold">List of Users</h2>
+					<div className="flex items-center gap-2 flex-wrap">
+						<Button
+							type="primary"
+							onClick={() => router.push('/admin/users/create')}>
+							Add New
+						</Button>
+						<Button type="primary">
+							<CSVLink data={userArray} filename="UserList" target="_blank">
+								Export
+							</CSVLink>
+						</Button>
+					</div>
+				</div>
 				<div className="my-2">
 					<Checkbox onChange={onChange}>Show EHR Users</Checkbox>
 				</div>

@@ -17,8 +17,7 @@ const API_TARGET = 'aws' as 'local' | 'aws';
 // Use 127.0.0.1 (forced IPv4) so this doesn't collide with Next.js dev server
 // when both default to localhost:3000 — the backend listens on IPv4 only.
 const LOCAL_DEV_HOST = 'http://127.0.0.1:3000';
-const AWS_BASE_URL =
-	'https://bs57d6oqyi.execute-api.ap-south-1.amazonaws.com/dev';
+const AWS_BASE_URL = 'https://bs57d6oqyi.execute-api.ap-south-1.amazonaws.com/dev';
 
 const API_BASE_URL = API_TARGET === 'local' ? LOCAL_DEV_HOST : AWS_BASE_URL;
 

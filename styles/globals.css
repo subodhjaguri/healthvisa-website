@@ -117,3 +117,11 @@ ul li #blue {
 .ant-drawer-body {
 	background-color: #f2f8ff;
 }
+
+/* The broad `ul li` rule above (padding:8px; font-size:17px — meant for the
+   landing nav) leaks into antd list components and clips the pagination page
+   number. Reset padding/font for antd pagination so the number isn't cut. */
+.ant-pagination li {
+	padding: 0;
+	font-size: 14px;
+}
