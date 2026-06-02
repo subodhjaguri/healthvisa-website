@@ -19,10 +19,12 @@ export enum CategoriesKeys {
 export enum CategoriesAPI {
 	GetCategories = '/categories',
 	GetCategoriesById = '/categories',
-	AddCategory = '/category/upload/Category%2F',
+	// Upload under "uploads/" so the read URL (S3_INITIAL_PATH + image) resolves;
+	// backend stores the image field relative to that prefix.
+	AddCategory = '/category/upload/uploads%2Fcategories%2F',
 	DeleteCategory = '/categories',
-	UpdateCategoryWithImage = '/category/update/Category%2F',
-	UpdateCategoryWithoutImage = '/category/update/Category%2F',
+	UpdateCategoryWithImage = '/category/update/uploads%2Fcategories%2F',
+	UpdateCategoryWithoutImage = '/category/update/uploads%2Fcategories%2F',
 	GetCategoriesCount = '/categories/count',
 }
 

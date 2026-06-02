@@ -5,18 +5,23 @@ import {AppstoreOutlined, NotificationOutlined} from '@ant-design/icons';
 
 import {useRouter} from 'next/router';
 import {
-	MdLocationOn,
-	MdLocationCity,
 	MdOutlineDashboard,
-	MdOutlineMedicalServices,
-	MdAdminPanelSettings,
+	MdStorefront,
+	MdBiotech,
+	MdOutlineAssignment,
 	MdPeople,
 } from 'react-icons/md';
-import {FaUsers, FaBoxOpen} from 'react-icons/fa';
+import {
+	FaUsers,
+	FaUserMd,
+	FaFlask,
+	FaVial,
+	FaVials,
+	FaCalendarCheck,
+} from 'react-icons/fa';
 import Link from 'next/link';
 import {getActiveRoute, getCurrentRoute} from '@healthvisa/utils/common/DrawerState';
 import {BiCategoryAlt} from 'react-icons/bi';
-import {GiMedicines} from 'react-icons/gi';
 
 export const DrawerComponent = () => {
 	const router = useRouter();
@@ -50,19 +55,20 @@ export const DrawerComponent = () => {
 
 	const items: MenuProps['items'] = [
 		getItem('Dashboard', '/admin/dashboard', <MdOutlineDashboard />),
-		getItem('Products and Services', 'products', <MdOutlineMedicalServices />, [
-			// getItem('Areas', '/admin/area', <MdLocationOn />),
+		getItem('Products and Services', 'products', <MdStorefront />, [
 			getItem('Services', '/admin/categories', <BiCategoryAlt />),
-			getItem('Doctors', '/admin/products', <GiMedicines />),
-			getItem('Diagnostics', '/admin/diagnostics', <GiMedicines />),
+			getItem('Doctors', '/admin/products', <FaUserMd />),
+			getItem('Diagnostics', '/admin/diagnostics', <MdBiotech />),
+			getItem('Labs', '/admin/labs', <FaFlask />),
+			getItem('Tests', '/admin/tests', <FaVials />),
 		]),
 
 		getItem(<p className="p-0 m-0 w-[188px]">Peoples</p>, 'peoples', <MdPeople />, [
 			getItem('Users', '/admin/users', <FaUsers />),
 		]),
-		getItem('Doctor Appointments', '/admin/orders', <FaBoxOpen />),
-		getItem('Diagnostic services', '/admin/lab-appointments', <FaBoxOpen />),
-		getItem('User Requests', '/admin/new-members', <MdAdminPanelSettings />),
+		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),
+		getItem('Diagnostic services', '/admin/lab-appointments', <FaVial />),
+		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),
 	];
 	const onClick: MenuProps['onClick'] = (e) => {
 		router.push(e.key);
@@ -75,10 +81,9 @@ export const DrawerComponent = () => {
 					<a className="pt-[6px]">
 						{/* eslint-disable-next-line jsx-a11y/alt-text */}
 						<img
-							src="/logo.png"
-							height={55}
-							width={250}
-							className="object-contain"
+							src="/images/Logo.png"
+							alt="HealthiFam"
+							className="h-9 w-auto object-contain"
 						/>
 					</a>
 				</Link>

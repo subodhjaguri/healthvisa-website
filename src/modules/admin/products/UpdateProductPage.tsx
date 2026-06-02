@@ -1,337 +1,347 @@
-import {UserOutlined} from '@ant-design/icons';
 import {Layout} from '@healthvisa/components';
 import {useCategories} from '@healthvisa/models/admin/category/useCategories';
-import {
-	ProductUpdateRequestParams,
-	ProductUpdateWithoutImageRequestParams,
-} from '@healthvisa/models/admin/products/Product';
 import {
 	useProductById,
 	useUpdateProduct,
 	useUpdateProductWithoutImage,
 } from '@healthvisa/models/admin/products/useProduct';
-import {Button, Form, Input, message, Select, Skeleton, UploadProps} from 'antd';
+import {
+	Button,
+	Form,
+	Input,
+	InputNumber,
+	message,
+	Select,
+	Skeleton,
+	Space,
+	Switch,
+} from 'antd';
+import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
+import {UploadProps, RcFile} from 'antd/es/upload';
+import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
-import {RcFile, UploadFile} from 'antd/lib/upload/interface';
+import {UploadFile} from 'antd/lib/upload/interface';
 import {useRouter} from 'next/router';
 import React, {useEffect, useState} from 'react';
 
+/** Append the assembled (nested) product fields onto a FormData for update. */
+const appendProductFields = (
+	formData: FormData,
+	values: any,
+	id: string,
+) => {
+	const bookable = values.bookable !== false;
+	const slots: string[] = (values.slots ?? [])
+		.map((s: string) => (s ?? '').trim())
+		.filter(Boolean);
+
+	const description = [
+		{
+			type: 'doctor-badge',
+			data: {
+				designation: values.designation ?? '',
+				qualification: values.qualification ?? '',
+				hospital: values.hospital ?? '',
+			},
+		},
+		{type: 'text', data: values.bio ?? ''},
+	];
+	const purchaseFields = bookable
+		? [
+				{type: 'DateInput', name: 'date', order: 1, metadata: {label: 'Select Date'}},
+				{
+					type: 'SlotInput',
+					name: 'slot',
+					order: 2,
+					metadata: {label: 'Select Slot', slots},
+				},
+		  ]
+		: [];
+	const metadata = {
+		address: values.address ?? '',
+		fullAddress: values.address ?? '',
+		hospital: values.hospital ?? '',
+		timing: values.timing ?? '',
+		booking: bookable ? {} : null,
+		discount: Number(values.discount) || 0,
+	};
+
+	formData.append('id', id);
+	formData.append('name', values.name);
+	formData.append('type', values.type);
+	formData.append('categoryId', values.category);
+	formData.append('price', String(values.price));
+	formData.append('discountPrice', String(values.discountPrice));
+	formData.append('description', JSON.stringify(description));
+	formData.append('purchaseFields', JSON.stringify(purchaseFields));
+	formData.append('metadata', JSON.stringify(metadata));
+};
+
 export const UpdateProductPage = ({id}: {id: string}) => {
 	const router = useRouter();
-	const ID = id;
-	const [key_, setKey_] = useState(1);
-	const {data, isLoading} = useProductById({id: ID});
-
+	const {data, isLoading} = useProductById({id});
 	const {data: categoryList} = useCategories();
 	const updateProduct = useUpdateProduct();
 	const updateProductWithoutImage = useUpdateProductWithoutImage();
-	const [fileList, setFileList] = useState<UploadFile[]>([
-		// {
-		// 	uid: '-1',
-		// 	name: 'image.png',
-		// 	status: 'done',
-		// 	url: 'https://healthvisa-dev.s3.ap-south-1.amazonaws.com/Product/636ce035c7f5494defe8f5fb.jpeg',
-		// },
-	]);
-	const [type, setType] = useState('');
-	const [purchaseComponent, setPurchaseComponent] = useState('');
+	const [form] = Form.useForm();
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
+	const [newFile, setNewFile] = useState<RcFile | null>(null);
+	const [bookable, setBookable] = useState(true);
+
+	// Decompose the nested DB shape back into flat form fields.
 	useEffect(() => {
-		setKey_(key_ + 1);
-		if (data) setType(data?.type);
-		if (data && data.image.url) {
-			// setFileList([
-			// 	{
-			// 		uid: '-1',
-			// 		name: 'image.png',
-			// 		status: 'done',
-			// 		url: data?.image?.url,
-			// 	},
-			// ]);
+		if (!data) return;
+		const desc = Array.isArray(data.description) ? data.description : [];
+		const badge = desc.find((b) => b?.type === 'doctor-badge')?.data ?? {};
+		const bio = desc.find((b) => b?.type === 'text')?.data ?? '';
+		const meta: any = data.metadata ?? {};
+		const slotField = (data.purchaseFields ?? []).find(
+			(f) => f.type === 'SlotInput',
+		);
+		const isBookable = meta.booking !== null;
+		setBookable(isBookable);
+		form.setFieldsValue({
+			name: data.name,
+			type: data.type,
+			category: data.categoryId,
+			price: data.price,
+			discount: meta.discount ?? 0,
+			discountPrice: data.discountPrice,
+			designation: badge.designation ?? '',
+			qualification: badge.qualification ?? '',
+			hospital: badge.hospital ?? meta.hospital ?? '',
+			timing: meta.timing ?? '',
+			address: meta.address ?? '',
+			bio,
+			bookable: isBookable,
+			slots: slotField?.metadata?.slots ?? [],
+		});
+		if (data.image?.url) {
+			setFileList([
+				{uid: '-1', name: 'Current image', status: 'done', url: data.image.url},
+			]);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data]);
 
-	const des =
-		'[{"type":"text","data":"Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos ut numquam minus vero explicabo consectetur temporibus, quasi ducimus accusamus omnis maxime dicta impedit iusto debitis. Veritatis ad animi veniam saepe officiis obcaecati nam, fuga est eveniet, voluptatem dolores maiores dolorum!,"}]';
-	const purchaseFiels = [
-		{
-			metadata: {
-				label: 'Booking Date',
-			},
-			name: 'date',
-			order: 1,
-			type: 'DateInput',
-		},
-		{
-			metadata: {
-				slots: [
-					'10:00 AM-10:30 AM',
-					'10:30 AM-11:00 AM',
-					'11:00 AM-11:30 AM',
-					'01:00 PM-01:30 PM',
-				],
-				label: 'Time Slots',
-			},
-			name: 'slot',
-			order: 2,
-			type: 'SlotInput',
-		},
-	];
-	const onFinish = async (values: any) => {
-		if (fileList.length > 0) {
-			const formData = new FormData();
-			fileList.forEach((file) => {
-				formData.append('', file as RcFile);
-				formData.append('type', values.type);
-				formData.append('name', values.name);
-				formData.append('categoryId', values.category);
-				formData.append('price', values.price);
-				formData.append('description', des);
-				formData.append('discountPrice', values.discountPrice);
-				formData.append('id', ID);
-			});
-			const body: ProductUpdateRequestParams = {
-				id: ID,
-				data: formData,
-			};
-			updateProduct.mutate(body, {
-				onSuccess: (res) => {
-					message.success('Updated Successfully..!');
-					router.push('/admin/products');
-				},
-				onError: (errors: any) => {
-					message.error(errors?.errors.data.message);
-				},
-			});
-		} else {
-			const formDataNew = new FormData();
-			formDataNew.append('name', values.name);
-			formDataNew.append('description', des);
-			formDataNew.append('categoryId', values.category);
-			formDataNew.append('metadata', JSON.stringify({}));
-			formDataNew.append('type', values.type);
-			formDataNew.append('price', values.price);
-			formDataNew.append('discountPrice', values.discountPrice);
-			formDataNew.append('id', ID);
-
-			const bodyWithoutImage: ProductUpdateWithoutImageRequestParams = {
-				data: formDataNew,
-			};
-			updateProductWithoutImage.mutate(bodyWithoutImage, {
-				onSuccess: (res) => {
-					message.success('Updated Successfully..!');
-					router.push('/admin/products');
-				},
-				onError: (errors: any) => {
-					message.error(errors?.errors.data.message);
-				},
-			});
+	const recompute = (all: any) => {
+		const price = Number(all.price) || 0;
+		const disc = Number(all.discount) || 0;
+		form.setFieldsValue({discountPrice: Math.round(price * (1 - disc / 100))});
+	};
+	const onValuesChange = (changed: any, all: any) => {
+		if ('category' in changed) {
+			const cat = categoryList?.find((c) => c.id === changed.category);
+			const d = cat?.discount ?? all.discount ?? 0;
+			form.setFieldsValue({discount: d});
+			recompute({...all, discount: d});
+		} else if ('price' in changed || 'discount' in changed) {
+			recompute(all);
 		}
 	};
 
-	const props: UploadProps = {
-		onRemove: (file) => {
-			const index = fileList.indexOf(file);
-			const newFileList = fileList.slice();
-			newFileList.splice(index, 1);
-			setFileList(newFileList);
+	const onFinish = (values: any) => {
+		const onSuccess = () => {
+			message.success('Updated Successfully..!');
+			router.push('/admin/products');
+		};
+		const onError = (errors: any) => {
+			message.error(errors?.errors?.data?.message ?? 'Failed to update');
+		};
+
+		if (newFile) {
+			const formData = new FormData();
+			formData.append('', newFile);
+			appendProductFields(formData, values, id);
+			updateProduct.mutate({id, data: formData}, {onSuccess, onError});
+		} else {
+			const formData = new FormData();
+			appendProductFields(formData, values, id);
+			updateProductWithoutImage.mutate({data: formData}, {onSuccess, onError});
+		}
+	};
+
+	const uploadProps: UploadProps = {
+		onRemove: () => {
+			setNewFile(null);
+			setFileList([]);
 		},
 		beforeUpload: (file) => {
+			setNewFile(file);
 			setFileList([file]);
 			return false;
 		},
 		fileList,
 		listType: 'picture',
 		maxCount: 1,
-		// defaultFileList: [
-		// 	{
-		// 		uid: '1',
-		// 		name: 'Test',
-		// 		status: 'done',
-		// 		url: 'https://cdn.pixabay.com/photo/2018/08/26/23/55/woman-3633737_960_720.jpg',
-		// 	},
-		// ],
-	};
-
-	const typeHandler = (value: string) => {
-		setType(value);
-		setPurchaseComponent('');
 	};
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid   ">
+			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid">
 				{isLoading ? (
 					<Skeleton active />
 				) : (
-					<div>
+					<>
 						<div className="flex justify-between items-center pr-4">
-							<h1 className="text-xl font-bold">Update</h1>
+							<h1 className="text-xl font-bold">Update Product/Service</h1>
 							<Button
 								onClick={() => router.back()}
-								style={{
-									background: '#F8F9FA',
-									color: 'black',
-								}}
+								style={{background: '#F8F9FA', color: 'black'}}
 								className="w-24"
 								type="primary"
 							>
 								Back
 							</Button>
 						</div>
-						<div key={key_} className="w-full">
+						<div className="w-full">
 							<Form
+								form={form}
 								scrollToFirstError
 								layout="vertical"
-								name="basic"
+								name="update-product"
 								className="w-full"
-								initialValues={{remember: true}}
+								onValuesChange={onValuesChange}
 								onFinish={onFinish}
 								autoComplete="off"
 							>
 								<div className="flex justify-between flex-wrap w-full">
 									<Form.Item
-										label="Product Name"
+										label="Name"
 										name="name"
-										initialValue={data?.name}
 										className="w-[49%]"
-										rules={[
-											{
-												required: true,
-												message:
-													'Please enter Service/Product name!',
-											},
-										]}
+										rules={[{required: true, message: 'Please enter name!'}]}
 									>
-										<Input placeholder="Enter Product/Service" />
-									</Form.Item>
-
-									<Form.Item
-										label="Category"
-										initialValue={data?.categoryId}
-										className="w-[49%]"
-										name="category"
-										rules={[
-											{
-												required: true,
-												message: 'Please select category',
-											},
-										]}
-									>
-										<Select
-											showSearch
-											placeholder="Select"
-											optionFilterProp="children"
-											filterOption={(input, option) =>
-												(option?.label ?? '')
-													.toLowerCase()
-													.includes(input.toLowerCase())
-											}
-											options={
-												categoryList &&
-												categoryList.map((cat) => ({
-													value: cat.id,
-													label: cat.category,
-												}))
-											}
-										/>
-									</Form.Item>
-									<Form.Item
-										label="Price"
-										name="price"
-										rules={[
-											{
-												required: true,
-												message: 'Please enter discount price!',
-											},
-										]}
-										initialValue={data?.price}
-										className="w-[49%]"
-									>
-										<Input type="number" style={{width: '100%'}} />
-									</Form.Item>
-									<Form.Item
-										initialValue={data?.discountPrice}
-										rules={[
-											{
-												required: true,
-												message: 'Please enter discount price!',
-											},
-										]}
-										label="Discount Price"
-										name="discountPrice"
-										className="w-[49%]"
-									>
-										<Input
-											prefix={<UserOutlined />}
-											type="number"
-											placeholder="Discount Price"
-											min={1}
-											style={{width: '100%'}}
-										/>
+										<Input allowClear placeholder="e.g. Dr. Jane Doe" />
 									</Form.Item>
 									<Form.Item
 										label="Type"
-										initialValue={data?.type}
 										name="type"
 										className="w-[49%]"
-										rules={[
-											{
-												required: true,
-												message: 'Please select Type',
-											},
-										]}
+										rules={[{required: true, message: 'Please select type'}]}
 									>
 										<Select
-											style={{width: '100%'}}
 											options={[
-												{
-													value: 'Service',
-													label: 'Service',
-												},
-												{
-													value: 'Product',
-													label: 'Product',
-												},
+												{value: 'Service', label: 'Service (Doctor)'},
+												{value: 'Product', label: 'Product'},
 											]}
-											onChange={typeHandler}
 										/>
 									</Form.Item>
 									<Form.Item
-										label="Image"
-										name="image"
-										className="w-[50%] row-auto"
+										label="Category"
+										name="category"
+										className="w-[49%]"
+										rules={[{required: true, message: 'Please select category'}]}
 									>
+										<Select
+											showSearch
+											placeholder="Select category"
+											optionFilterProp="label"
+											options={(categoryList ?? []).map((cat) => ({
+												value: cat.id,
+												label: cat.category,
+											}))}
+										/>
+									</Form.Item>
+									<Form.Item
+										label="Price (₹)"
+										name="price"
+										className="w-[15%]"
+										rules={[{required: true, message: 'Enter price'}]}
+									>
+										<InputNumber min={0} style={{width: '100%'}} />
+									</Form.Item>
+									<Form.Item
+										label="Discount %"
+										name="discount"
+										className="w-[15%]"
+										tooltip="Auto-filled from the category; you can override."
+									>
+										<InputNumber min={0} max={100} style={{width: '100%'}} />
+									</Form.Item>
+									<Form.Item
+										label="Discounted Price (₹)"
+										name="discountPrice"
+										className="w-[15%]"
+										tooltip="Auto-calculated from price and discount."
+									>
+										<InputNumber min={0} style={{width: '100%'}} />
+									</Form.Item>
+									<Form.Item label="Image" name="image" className="w-[49%]">
 										{/* eslint-disable-next-line react/jsx-props-no-spreading */}
-										<Dragger {...props}>
+										<Dragger {...uploadProps}>
 											<span>
-												Drop files here to attach or{' '}
+												Drop file here or{' '}
 												<span className="font-bold">Browse</span>
 											</span>
 										</Dragger>
 									</Form.Item>
-
-									{/* <div className="w-full flex justify-between">
-										<Form.Item
-											label="Description"
-											name="description"
-											initialValue={JSON.stringify(
-												data?.description,
-											)}
-											className="w-full">
-											<TextArea
-												rows={4}
-												placeholder="Enter Description"
-											/>
-										</Form.Item>
-									</div>
-									<div className="w-full flex justify-between">
-										<PurchaseField />
-									</div> */}
 								</div>
 
-								<div className="flex ">
+								<h2 className="text-base font-bold mt-2 mb-1">Doctor details</h2>
+								<div className="flex justify-between flex-wrap w-full">
+									<Form.Item label="Designation" name="designation" className="w-[49%]">
+										<Input placeholder="e.g. MBBS, MD (Medicine)" />
+									</Form.Item>
+									<Form.Item label="Qualification" name="qualification" className="w-[49%]">
+										<Input placeholder="e.g. MBBS, MD (Medicine)" />
+									</Form.Item>
+									<Form.Item label="Hospital / Clinic" name="hospital" className="w-[49%]">
+										<Input placeholder="e.g. City Care Clinic" />
+									</Form.Item>
+									<Form.Item label="Timing (display)" name="timing" className="w-[49%]">
+										<Input placeholder="e.g. 10am to 1pm / 6pm to 9pm" />
+									</Form.Item>
+									<Form.Item label="Address" name="address" className="w-full">
+										<TextArea rows={2} placeholder="Full address" />
+									</Form.Item>
+									<Form.Item label="Description / Bio" name="bio" className="w-full">
+										<TextArea rows={3} placeholder="About the doctor / service" />
+									</Form.Item>
+								</div>
+
+								<h2 className="text-base font-bold mt-2 mb-1">Booking</h2>
+								<Form.Item
+									label="Bookable (shows date + slots in the app)"
+									name="bookable"
+									valuePropName="checked"
+								>
+									<Switch onChange={setBookable} />
+								</Form.Item>
+
+								{bookable && (
+									<Form.Item label="Time Slots" className="w-full">
+										<Form.List name="slots">
+											{(fields, {add, remove}) => (
+												<>
+													{fields.map((field) => (
+														<Space key={field.key} align="baseline">
+															<Form.Item
+																{...field}
+																rules={[
+																	{required: true, message: 'Enter a slot or remove'},
+																]}
+															>
+																<Input
+																	placeholder="e.g. 10:30 AM - 1:30 PM"
+																	style={{width: 280}}
+																/>
+															</Form.Item>
+															<MinusCircleOutlined onClick={() => remove(field.name)} />
+														</Space>
+													))}
+													<Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
+														Add slot
+													</Button>
+												</>
+											)}
+										</Form.List>
+									</Form.Item>
+								)}
+
+								<div className="flex mt-3">
 									<Button
-										loading={updateProduct.isLoading}
+										loading={updateProduct.isLoading || updateProductWithoutImage.isLoading}
 										style={{background: '#198753'}}
 										className="w-24 mr-3"
 										type="primary"
@@ -350,7 +360,7 @@ export const UpdateProductPage = ({id}: {id: string}) => {
 								</div>
 							</Form>
 						</div>
-					</div>
+					</>
 				)}
 			</div>
 		</Layout>

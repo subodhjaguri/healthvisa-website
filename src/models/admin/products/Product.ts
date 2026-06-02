@@ -8,10 +8,16 @@ export interface PurchaseField {
 	metadata: any;
 }
 
+export interface DescriptionBlock {
+	type: 'doctor-badge' | 'text' | string;
+	data: any;
+}
+
 export interface IProductNew {
 	id: string;
 	name: string;
-	description: string;
+	// Stored as an array of blocks (doctor-badge + text), not a plain string.
+	description: DescriptionBlock[];
 	categoryId: string;
 	image: {
 		url: string;
@@ -41,6 +47,7 @@ export type GetProductResponse = IProductNew[];
 export function getProduct(): Promise<GetProductResponse> {
 	return ajaxGet<GetProductResponse>({
 		url: getApiUrl(Service, ProductAPI.GetProduct),
+		query: {filter: '{"order": "createdAt DESC"}'},
 	});
 }
 

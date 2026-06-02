@@ -2,7 +2,10 @@ export const getCurrentRoute = (router: any) => {
 	let currentRoute = 'property';
 	if (
 		router.pathname.includes('/products') ||
-		router.pathname.includes('/categories')
+		router.pathname.includes('/categories') ||
+		router.pathname.includes('/diagnostics') ||
+		router.pathname.includes('/labs') ||
+		router.pathname.includes('/tests')
 	) {
 		currentRoute = 'products';
 	} else if (
@@ -24,6 +27,14 @@ export const getActiveRoute = (router: any) => {
 		activeRoute = '/admin/area';
 	} else if (router.pathname.includes('/categories')) {
 		activeRoute = '/admin/categories';
+	} else if (router.pathname.includes('/diagnostics')) {
+		activeRoute = '/admin/diagnostics';
+	} else if (router.pathname.includes('/lab-appointments')) {
+		activeRoute = '/admin/lab-appointments';
+	} else if (router.pathname.includes('/labs')) {
+		activeRoute = '/admin/labs';
+	} else if (router.pathname.includes('/tests')) {
+		activeRoute = '/admin/tests';
 	} else if (router.pathname.includes('/products')) {
 		activeRoute = '/admin/products';
 	} else if (router.pathname.includes('/properties')) {

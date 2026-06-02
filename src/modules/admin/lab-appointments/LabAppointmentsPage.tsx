@@ -227,15 +227,17 @@ export const LabAppointmentsPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h2 className="text-xl font-bold">Lab Appointments</h2>
-				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink
-						data={appointmentsArray}
-						filename="OrderList"
-						target="_blank">
-						Export
-					</CSVLink>
-				</Button>
+				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<h2 className="text-xl font-bold">Lab Appointments</h2>
+					<Button type="primary">
+						<CSVLink
+							data={appointmentsArray}
+							filename="OrderList"
+							target="_blank">
+							Export
+						</CSVLink>
+					</Button>
+				</div>
 				{isLoading || loading ? (
 					<Skeleton active />
 				) : (

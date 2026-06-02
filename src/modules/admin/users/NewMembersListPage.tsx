@@ -244,18 +244,14 @@ export const NewMembersListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h2 className="text-xl font-bold">List of User Requests</h2>
-				{/* <Button
-					type="primary"
-					className="self-end mb-2"
-					onClick={() => router.push('/admin/users/create')}>
-					Add New
-				</Button> */}
-				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink data={userArray} filename="UserList" target="_blank">
-						Export
-					</CSVLink>
-				</Button>
+				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<h2 className="text-xl font-bold">List of User Requests</h2>
+					<Button type="primary">
+						<CSVLink data={userArray} filename="UserList" target="_blank">
+							Export
+						</CSVLink>
+					</Button>
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (

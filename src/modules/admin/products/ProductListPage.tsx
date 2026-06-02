@@ -1,9 +1,10 @@
 import {Layout} from '@healthvisa/components';
 import {useDeleteProduct, useProduct} from '@healthvisa/models/admin/products/useProduct';
-import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
+import {Button, Input, message, Modal, Skeleton, Space, Table} from 'antd';
+import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
-import React from 'react';
+import React, {useState} from 'react';
 import {useCategories} from '@healthvisa/models/admin/category/useCategories';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
@@ -27,6 +28,7 @@ export const ProductListPage = () => {
 	const {isLoading, data: productList} = useProduct();
 	const {data: categoryList} = useCategories();
 	const deleteProduct = useDeleteProduct();
+	const [search, setSearch] = useState('');
 
 	const handleDelete = async (id: string) => {
 		deleteProduct.mutate(
@@ -43,7 +45,7 @@ export const ProductListPage = () => {
 	};
 	const showModal = (id: string) => {
 		confirm({
-			title: 'Are you sure you want to delete this user?',
+			title: 'Are you sure you want to delete this product?',
 			icon: <ExclamationCircleFilled />,
 			content: '',
 			okText: 'Yes',
@@ -78,6 +80,17 @@ export const ProductListPage = () => {
 			title: 'Sr. No.',
 			dataIndex: 'index',
 			key: 'index',
+		},
+		{
+			title: 'Image',
+			dataIndex: 'Image',
+			key: 'image',
+			render: (url: string) =>
+				url ? (
+					<ThumbPreview src={url} />
+				) : (
+					<span className="text-xs text-gray-400">—</span>
+				),
 		},
 		{
 			title: 'Product/Service',
@@ -151,19 +164,29 @@ export const ProductListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h1 className="text-xl font-bold">Doctors</h1>
-				<Button
-					type="primary"
-					className="self-end mb-2"
-					onClick={() => router.push('/admin/products/create')}
-				>
-					Add New
-				</Button>
-				<Button type="primary" className="self-end mb-2 w-[90px]">
-					<CSVLink data={productsArray} filename="ProductList" target="_blank">
-						Export
-					</CSVLink>
-				</Button>
+				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+					<h1 className="text-xl font-bold">Doctors</h1>
+					<div className="flex items-center gap-2">
+						<Input
+							allowClear
+							placeholder="Search doctor / category"
+							style={{width: 220}}
+							value={search}
+							onChange={(e) => setSearch(e.target.value)}
+						/>
+						<Button
+							type="primary"
+							onClick={() => router.push('/admin/products/create')}
+						>
+							Add New
+						</Button>
+						<Button type="primary">
+							<CSVLink data={productsArray} filename="ProductList" target="_blank">
+								Export
+							</CSVLink>
+						</Button>
+					</div>
+				</div>
 
 				{isLoading ? (
 					<Skeleton active />
@@ -176,7 +199,11 @@ export const ProductListPage = () => {
 							showSizeChanger: false,
 						}}
 						columns={columns}
-						dataSource={productsArray}
+						dataSource={productsArray.filter((p) =>
+							`${p.Name} ${p.CategoryName}`
+								.toLowerCase()
+								.includes(search.toLowerCase()),
+						)}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}
