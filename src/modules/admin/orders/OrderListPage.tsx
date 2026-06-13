@@ -1,9 +1,20 @@
 import {Layout} from '@healthvisa/components';
 
-import {Button, message, Select, Skeleton, Table, Tag} from 'antd';
+import {
+	Button,
+	Input,
+	message,
+	Modal,
+	Select,
+	Skeleton,
+	Table,
+	Tag,
+	Tooltip,
+} from 'antd';
+import {InfoCircleOutlined} from '@ant-design/icons';
 import {ColumnsType} from 'antd/lib/table';
 
-import React from 'react';
+import React, {useState} from 'react';
 import {useUser} from '@healthvisa/models/admin/users/useUser';
 
 import moment from 'moment';
@@ -14,6 +25,26 @@ import {CSVLink} from 'react-csv';
 import {OrderUpdateRequestParams} from '@healthvisa/models/admin/orders/Order';
 
 const {Option} = Select;
+const {TextArea} = Input;
+
+// Day-granular "past": booking dates are date-only and slots are free text, so
+// an appointment is past once its calendar day is before today.
+const isAppointmentPast = (raw?: string): boolean => {
+	if (!raw) {
+		return false;
+	}
+	const d = new Date(raw);
+	if (isNaN(d.getTime())) {
+		return false;
+	}
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	return (
+		new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() <
+		today.getTime()
+	);
+};
+
 interface DataType {
 	Mobile: string;
 	User: string;
@@ -25,6 +56,8 @@ interface DataType {
 	doctor: string;
 	discount: string;
 	id: string;
+	appointment?: any;
+	metadata?: any;
 	// description: string;
 }
 
@@ -47,12 +80,17 @@ export const OrderListPage = () => {
 					discount: `₹${formatPrice(order.discount)}`,
 					id: order.id,
 					appointment: order.items[0].metadata.bookings[0],
+					metadata: order.metadata,
 
 					// description: generateDescription(order),
 			  }))
 			: [];
 
 	const updateOrder = useUpdateOrder();
+
+	const [cancelModal, setCancelModal] = useState(false);
+	const [cancelReason, setCancelReason] = useState('');
+	const [cancelRow, setCancelRow] = useState<DataType | null>(null);
 
 	const UpdateStatus = async (id: string, status: string) => {
 		const body: OrderUpdateRequestParams = {
@@ -65,6 +103,49 @@ export const OrderListPage = () => {
 			},
 			onError: (errors: any) => {
 				message.error(errors?.errors.data.message);
+			},
+		});
+	};
+
+	// Cancelling needs a reason, so it routes through a modal instead of the
+	// inline status Select. The reason + who/when is written to metadata.
+	const openCancel = (record: DataType) => {
+		if (isAppointmentPast(record.appointment?.date)) {
+			message.warning('Cannot cancel a past appointment.');
+			return;
+		}
+		setCancelRow(record);
+		setCancelReason(record.metadata?.cancellation?.reason ?? '');
+		setCancelModal(true);
+	};
+
+	const submitCancel = () => {
+		if (!cancelRow) {
+			return;
+		}
+		if (!cancelReason.trim()) {
+			message.warning('Please add a reason for cancelling.');
+			return;
+		}
+		const body: OrderUpdateRequestParams = {
+			id: cancelRow.id,
+			status: 'cancelled',
+			metadata: {
+				...(cancelRow.metadata ?? {}),
+				cancellation: {
+					reason: cancelReason.trim(),
+					by: 'admin',
+					at: new Date().toISOString(),
+				},
+			},
+		};
+		updateOrder.mutate(body, {
+			onSuccess: () => {
+				message.success('Appointment cancelled');
+				setCancelModal(false);
+			},
+			onError: (errors: any) => {
+				message.error(errors?.errors?.data?.message ?? 'Failed to cancel');
 			},
 		});
 	};
@@ -134,20 +215,50 @@ export const OrderListPage = () => {
 			key: 'createdOn',
 		},
 		{
+			title: 'Cancellation',
+			key: 'cancellation',
+			dataIndex: 'metadata',
+			render: (_, {metadata}) => {
+				const c = metadata?.cancellation;
+				if (!c?.reason) {
+					return <span className="text-gray-400">—</span>;
+				}
+				return (
+					<Tooltip title={c.reason}>
+						<Tag
+							color={c.by === 'admin' ? 'volcano' : 'red'}
+							style={{
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: 4,
+							}}
+						>
+							{c.by === 'admin' ? 'By clinic' : 'By user'}
+							<InfoCircleOutlined />
+						</Tag>
+					</Tooltip>
+				);
+			},
+		},
+		{
 			title: 'Status',
 			key: 'status',
 			dataIndex: 'Status',
-			// eslint-disable-next-line camelcase
-			render: (_, {Status, id}) => {
-				const color = Status === 'other' ? 'volcano' : 'blue';
-
-				// return <Tag color={color}>{Status}</Tag>;
+			render: (_, record) => {
+				const {Status, id} = record;
+				const past = isAppointmentPast(record.appointment?.date);
 				return (
 					<Select
 						bordered={false}
-						defaultValue={Status}
-						// value={Status}
-						onChange={(value) => UpdateStatus(id, value)}
+						value={Status}
+						onChange={(value) => {
+							if (value === 'cancelled') {
+								openCancel(record);
+							} else {
+								UpdateStatus(id, value);
+							}
+						}}
 						style={{width: 180}}
 					>
 						<Option value="placed">
@@ -157,10 +268,13 @@ export const OrderListPage = () => {
 							<Tag color="cyan">Appointment Booked</Tag>
 						</Option>
 						<Option value="rejected">
-							<Tag color="red">Rejected</Tag>
+							<Tag color="orange">Rejected</Tag>
 						</Option>
 						<Option value="completed">
 							<Tag color="green">Completed</Tag>
+						</Option>
+						<Option value="cancelled" disabled={past}>
+							<Tag color="red">Cancelled</Tag>
 						</Option>
 					</Select>
 				);
@@ -191,6 +305,27 @@ export const OrderListPage = () => {
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}
+
+				<Modal
+					centered
+					title="Cancel appointment"
+					visible={cancelModal}
+					okText="Cancel appointment"
+					okButtonProps={{danger: true}}
+					confirmLoading={updateOrder.isLoading}
+					onOk={submitCancel}
+					onCancel={() => setCancelModal(false)}
+				>
+					<p className="mb-2 text-gray-500">
+						Add a reason for cancelling. This will be visible to the user.
+					</p>
+					<TextArea
+						rows={5}
+						value={cancelReason}
+						onChange={(e) => setCancelReason(e.target.value)}
+						placeholder="Reason for cancellation"
+					/>
+				</Modal>
 			</div>
 		</Layout>
 	);
