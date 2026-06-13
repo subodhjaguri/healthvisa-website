@@ -18,6 +18,7 @@ import {
 	FaVial,
 	FaVials,
 	FaCalendarCheck,
+	FaRegNewspaper,
 } from 'react-icons/fa';
 import Link from 'next/link';
 import {getActiveRoute, getCurrentRoute} from '@healthvisa/utils/common/DrawerState';
@@ -68,6 +69,7 @@ export const DrawerComponent = () => {
 		]),
 		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),
 		getItem('Diagnostic services', '/admin/lab-appointments', <FaVial />),
+		getItem('Health News', '/admin/news', <FaRegNewspaper />),
 		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),
 	];
 	const onClick: MenuProps['onClick'] = (e) => {

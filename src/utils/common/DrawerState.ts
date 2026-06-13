@@ -43,6 +43,8 @@ export const getActiveRoute = (router: any) => {
 		activeRoute = '/admin/property-parts';
 	} else if (router.pathname.includes('/property-types')) {
 		activeRoute = '/admin/property-types';
+	} else if (router.pathname.includes('/news')) {
+		activeRoute = '/admin/news';
 	} else if (router.pathname.includes('/new-members')) {
 		activeRoute = '/admin/new-members';
 	} else if (router.pathname.includes('/users')) {

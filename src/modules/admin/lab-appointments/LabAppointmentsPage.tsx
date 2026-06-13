@@ -1,5 +1,16 @@
 import {Layout} from '@healthvisa/components';
-import {Button, message, Select, Skeleton, Table, Tag, Modal, Input} from 'antd';
+import {
+	Button,
+	message,
+	Select,
+	Skeleton,
+	Table,
+	Tag,
+	Modal,
+	Input,
+	Tooltip,
+} from 'antd';
+import {InfoCircleOutlined} from '@ant-design/icons';
 import {Typography} from 'antd';
 const {Link} = Typography;
 import {ColumnsType} from 'antd/lib/table';
@@ -28,19 +39,38 @@ interface DataType {
 	note: string;
 	metadata: any;
 	prescription?: string;
+	date?: string;
 }
 
 const {Option} = Select;
 const {TextArea} = Input;
+
+// Day-granular "past": an appointment is past once its calendar day is before
+// today. Undated lab visits (no scheduled day) are never past.
+const isAppointmentPast = (raw?: string): boolean => {
+	if (!raw) {
+		return false;
+	}
+	const d = new Date(raw);
+	if (isNaN(d.getTime())) {
+		return false;
+	}
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+	return (
+		new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() <
+		today.getTime()
+	);
+};
 
 export const LabAppointmentsPage = () => {
 	const {isLoading, data: userList} = useUser();
 	const {data: DiagnosticItems} = useDiagnosticItems();
 	const {data: labs = []} = useGetLabs();
 	const {isLoading: loading, data, refetch} = useGetLabAppointments();
-	const [isModalVisible, setIsModalVisible] = useState(false);
-	const [note, setNote] = useState('');
-	const [currentAppointment, setCurrentAppointment] = useState<DataType>();
+	const [cancelModal, setCancelModal] = useState(false);
+	const [cancelReason, setCancelReason] = useState('');
+	const [cancelRow, setCancelRow] = useState<DataType>();
 	const updateLabAppointment = useUpdateLabAppointment();
 	const UpdateStatus = async (id: string, status: string) => {
 		const body: LabAppointmentUpdateRequestParams = {
@@ -86,40 +116,52 @@ export const LabAppointmentsPage = () => {
 					note: appointment.metadata?.note || '',
 					metadata: appointment.metadata,
 					prescription: appointment?.prescription || '',
+					date: appointment.date,
 			  }))
 			: [];
 
-	const showModal = (record: DataType) => {
-		setIsModalVisible(true);
-		setNote(record.note);
-		setCurrentAppointment(record);
-	};
-
-	const handleOk = async () => {
-		if (currentAppointment) {
-			const body: LabAppointmentUpdateRequestParams = {
-				id: currentAppointment.id,
-				metadata: {
-					...currentAppointment.metadata,
-					note,
-				},
-			};
-
-			updateLabAppointment.mutate(body, {
-				onSuccess: (res) => {
-					message.success('Note Updated Successfully');
-					refetch();
-					setIsModalVisible(false);
-				},
-				onError: (errors: any) => {
-					message.error(errors?.errors.data.message);
-				},
-			});
+	// Cancelling needs a reason → routes through its own modal (not the inline
+	// status Select). Reason + who/when is written to metadata.cancellation.
+	const openCancel = (record: DataType) => {
+		if (isAppointmentPast(record.date)) {
+			message.warning('Cannot cancel a past appointment.');
+			return;
 		}
+		setCancelRow(record);
+		setCancelReason(record.metadata?.cancellation?.reason ?? '');
+		setCancelModal(true);
 	};
 
-	const handleCancel = () => {
-		setIsModalVisible(false);
+	const submitCancel = () => {
+		if (!cancelRow) {
+			return;
+		}
+		if (!cancelReason.trim()) {
+			message.warning('Please add a reason for cancelling.');
+			return;
+		}
+		const body: LabAppointmentUpdateRequestParams = {
+			id: cancelRow.id,
+			status: 'cancelled',
+			metadata: {
+				...(cancelRow.metadata ?? {}),
+				cancellation: {
+					reason: cancelReason.trim(),
+					by: 'admin',
+					at: new Date().toISOString(),
+				},
+			},
+		};
+		updateLabAppointment.mutate(body, {
+			onSuccess: () => {
+				message.success('Appointment cancelled');
+				refetch();
+				setCancelModal(false);
+			},
+			onError: (errors: any) => {
+				message.error(errors?.errors?.data?.message ?? 'Failed to cancel');
+			},
+		});
 	};
 
 	const columns: ColumnsType<DataType> = [
@@ -189,38 +231,69 @@ export const LabAppointmentsPage = () => {
 			key: 'createdOn',
 		},
 		{
-			title: 'Note',
-			key: 'note',
-			render: (_, record) => (
-				<Button type="link" onClick={() => showModal(record)}>
-					View/Edit
-				</Button>
-			),
+			title: 'Cancellation',
+			key: 'cancellation',
+			dataIndex: 'metadata',
+			render: (_, {metadata}) => {
+				const c = metadata?.cancellation;
+				if (!c?.reason) {
+					return <span className="text-gray-400">—</span>;
+				}
+				return (
+					<Tooltip title={c.reason}>
+						<Tag
+							color={c.by === 'admin' ? 'volcano' : 'red'}
+							style={{
+								cursor: 'pointer',
+								display: 'inline-flex',
+								alignItems: 'center',
+								gap: 4,
+							}}
+						>
+							{c.by === 'admin' ? 'By clinic' : 'By user'}
+							<InfoCircleOutlined />
+						</Tag>
+					</Tooltip>
+				);
+			},
 		},
 		{
 			title: 'Status',
 			key: 'status',
 			dataIndex: 'Status',
-			render: (_, {Status, id}) => (
-				<Select
-					bordered={false}
-					defaultValue={Status}
-					onChange={(value) => UpdateStatus(id, value)}
-					style={{width: 180}}>
-					<Option value="placed">
-						<Tag color="blue">Placed</Tag>
-					</Option>
-					<Option value="appointment booked">
-						<Tag color="cyan">Appointment Booked</Tag>
-					</Option>
-					<Option value="rejected">
-						<Tag color="red">Rejected</Tag>
-					</Option>
-					<Option value="completed">
-						<Tag color="green">Completed</Tag>
-					</Option>
-				</Select>
-			),
+			render: (_, record) => {
+				const {Status, id} = record;
+				const past = isAppointmentPast(record.date);
+				return (
+					<Select
+						bordered={false}
+						value={Status}
+						onChange={(value) => {
+							if (value === 'cancelled') {
+								openCancel(record);
+							} else {
+								UpdateStatus(id, value);
+							}
+						}}
+						style={{width: 180}}>
+						<Option value="placed">
+							<Tag color="blue">Placed</Tag>
+						</Option>
+						<Option value="appointment booked">
+							<Tag color="cyan">Appointment Booked</Tag>
+						</Option>
+						<Option value="rejected">
+							<Tag color="orange">Rejected</Tag>
+						</Option>
+						<Option value="completed">
+							<Tag color="green">Completed</Tag>
+						</Option>
+						<Option value="cancelled" disabled={past}>
+							<Tag color="red">Cancelled</Tag>
+						</Option>
+					</Select>
+				);
+			},
 		},
 	];
 
@@ -261,19 +334,24 @@ export const LabAppointmentsPage = () => {
 					/>
 				)}
 
-				{/* Note Modal */}
+				{/* Cancel Modal */}
 				<Modal
 					centered
-					title="View/Edit Note"
-					visible={isModalVisible}
-					onOk={handleOk}
-					onCancel={handleCancel}
-					okText="Save">
+					title="Cancel appointment"
+					visible={cancelModal}
+					okText="Cancel appointment"
+					okButtonProps={{danger: true}}
+					confirmLoading={updateLabAppointment.isLoading}
+					onOk={submitCancel}
+					onCancel={() => setCancelModal(false)}>
+					<p className="mb-2 text-gray-500">
+						Add a reason for cancelling. This will be visible to the user.
+					</p>
 					<TextArea
-						rows={6}
-						value={note}
-						onChange={(e) => setNote(e.target.value)}
-						placeholder="Write your note here..."
+						rows={5}
+						value={cancelReason}
+						onChange={(e) => setCancelReason(e.target.value)}
+						placeholder="Reason for cancellation"
 					/>
 				</Modal>
 			</div>

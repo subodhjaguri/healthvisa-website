@@ -115,18 +115,20 @@ export function getOrderById({id}: GetOrderByID): Promise<IOrder> {
 	});
 }
 
-// Update Order status
+// Update Order status (and/or metadata — e.g. the cancellation block)
 export interface OrderUpdateRequestParams {
 	id: string;
-	status: string;
+	status?: string;
+	metadata?: any;
 }
 export function updateOrder({...requestBody}: OrderUpdateRequestParams): Promise<any> {
-	const {id, status} = requestBody;
-	const data: Record<string, Primitive> = {
+	const {id, status, metadata} = requestBody;
+	const data: Record<string, unknown> = {
 		id,
 		status,
+		metadata,
 	};
-	return ajaxPatch<Record<string, Primitive>, any>({
+	return ajaxPatch<Record<string, unknown>, any>({
 		data,
 		url: `${getApiUrl(Service, OrderAPI.UpdateOrder)}/${id}`,
 	});
