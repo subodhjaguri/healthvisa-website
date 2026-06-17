@@ -31,6 +31,7 @@ export interface IOrder {
 	review: string;
 	paymentMode: string;
 	metadata: any;
+	createdAt?: string;
 }
 
 export interface PleaceOrderRequestParams {
