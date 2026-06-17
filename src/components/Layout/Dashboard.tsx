@@ -1,6 +1,7 @@
 import React from 'react';
 import {DrawerComponent} from '../Drawer';
 import {Header} from '../Header';
+import {NotificationWatcher} from '../NotificationWatcher';
 
 interface IDashboardLayoutProps {
 	children: React.ReactNode;
@@ -8,6 +9,7 @@ interface IDashboardLayoutProps {
 
 export const DashboardLayout: React.FC<IDashboardLayoutProps> = (props) => (
 	<div className="w-screen h-screen flex box-border overflow-hidden admin-panel">
+		<NotificationWatcher />
 		<DrawerComponent />
 		<div className="flex-1  relative bottom-0 h-full ">
 			<Header />
