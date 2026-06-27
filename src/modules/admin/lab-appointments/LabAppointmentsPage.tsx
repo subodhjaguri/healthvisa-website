@@ -10,7 +10,11 @@ import {
 	Input,
 	Tooltip,
 } from 'antd';
-import {InfoCircleOutlined} from '@ant-design/icons';
+import {
+	CalendarOutlined,
+	ClockCircleOutlined,
+	InfoCircleOutlined,
+} from '@ant-design/icons';
 import {Typography} from 'antd';
 const {Link} = Typography;
 import {ColumnsType} from 'antd/lib/table';
@@ -40,7 +44,16 @@ interface DataType {
 	metadata: any;
 	prescription?: string;
 	date?: string;
+	slots?: string[];
 }
+
+// Aligned label for the expanded-row detail rows.
+const labelStyle: React.CSSProperties = {
+	fontWeight: 600,
+	minWidth: 140,
+	color: '#555',
+	fontSize: 13,
+};
 
 const {Option} = Select;
 const {TextArea} = Input;
@@ -117,6 +130,7 @@ export const LabAppointmentsPage = () => {
 					metadata: appointment.metadata,
 					prescription: appointment?.prescription || '',
 					date: appointment.date,
+					slots: appointment.slots,
 			  }))
 			: [];
 
@@ -184,7 +198,9 @@ export const LabAppointmentsPage = () => {
 			title: 'Visit',
 			dataIndex: 'visit',
 			key: 'visit',
-			render: (visit) => <span className="font-semibold capitalize">{visit}</span>,
+			render: (visit) => (
+				<span className="font-semibold capitalize">{visit}</span>
+			),
 		},
 		{
 			title: 'Option',
@@ -322,14 +338,80 @@ export const LabAppointmentsPage = () => {
 						dataSource={appointmentsArray}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 						expandable={{
-							expandedRowRender: (record) => (
-								<div className="flex gap-3 ml-10">
-									<p className="font-semibold ">Tests selected</p>
-									<div className="capitalize flex gap-2">
-										{record?.tests || ''}
+							expandedRowRender: (record) => {
+								const testList = record.tests
+									? record.tests.split(',').map((t) => t.trim()).filter(Boolean)
+									: [];
+								const slotList = (record.slots || []).filter(Boolean);
+								return (
+									<div
+										style={{
+											marginLeft: 40,
+											padding: '10px 14px',
+											background: '#FAFAFA',
+											borderRadius: 8,
+											border: '1px solid #F0F0F0',
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 10,
+										}}>
+										<div style={{display: 'flex', alignItems: 'center'}}>
+											<span style={labelStyle}>Tests selected</span>
+											<div style={{display: 'flex', gap: 6, flexWrap: 'wrap'}}>
+												{testList.length ? (
+													testList.map((t, i) => (
+														<Tag
+															key={i}
+															color="default"
+															style={{margin: 0, textTransform: 'capitalize'}}>
+															{t}
+														</Tag>
+													))
+												) : (
+													<span style={{color: '#999'}}>—</span>
+												)}
+											</div>
+										</div>
+
+										{record.visit === 'home' ? (
+											<div style={{display: 'flex', alignItems: 'center'}}>
+												<span style={labelStyle}>Home visit schedule</span>
+												<div
+													style={{
+														display: 'flex',
+														gap: 6,
+														flexWrap: 'wrap',
+														alignItems: 'center',
+													}}>
+													{record.date ? (
+														<Tag
+															icon={<CalendarOutlined />}
+															color="geekblue"
+															style={{margin: 0}}>
+															{record.date}
+														</Tag>
+													) : null}
+													{slotList.length ? (
+														slotList.map((s, i) => (
+															<Tag
+																key={i}
+																icon={<ClockCircleOutlined />}
+																color="cyan"
+																style={{margin: 0}}>
+																{s}
+															</Tag>
+														))
+													) : (
+														<span style={{color: '#999'}}>
+															No slots selected
+														</span>
+													)}
+												</div>
+											</div>
+										) : null}
 									</div>
-								</div>
-							),
+								);
+							},
 						}}
 					/>
 				)}

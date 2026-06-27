@@ -17,8 +17,11 @@ import {
 	deleteUser,
 	EHRRequestParams,
 	GetNewMemberResponse,
+	getMemberships,
 	getNewMembers,
 	getUser,
+	IMembershipPlan,
+	revokeMembership,
 	getUserById,
 	GetUserByIdRequestParams,
 	GetUserByIdResponse,
@@ -159,6 +162,43 @@ export function useGetNewMembers(
 ): UseQueryResult<GetNewMemberResponse, XHRErrorResponse> {
 	return useQuery([UserKeys.GetNewMembers], () => getNewMembers(), {
 		...queryOptions,
+	});
+}
+
+export function useGetMemberships(
+	queryOptions?: Partial<
+		Omit<
+			UseQueryOptions<
+				IMembershipPlan[],
+				XHRErrorResponse,
+				IMembershipPlan[],
+				[UserKeys.GetMemberships]
+			>,
+			'queryKey' | 'queryFn'
+		>
+	>,
+): UseQueryResult<IMembershipPlan[], XHRErrorResponse> {
+	return useQuery([UserKeys.GetMemberships], () => getMemberships(), {
+		...queryOptions,
+	});
+}
+
+export function useRevokeMembership(
+	queryOptions?: Partial<
+		Omit<
+			UseMutationOptions<{revoked: number}, XHRErrorResponse, string>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
+): UseMutationResult<{revoked: number}, XHRErrorResponse, string> {
+	const queryClient = useQueryClient();
+	return useMutation((userId: string) => revokeMembership(userId), {
+		mutationKey: [UserKeys.RevokeMembership],
+		...queryOptions,
+		onSuccess(...args) {
+			queryClient.invalidateQueries(UserKeys.GetUser);
+			return queryOptions?.onSuccess?.(...args);
+		},
 	});
 }
 
