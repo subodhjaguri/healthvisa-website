@@ -5,8 +5,8 @@ import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React from 'react';
 import {
-	useAllowEHRUser,
 	useDeleteUser,
+	useGetMemberships,
 	useGetNewMembers,
 	useSelectMembership,
 	useUpdateNewMember,
@@ -16,7 +16,6 @@ import {ExclamationCircleFilled} from '@ant-design/icons';
 import {CSVLink} from 'react-csv';
 import {
 	AddMembershipTransactionRequestParams,
-	EHRRequestParams,
 	NewMemberUpdateRequestParams,
 } from '@healthvisa/models/admin/users/User';
 import moment from 'moment';
@@ -38,6 +37,12 @@ interface DataType {
 export const NewMembersListPage = () => {
 	const {isLoading, data: userList} = useGetNewMembers();
 	const {data: usersArray} = useUser();
+	const {data: plans} = useGetMemberships();
+	const planTitleById = React.useMemo(() => {
+		const map: Record<string, string> = {};
+		(plans || []).forEach((p) => (map[p.id] = p.title));
+		return map;
+	}, [plans]);
 	const deleteUser = useDeleteUser();
 
 	const handleDelete = async (id: string) => {
@@ -67,7 +72,6 @@ export const NewMembersListPage = () => {
 			},
 		});
 	};
-	const allowEHR = useAllowEHRUser();
 	const selectMembership = useSelectMembership();
 	const updateNewMember = useUpdateNewMember();
 
@@ -86,31 +90,26 @@ export const NewMembersListPage = () => {
 		});
 	};
 	const allowAccess = async (appliedFor: string, userId: string, metadata:any) => {
-		if (appliedFor === 'EHR') {
-			const body: EHRRequestParams = {
-				id: userId,
-				isEHR: true,
-			};
-			allowEHR.mutate(body, {
-				onSuccess: (res) => {
-					message.success('Access granted');
-				},
-				onError: (errors: any) => {
-					message.error(errors?.errors.data.message);
-				},
-			});
-		}
+		// EHR is free for all users now (granted by default at signup), so there's
+		// no EHR approval here — only membership requests need admin action.
 		if (appliedFor === 'membership') {
+			// The user's request always carries the chosen plan id; don't fall back
+			// to a bogus hardcoded id (it doesn't match any real plan).
+			if (!metadata?.membershipId) {
+				message.error('No membership plan on this request — cannot approve.');
+				return;
+			}
 			const body: AddMembershipTransactionRequestParams = {
 				userId,
-				membershipId: metadata?.membershipId || '633b0a4e54d6933158b38f27',
+				membershipId: metadata.membershipId,
 				optedAt: new Date(),
 				isActive: true,
 				metadata: {},
 				createdAt: new Date(),
 				updatedAt: new Date(),
+				// Renewal requests stack the new period onto remaining time.
+				source: metadata?.renewal ? 'renewal' : 'new',
 			};
-			console.log('>>>>>>>>>>>>>>>>>>>>>>', body);
 			selectMembership.mutate(body, {
 				onSuccess: (data) => {
 					console.log('data: ', data);
@@ -164,6 +163,16 @@ export const NewMembersListPage = () => {
 			key: 'appliedFor',
 		},
 		{
+			title: 'Plan',
+			key: 'plan',
+			render: (_, {appliedFor, metadata}) =>
+				appliedFor === 'membership'
+					? planTitleById[metadata?.membershipId] ||
+					  metadata?.membershipId ||
+					  '—'
+					: '—',
+		},
+		{
 			title: 'Requested On',
 			dataIndex: 'createdOn',
 			key: 'createdOn',
@@ -173,9 +182,8 @@ export const NewMembersListPage = () => {
 			key: 'action',
 			render: (text, record) => (
 				<Space size="middle">
-					{['membership', 'EHR'].includes(record.appliedFor) && (
+					{record.appliedFor === 'membership' && (
 						<Button
-							// loading={allowEHR.isLoading || selectMembership.isLoading}
 							disabled={['completed', 'rejected'].includes(record.status)}
 							size="small"
 							onClick={() =>

@@ -12,6 +12,8 @@ export enum UserKeys {
 	GetNewMembers = 'GetNewMembers',
 	UpdateNewMember = 'updateNewMembers',
 	AddMembershipTransaction = 'addNewMembership',
+	GetMemberships = 'GetMemberships',
+	RevokeMembership = 'revokeMembership',
 }
 
 /**
@@ -26,6 +28,8 @@ export enum UserAPI {
 	GetNewMembers = '/new-members',
 	UpdateNewMember = '/new-members',
 	AddMembershipTransaction = '/membership-transactions',
+	GetMemberships = '/memberships',
+	RevokeMembership = '/membership-transactions/revoke',
 }
 
 export const Service: Services = 'authentication';

@@ -141,6 +141,29 @@ export function getNewMembers(): Promise<GetNewMemberResponse> {
 	});
 }
 
+// Membership plans (catalog) — used to show the plan name in admin views.
+export interface IMembershipPlan {
+	id: string;
+	title: string;
+	validity?: string;
+	discountPrice?: number;
+}
+
+export function getMemberships(): Promise<IMembershipPlan[]> {
+	return ajaxGet<IMembershipPlan[]>({
+		// Plans live on the 'card' service (same as membership-transactions).
+		url: getApiUrl('card', UserAPI.GetMemberships),
+	});
+}
+
+// Admin: immediately revoke a user's active membership.
+export function revokeMembership(userId: string): Promise<{revoked: number}> {
+	return ajaxPost<{}, {revoked: number}>({
+		data: {},
+		url: `${getApiUrl('card', UserAPI.RevokeMembership)}/${userId}`,
+	});
+}
+
 // Update new member status
 export interface NewMemberUpdateRequestParams {
 	id: string;
@@ -168,6 +191,9 @@ export interface AddMembershipTransactionRequestParams {
 	metadata: object;
 	createdAt: Date;
 	updatedAt: Date;
+	// 'renewal' makes the backend stack the new period onto remaining time +
+	// link the previous membership; defaults to 'new'.
+	source?: 'new' | 'renewal';
 }
 
 export interface MembershipTransactionResponse {
@@ -184,8 +210,16 @@ export interface MembershipTransactionResponse {
 export function addMembershipTransaction({
 	...requestBody
 }: AddMembershipTransactionRequestParams): Promise<MembershipTransactionResponse> {
-	const {userId, membershipId, optedAt, isActive, metadata, createdAt, updatedAt} =
-		requestBody;
+	const {
+		userId,
+		membershipId,
+		optedAt,
+		isActive,
+		metadata,
+		createdAt,
+		updatedAt,
+		source,
+	} = requestBody;
 
 	const data: AddMembershipTransactionRequestParams = {
 		userId,
@@ -195,6 +229,7 @@ export function addMembershipTransaction({
 		metadata,
 		createdAt,
 		updatedAt,
+		...(source ? {source} : {}),
 	};
 
 	return ajaxPost<AddMembershipTransactionRequestParams, MembershipTransactionResponse>(

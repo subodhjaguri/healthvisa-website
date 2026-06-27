@@ -4,7 +4,12 @@ import {Button, Checkbox, message, Modal, Skeleton, Space, Table, Tag} from 'ant
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React, {useState} from 'react';
-import {useDeleteUser, useUser} from '@healthvisa/models/admin/users/useUser';
+import {
+	useDeleteUser,
+	useGetMemberships,
+	useRevokeMembership,
+	useUser,
+} from '@healthvisa/models/admin/users/useUser';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {CSVLink} from 'react-csv';
@@ -20,11 +25,43 @@ interface DataType {
 	createdOn: string;
 	isEHR: boolean;
 	isMembership: boolean;
+	membershipEndDate?: string;
+	membershipPlanId?: string;
 }
 
 export const UserListPage = () => {
 	const {isLoading, data: userList} = useUser();
+	const {data: plans} = useGetMemberships();
+	const planTitleById = React.useMemo(() => {
+		const map: Record<string, string> = {};
+		(plans || []).forEach((p) => (map[p.id] = p.title));
+		return map;
+	}, [plans]);
 	const deleteUser = useDeleteUser();
+	const revokeMembershipMut = useRevokeMembership();
+
+	const handleRevoke = (id: string) => {
+		confirm({
+			title: "Revoke this user's membership?",
+			icon: <ExclamationCircleFilled />,
+			content: 'This immediately cancels their active membership.',
+			okText: 'Revoke',
+			okType: 'danger',
+			cancelText: 'No',
+			onOk() {
+				revokeMembershipMut.mutate(id, {
+					onSuccess: () => {
+						message.success('Membership revoked');
+					},
+					onError: (err: any) => {
+						message.error(
+							err?.errors?.error?.message || 'Failed to revoke membership',
+						);
+					},
+				});
+			},
+		});
+	};
 	const [isEHRChecked, setIsEHR] = useState(false);
 	const handleDelete = async (id: string) => {
 		deleteUser.mutate(
@@ -65,6 +102,10 @@ export const UserListPage = () => {
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
 					isEHR: user.isEHR,
 					isMembership: user?.metadata?.membershipDetail?.length > 0,
+					membershipEndDate:
+						user?.metadata?.membershipDetail?.[0]?.endDate || '',
+					membershipPlanId:
+						user?.metadata?.membershipDetail?.[0]?.membershipId || '',
 					uniqueId: `HF-${user.uniqueId}`,
 			  }))
 			: [];
@@ -125,11 +166,32 @@ export const UserListPage = () => {
 				);
 			},
 		},
-		// {
-		// 	title: 'Expiry Date',
-		// 	dataIndex: 'expiryDate',
-		// 	key: 'expiryDate',
-		// },
+		{
+			title: 'Plan',
+			dataIndex: 'membershipPlanId',
+			key: 'membershipPlanId',
+			render: (_, {membershipPlanId}) =>
+				membershipPlanId
+					? planTitleById[membershipPlanId] || membershipPlanId
+					: '—',
+		},
+		{
+			title: 'Expiry',
+			dataIndex: 'membershipEndDate',
+			key: 'membershipEndDate',
+			render: (_, {membershipEndDate}) => {
+				if (!membershipEndDate) {
+					return <span>—</span>;
+				}
+				const expired = moment(membershipEndDate).isBefore(moment());
+				return (
+					<Tag color={expired ? 'volcano' : 'blue'}>
+						{moment(membershipEndDate).format('DD MMM YYYY')}
+						{expired ? ' (expired)' : ''}
+					</Tag>
+				);
+			},
+		},
 
 		// {
 		// 	title: 'Note',
@@ -166,6 +228,21 @@ export const UserListPage = () => {
 						className="uppercase">
 						Delete
 					</Button>
+
+					{record.isMembership && (
+						<Button
+							size="small"
+							onClick={() => handleRevoke(record.key)}
+							type="default"
+							style={{
+								color: '#fa8c16',
+								border: '1px solid #fa8c16',
+								padding: '0 10px',
+							}}
+							className="uppercase">
+							Revoke
+						</Button>
+					)}
 				</Space>
 			),
 		},
