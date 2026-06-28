@@ -7,9 +7,16 @@ import type {AppProps} from 'next/app';
 import React from 'react';
 import {Hydrate, QueryClient, QueryClientProvider} from 'react-query';
 import {ReactQueryDevtools} from 'react-query/devtools';
+import {setupAdminAuthInterceptor} from '../src/utils/ajax/setup-auth';
 
 const Tls = ({Component, pageProps}: AppProps) => {
 	const [queryClient] = React.useState(() => new QueryClient());
+
+	// Bounce expired/invalid admin sessions (401) back to the login screen.
+	React.useEffect(() => {
+		setupAdminAuthInterceptor();
+	}, []);
+
 	return (
 		<QueryClientProvider client={queryClient}>
 			{/**

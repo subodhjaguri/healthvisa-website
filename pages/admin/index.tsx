@@ -1,22 +1,34 @@
-// import {LoginRequestParams, useLogin} from '@tieet/models/admin/useLogin';
-// import {useAdminData} from '@tieet/zustand/useAdmindata';
-import {Button, Checkbox, Form, Input, message} from 'antd';
+import {Button, Form, Input, message} from 'antd';
 import {useRouter} from 'next/router';
 import React from 'react';
+import {useAdminLogin} from '@healthvisa/models/admin/auth/useAuth';
 
-const login = () => {
-	// const setAdminData = useAdminData((state) => state.setAdminData);
+const Login = () => {
 	const router = useRouter();
-	// const loginAccount = useLogin();
-	const onFinish = (values: any) => {
-		// console.log('values: ', values);
+	const loginAccount = useAdminLogin();
 
-		// Creds for admin login
-		if (values.email === 'healthifam@admin.com' && values.password === '12345') {
-			router.push('/admin/dashboard');
-		} else {
-			message.error('Invalid credentials');
+	// Already signed in → skip the form.
+	React.useEffect(() => {
+		if (localStorage.getItem('@healthifam-token')) {
+			router.replace('/admin/dashboard');
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const onFinish = (values: {email: string; password: string}) => {
+		loginAccount.mutate(
+			{email: values.email, password: values.password},
+			{
+				onSuccess: (data) => {
+					localStorage.setItem('@healthifam-token', data.accessToken);
+					localStorage.setItem('adminData', JSON.stringify(data.admin));
+					router.push('/admin/dashboard');
+				},
+				onError: () => {
+					message.error('Invalid email or password');
+				},
+			},
+		);
 	};
 
 	return (
@@ -35,7 +47,7 @@ const login = () => {
 					<Form.Item
 						label="Email"
 						name="email"
-						rules={[{required: true, message: 'Please input your username!'}]}
+						rules={[{required: true, message: 'Please input your email!'}]}
 					>
 						<Input />
 					</Form.Item>
@@ -50,8 +62,8 @@ const login = () => {
 
 					<div className="flex justify-center">
 						<Button
-							// loading={loginAccount.isLoading}
-							// disabled={loginAccount.isLoading}
+							loading={loginAccount.isLoading}
+							disabled={loginAccount.isLoading}
 							style={{width: '100%'}}
 							type="primary"
 							htmlType="submit"
@@ -65,4 +77,4 @@ const login = () => {
 	);
 };
 
-export default login;
+export default Login;

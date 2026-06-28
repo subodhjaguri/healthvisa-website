@@ -17,7 +17,7 @@ export const Header = () => {
 	const total = counts.orders + counts.labs + counts.requests;
 
 	const logoutHandler = () => {
-		localStorage.removeItem('@tieet-token');
+		localStorage.removeItem('@healthifam-token');
 		localStorage.removeItem('adminData');
 		router.push('/admin');
 	};

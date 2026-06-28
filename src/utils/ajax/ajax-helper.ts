@@ -114,7 +114,7 @@ export function makeAjaxCall<D, T, E>({
 			...reqHeaders,
 			// TODO: Fix required for authorization
 			Authorization: !isServer()
-				? `Bearer ${localStorage.getItem('@tieet-token')}`
+				? `Bearer ${localStorage.getItem('@healthifam-token')}`
 				: '',
 		},
 		onUploadProgress: upload && onProgress ? onProgress : undefined,
