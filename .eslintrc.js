@@ -5,6 +5,7 @@ module.exports = {
 	},
 	extends: [
 		'plugin:react/recommended',
+		'plugin:react-hooks/recommended',
 		'airbnb',
 		'prettier',
 		'plugin:storybook/recommended',
@@ -20,7 +21,7 @@ module.exports = {
 		sourceType: 'module',
 	},
 
-	plugins: ['react', '@typescript-eslint'],
+	plugins: ['react', 'react-hooks', '@typescript-eslint'],
 	rules: {
 		'react/function-component-definition': [
 			2,

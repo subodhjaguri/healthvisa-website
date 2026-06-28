@@ -58,7 +58,7 @@ export const DrawerComponent = () => {
 	const items: MenuProps['items'] = [
 		getItem('Dashboard', '/admin/dashboard', <MdOutlineDashboard />),
 		getItem('Products and Services', 'products', <MdStorefront />, [
-			getItem('Services', '/admin/categories', <BiCategoryAlt />),
+			getItem('Categories', '/admin/categories', <BiCategoryAlt />),
 			getItem('Doctors', '/admin/products', <FaUserMd />),
 			getItem('Diagnostics', '/admin/diagnostics', <MdBiotech />),
 			getItem('Labs', '/admin/labs', <FaFlask />),
@@ -69,7 +69,7 @@ export const DrawerComponent = () => {
 			getItem('Users', '/admin/users', <FaUsers />),
 		]),
 		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),
-		getItem('Diagnostic services', '/admin/lab-appointments', <FaVial />),
+		getItem('Lab Appointments', '/admin/lab-appointments', <FaVial />),
 		getItem('EHR Reports', '/admin/documents', <FaFileMedical />),
 		getItem('Health News', '/admin/news', <FaRegNewspaper />),
 		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),

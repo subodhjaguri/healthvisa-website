@@ -155,7 +155,7 @@ export const CategoryListPage = () => {
 				key={key_}
 			>
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">Services</h2>
+					<h2 className="text-xl font-bold">Categories</h2>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"

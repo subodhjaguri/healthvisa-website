@@ -3,7 +3,7 @@ import {PurchaseFieldType} from '@healthvisa/models/admin/products/PurchaseFiled
 import React, {useState} from 'react';
 import {MdDelete} from 'react-icons/md';
 
-export default function notification() {
+const Notification = () => {
 	const [componentType, setComponentType] = React.useState('');
 	const [field, setField] = useState<PurchaseFieldType[]>([]);
 	console.log('field-----------------', field);
@@ -88,4 +88,6 @@ export default function notification() {
 			</div>
 		</div>
 	);
-}
+};
+
+export default Notification;
