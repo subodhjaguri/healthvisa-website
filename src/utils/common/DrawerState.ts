@@ -51,6 +51,10 @@ export const getActiveRoute = (router: any) => {
 		activeRoute = '/admin/users';
 	} else if (router.pathname.includes('/orders')) {
 		activeRoute = '/admin/orders';
+	} else if (router.pathname.includes('/referral-codes')) {
+		activeRoute = '/admin/referral-codes';
+	} else if (router.pathname.includes('/documents')) {
+		activeRoute = '/admin/documents';
 	} else activeRoute = '/admin/dashboard';
 
 	return activeRoute;

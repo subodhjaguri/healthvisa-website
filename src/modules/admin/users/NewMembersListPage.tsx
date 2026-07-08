@@ -18,6 +18,7 @@ import {
 	AddMembershipTransactionRequestParams,
 	NewMemberUpdateRequestParams,
 } from '@healthvisa/models/admin/users/User';
+import {formatPrice} from '@healthvisa/utils';
 import moment from 'moment';
 
 const {confirm} = Modal;
@@ -171,6 +172,24 @@ export const NewMembersListPage = () => {
 					  metadata?.membershipId ||
 					  '—'
 					: '—',
+		},
+		{
+			title: 'Referral',
+			key: 'referral',
+			render: (_, {appliedFor, metadata}) => {
+				const referral = metadata?.referral;
+				if (appliedFor !== 'membership' || !referral) {
+					return '—';
+				}
+				const amount = referral.finalPrice ?? referral.listPrice;
+				return (
+					<span>
+						{referral.code}
+						{referral.referrerName ? ` · ${referral.referrerName}` : ''}
+						{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
+					</span>
+				);
+			},
 		},
 		{
 			title: 'Requested On',

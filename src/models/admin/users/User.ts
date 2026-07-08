@@ -19,6 +19,9 @@ export interface IUserNew {
 	updatedAt: Date;
 	isEHR: boolean;
 	uniqueId: number;
+	// Referral attribution — set at registration, backfilled at first membership.
+	referralCode?: string;
+	referrerName?: string;
 }
 
 export type GetUserResponse = IUserNew[];

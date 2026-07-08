@@ -27,6 +27,7 @@ interface DataType {
 	isMembership: boolean;
 	membershipEndDate?: string;
 	membershipPlanId?: string;
+	referredBy: string;
 }
 
 export const UserListPage = () => {
@@ -107,6 +108,7 @@ export const UserListPage = () => {
 					membershipPlanId:
 						user?.metadata?.membershipDetail?.[0]?.membershipId || '',
 					uniqueId: `HF-${user.uniqueId}`,
+					referredBy: user?.referrerName || user?.referralCode || '—',
 			  }))
 			: [];
 
@@ -151,6 +153,11 @@ export const UserListPage = () => {
 			title: 'Registered On',
 			dataIndex: 'createdOn',
 			key: 'createdOn',
+		},
+		{
+			title: 'Referred by',
+			dataIndex: 'referredBy',
+			key: 'referredBy',
 		},
 		{
 			title: 'Membership',

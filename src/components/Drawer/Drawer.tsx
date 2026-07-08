@@ -10,6 +10,7 @@ import {
 	MdBiotech,
 	MdOutlineAssignment,
 	MdPeople,
+	MdLocalOffer,
 } from 'react-icons/md';
 import {
 	FaUsers,
@@ -73,6 +74,7 @@ export const DrawerComponent = () => {
 		getItem('EHR Reports', '/admin/documents', <FaFileMedical />),
 		getItem('Health News', '/admin/news', <FaRegNewspaper />),
 		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),
+		getItem('Referrals', '/admin/referral-codes', <MdLocalOffer />),
 	];
 	const onClick: MenuProps['onClick'] = (e) => {
 		router.push(e.key);
