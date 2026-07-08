@@ -102,7 +102,11 @@ export const ReferralCodesPage = () => {
 				},
 			);
 		} else {
-			addReferralCode.mutate(payload, {
+			// Send a typed custom code if provided; otherwise let the server generate.
+			const createPayload = values.code?.trim()
+				? {...payload, code: values.code.trim()}
+				: payload;
+			addReferralCode.mutate(createPayload, {
 				onSuccess: () => {
 					message.success('Referral code created');
 					closeModal();
@@ -240,9 +244,16 @@ export const ReferralCodesPage = () => {
 					onFinish={onFinish}
 					autoComplete="off"
 					initialValues={{isActive: true}}>
-					{editing && (
+					{editing ? (
 						<Form.Item label="Code">
 							<Input value={editing.code} disabled />
+						</Form.Item>
+					) : (
+						<Form.Item
+							label="Code (optional)"
+							name="code"
+							extra="Leave blank to auto-generate a code.">
+							<Input placeholder="e.g. an existing code" />
 						</Form.Item>
 					)}
 					<Form.Item

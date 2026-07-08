@@ -33,6 +33,8 @@ export function getReferralCodes(): Promise<GetReferralCodesResponse> {
 }
 
 export interface AddReferralCodeRequestParams {
+	// Optional custom code (e.g. importing an existing one); blank → server generates.
+	code?: string;
 	referrerName: string;
 	isActive?: boolean;
 	notes?: string;
@@ -40,7 +42,7 @@ export interface AddReferralCodeRequestParams {
 	validTo?: string;
 }
 
-/** Create a referral code. The server auto-generates a unique code. */
+/** Create a referral code. If `code` is omitted the server auto-generates one. */
 export function addReferralCode(
 	data: AddReferralCodeRequestParams,
 ): Promise<IReferralCode> {
