@@ -30,6 +30,8 @@ import {
 	IUserNew,
 	MembershipTransactionResponse,
 	NewMemberUpdateRequestParams,
+	updateMembershipExpiry,
+	UpdateMembershipExpiryRequestParams,
 	updateNewMember,
 	updateUser,
 	UserDeleteRequestParams,
@@ -145,6 +147,30 @@ export function useUpdateUser(
 			return queryOptions?.onSuccess?.(data, ...rest);
 		},
 	});
+}
+
+export function useUpdateMembershipExpiry(
+	queryOptions?: Partial<
+		Omit<
+			UseMutationOptions<any, XHRErrorResponse, UpdateMembershipExpiryRequestParams>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
+): UseMutationResult<any, XHRErrorResponse, UpdateMembershipExpiryRequestParams> {
+	const queryClient = useQueryClient();
+	return useMutation(
+		(reqParams: UpdateMembershipExpiryRequestParams) =>
+			updateMembershipExpiry(reqParams),
+		{
+			mutationKey: [UserKeys.UpdateMembershipExpiry],
+			...queryOptions,
+			onSuccess(data: any, ...rest) {
+				queryClient.invalidateQueries(UserKeys.GetUser);
+				queryClient.invalidateQueries(UserKeys.GetUserById);
+				return queryOptions?.onSuccess?.(data, ...rest);
+			},
+		},
+	);
 }
 
 export function useGetNewMembers(

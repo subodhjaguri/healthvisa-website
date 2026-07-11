@@ -3,7 +3,6 @@ import {
 	ajaxGet,
 	ajaxPatch,
 	ajaxPost,
-	ajaxPut,
 	getApiUrl,
 } from '@healthvisa/utils';
 import {UserAPI, Service} from './api';
@@ -74,22 +73,45 @@ export interface UserUpdateRequestParams {
 	mobileNumber: string;
 	name: string;
 	userName: string;
-	metadata: object;
 	isActive: boolean;
+	// uniqueId = the "membership ID" printed on the app card. It's a plain user
+	// field, so admins edit it inline with the rest of the user's details.
+	uniqueId?: number;
 }
 export function updateUser({...requestBody}: UserUpdateRequestParams): Promise<IUserNew> {
-	const {id, mobileNumber, name, userName, metadata, isActive} = requestBody;
+	const {id, mobileNumber, name, userName, isActive, uniqueId} = requestBody;
 	const data: Record<string, Primitive> = {
 		id,
 		mobileNumber,
 		name,
 		userName,
-		metadata,
 		isActive,
 	};
-	return ajaxPut<Record<string, Primitive>, IUserNew>({
+	if (uniqueId !== undefined) {
+		data.uniqueId = uniqueId;
+	}
+	// PATCH (partial), not PUT: replaceById would wipe fields we don't send
+	// (password, isEHR, referralCode, metadata.membershipDetail).
+	return ajaxPatch<Record<string, Primitive>, IUserNew>({
 		data,
 		url: `${getApiUrl(Service, UserAPI.UpdateUser)}/${id}`,
+	});
+}
+
+// Admin: override a user's membership expiry (for offline-collected renewals).
+// endDate is an ISO string; backend updates the latest membership row + the
+// user's snapshot. Lives on the 'card' service (same as membership-transactions).
+export interface UpdateMembershipExpiryRequestParams {
+	userId: string;
+	endDate: string;
+}
+export function updateMembershipExpiry({
+	userId,
+	endDate,
+}: UpdateMembershipExpiryRequestParams): Promise<any> {
+	return ajaxPatch<{endDate: string}, any>({
+		data: {endDate},
+		url: `${getApiUrl('card', UserAPI.UpdateMembershipExpiry)}/${userId}`,
 	});
 }
 

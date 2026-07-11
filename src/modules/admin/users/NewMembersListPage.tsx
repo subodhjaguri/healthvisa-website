@@ -174,21 +174,37 @@ export const NewMembersListPage = () => {
 					: '—',
 		},
 		{
-			title: 'Referral',
-			key: 'referral',
+			title: 'Discount / Collect',
+			key: 'discount',
 			render: (_, {appliedFor, metadata}) => {
-				const referral = metadata?.referral;
-				if (appliedFor !== 'membership' || !referral) {
+				if (appliedFor !== 'membership') {
 					return '—';
 				}
-				const amount = referral.finalPrice ?? referral.listPrice;
-				return (
-					<span>
-						{referral.code}
-						{referral.referrerName ? ` · ${referral.referrerName}` : ''}
-						{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
-					</span>
-				);
+				// First-time purchases may carry a referral discount; renewals carry
+				// the flat renewal discount. Both are offline, so show the amount the
+				// admin should collect.
+				const referral = metadata?.referral;
+				if (referral) {
+					const amount = referral.finalPrice ?? referral.listPrice;
+					return (
+						<span>
+							{referral.code}
+							{referral.referrerName ? ` · ${referral.referrerName}` : ''}
+							{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
+						</span>
+					);
+				}
+				const renewal = metadata?.renewalDiscount;
+				if (metadata?.renewal && renewal) {
+					const amount = renewal.finalPrice ?? renewal.listPrice;
+					return (
+						<span>
+							{`Renewal ${renewal.percent}% off`}
+							{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
+						</span>
+					);
+				}
+				return '—';
 			},
 		},
 		{
