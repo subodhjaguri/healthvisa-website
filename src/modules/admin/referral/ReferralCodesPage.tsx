@@ -18,10 +18,19 @@ import {
 	Space,
 	Switch,
 	Table,
+	Typography,
 } from 'antd';
 import {ColumnsType} from 'antd/lib/table';
+import {QRCodeCanvas} from 'qrcode.react';
 import moment from 'moment';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+
+// Play Store link for the app; append an install `referrer` carrying the code
+// so it auto-applies at registration after a Play install (`code%3D` = `code=`).
+const PLAY_STORE_URL =
+	'https://play.google.com/store/apps/details?id=com.healthvisa';
+const buildShareLink = (code: string) =>
+	`${PLAY_STORE_URL}&referrer=code%3D${encodeURIComponent(code)}`;
 
 export const ReferralCodesPage = () => {
 	const {isLoading, data: codes} = useGetReferralCodes();
@@ -48,6 +57,21 @@ export const ReferralCodesPage = () => {
 	const [modalOpen, setModalOpen] = useState(false);
 	const [editing, setEditing] = useState<IReferralCode | null>(null);
 	const saving = addReferralCode.isLoading || updateReferralCode.isLoading;
+
+	// Share-link / QR modal state.
+	const [shareCode, setShareCode] = useState<string | null>(null);
+	const qrRef = useRef<HTMLDivElement>(null);
+
+	const downloadQr = () => {
+		const canvas = qrRef.current?.querySelector('canvas');
+		if (!canvas || !shareCode) {
+			return;
+		}
+		const link = document.createElement('a');
+		link.href = canvas.toDataURL('image/png');
+		link.download = `referral-${shareCode}.png`;
+		link.click();
+	};
 
 	useEffect(() => {
 		if (!modalOpen) {
@@ -180,6 +204,14 @@ export const ReferralCodesPage = () => {
 				<Space size="middle">
 					<Button
 						size="small"
+						onClick={() => setShareCode(record.code)}
+						type="default"
+						style={{color: '#198753', border: '1px solid #198753', padding: '0 10px'}}
+						className="uppercase">
+						Share
+					</Button>
+					<Button
+						size="small"
 						onClick={() => openEdit(record)}
 						type="default"
 						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
@@ -269,6 +301,39 @@ export const ReferralCodesPage = () => {
 						<Input.TextArea rows={3} placeholder="Optional notes" />
 					</Form.Item>
 				</Form>
+			</Modal>
+
+			<Modal
+				title="Share referral link"
+				visible={!!shareCode}
+				onCancel={() => setShareCode(null)}
+				footer={null}
+				destroyOnClose>
+				{shareCode ? (
+					<div style={{textAlign: 'center'}}>
+						<p style={{marginBottom: 12}}>
+							Share this link or QR. Installing the app from it auto-applies code{' '}
+							<b>{shareCode}</b> at registration.
+						</p>
+						<div
+							ref={qrRef}
+							style={{display: 'inline-block', padding: 12, background: '#fff'}}>
+							<QRCodeCanvas
+								value={buildShareLink(shareCode)}
+								size={200}
+								includeMargin
+							/>
+						</div>
+						<div style={{marginTop: 12, wordBreak: 'break-all'}}>
+							<Typography.Text copyable={{text: buildShareLink(shareCode)}}>
+								{buildShareLink(shareCode)}
+							</Typography.Text>
+						</div>
+						<div style={{marginTop: 16}}>
+							<Button onClick={downloadQr}>Download QR</Button>
+						</div>
+					</div>
+				) : null}
 			</Modal>
 		</Layout>
 	);
