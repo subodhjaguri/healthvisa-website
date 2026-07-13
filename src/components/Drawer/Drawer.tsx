@@ -11,6 +11,7 @@ import {
 	MdOutlineAssignment,
 	MdPeople,
 	MdLocalOffer,
+	MdSick,
 } from 'react-icons/md';
 import {
 	FaUsers,
@@ -60,6 +61,7 @@ export const DrawerComponent = () => {
 		getItem('Dashboard', '/admin/dashboard', <MdOutlineDashboard />),
 		getItem('Products and Services', 'products', <MdStorefront />, [
 			getItem('Categories', '/admin/categories', <BiCategoryAlt />),
+			getItem('Symptoms', '/admin/symptoms', <MdSick />),
 			getItem('Doctors', '/admin/products', <FaUserMd />),
 			getItem('Diagnostics', '/admin/diagnostics', <MdBiotech />),
 			getItem('Labs', '/admin/labs', <FaFlask />),
