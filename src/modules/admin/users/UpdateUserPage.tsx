@@ -1,9 +1,13 @@
 import {Layout} from '@healthvisa/components';
-import {UserUpdateRequestParams} from '@healthvisa/models/admin/users/User';
+import {UserUpdateRequestParams, IFamilyMember} from '@healthvisa/models/admin/users/User';
 import {
 	useUpdateMembershipExpiry,
 	useUpdateUser,
 	useUserById,
+	useFamilyMembersByUserId,
+	useAddFamilyMember,
+	useUpdateFamilyMember,
+	useDeleteFamilyMember,
 } from '@healthvisa/models/admin/users/useUser';
 import {
 	Button,
@@ -14,8 +18,12 @@ import {
 	message,
 	Select,
 	Skeleton,
+	Table,
+	Modal,
+	Divider,
+	Space,
 } from 'antd';
-
+import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {useRouter} from 'next/router';
 import React, {useEffect, useState} from 'react';
@@ -38,6 +46,155 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 		// Remount the form once data arrives so initialValue props take effect.
 		setKey_((k) => k + 1);
 	}, [data]);
+
+	// Family Members state and hooks
+	const {data: familyMembers = [], isLoading: loadingMembers} = useFamilyMembersByUserId(id);
+	const addFamilyMemberMut = useAddFamilyMember();
+	const updateFamilyMemberMut = useUpdateFamilyMember();
+	const deleteFamilyMemberMut = useDeleteFamilyMember();
+
+	const [isModalVisible, setIsModalVisible] = useState(false);
+	const [editingMember, setEditingMember] = useState<IFamilyMember | null>(null);
+	const [modalForm] = Form.useForm();
+
+	const handleAddEditMember = async (values: any) => {
+		const memberData = {
+			name: values.name,
+			age: Number(values.age),
+			gender: values.gender,
+			relationship: values.relationship,
+			userId: id,
+			metadata: {
+				phone: values.phone,
+			},
+		};
+
+		try {
+			if (editingMember && editingMember.id) {
+				await updateFamilyMemberMut.mutateAsync({
+					id: editingMember.id,
+					userId: id,
+					data: memberData,
+				});
+				message.success('Family member updated successfully');
+			} else {
+				await addFamilyMemberMut.mutateAsync(memberData);
+				message.success('Family member added successfully');
+			}
+			setIsModalVisible(false);
+			setEditingMember(null);
+			modalForm.resetFields();
+		} catch (err: any) {
+			message.error(err?.errors?.error?.message || 'Operation failed');
+		}
+	};
+
+	const showAddModal = () => {
+		setEditingMember(null);
+		modalForm.resetFields();
+		setIsModalVisible(true);
+	};
+
+	const showEditModal = (member: IFamilyMember) => {
+		setEditingMember(member);
+		modalForm.setFieldsValue({
+			name: member.name,
+			age: member.age,
+			gender: member.gender,
+			relationship: member.relationship,
+			phone: member.metadata?.phone || '',
+		});
+		setIsModalVisible(true);
+	};
+
+	const handleDeleteMember = (memberId: string) => {
+		Modal.confirm({
+			title: 'Are you sure you want to delete this family member?',
+			icon: <ExclamationCircleFilled />,
+			okText: 'Delete',
+			okType: 'danger',
+			cancelText: 'Cancel',
+			centered: true,
+			onOk() {
+				return new Promise((resolve, reject) => {
+					deleteFamilyMemberMut.mutate(
+						{id: memberId, userId: id},
+						{
+							onSuccess: () => {
+								message.success('Family member deleted successfully');
+								resolve(null);
+							},
+							onError: (err: any) => {
+								message.error(err?.errors?.error?.message || 'Failed to delete family member');
+								reject();
+							},
+						},
+					);
+				});
+			},
+		});
+	};
+
+	const memberColumns = [
+		{
+			title: 'Name',
+			dataIndex: 'name',
+			key: 'name',
+		},
+		{
+			title: 'Age',
+			dataIndex: 'age',
+			key: 'age',
+		},
+		{
+			title: 'Gender',
+			dataIndex: 'gender',
+			key: 'gender',
+		},
+		{
+			title: 'Relationship',
+			dataIndex: 'relationship',
+			key: 'relationship',
+		},
+		{
+			title: 'Mobile Number',
+			dataIndex: 'phone',
+			key: 'phone',
+			render: (_: any, record: IFamilyMember) => record.metadata?.phone || '—',
+		},
+		{
+			title: 'Action',
+			key: 'action',
+			render: (_: any, record: IFamilyMember) => (
+				<Space size="middle">
+					<Button
+						size="small"
+						onClick={() => showEditModal(record)}
+						type="default"
+						style={{
+							color: '#1990FF',
+							border: '1px solid #1990FF',
+							padding: '0 10px',
+						}}
+					>
+						Edit
+					</Button>
+					<Button
+						size="small"
+						onClick={() => record.id && handleDeleteMember(record.id)}
+						type="default"
+						style={{
+							color: 'red',
+							border: '1px solid red',
+							padding: '0 10px',
+						}}
+					>
+						Delete
+					</Button>
+				</Space>
+			),
+		},
+	];
 
 	const onFinish = async (values: any) => {
 		try {
@@ -236,6 +393,146 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 									</Button>
 								</div>
 							</Form>
+
+							<Divider style={{margin: '32px 0'}} />
+
+							<div>
+								<div className="flex justify-between items-center mb-4 pr-4">
+									<div>
+										<h2 className="text-lg font-bold">Family Members ({familyMembers.length} / 6)</h2>
+										{!hasMembership && (
+											<span style={{color: '#fa8c16', fontSize: '13px'}}>
+												⚠️ Warning: This user does not have an active membership. Added family members may not be fully active on the mobile app.
+											</span>
+										)}
+									</div>
+									<Button
+										type="primary"
+										onClick={showAddModal}
+										disabled={familyMembers.length >= 6}
+									>
+										+ Add Member
+									</Button>
+								</div>
+								<Table
+									loading={loadingMembers}
+									dataSource={familyMembers}
+									columns={memberColumns}
+									rowKey="id"
+									pagination={false}
+									style={{width: '100%', border: '1px solid #ECECEC'}}
+								/>
+							</div>
+
+							<Modal
+								title={editingMember ? 'Edit Family Member' : 'Add Family Member'}
+								visible={isModalVisible}
+								onCancel={() => {
+									setIsModalVisible(false);
+									setEditingMember(null);
+									modalForm.resetFields();
+								}}
+								footer={null}
+								destroyOnClose
+								centered
+							>
+								<Form
+									form={modalForm}
+									layout="vertical"
+									name="add_edit_member"
+									onFinish={handleAddEditMember}
+								>
+									<Form.Item
+										label="Name"
+										name="name"
+										rules={[{required: true, message: 'Please enter Name'}]}
+									>
+										<Input placeholder="Enter Name" />
+									</Form.Item>
+									<div className="flex justify-between flex-wrap w-full">
+										<Form.Item
+											label="Age"
+											name="age"
+											className="w-[49%]"
+											rules={[
+												{required: true, message: 'Please enter Age'},
+												{
+													validator: (_, value) => {
+														const ageVal = Number(value);
+														if (value === undefined || value === null || value === '') {
+															return Promise.resolve();
+														}
+														if (Number.isInteger(ageVal) && ageVal >= 1 && ageVal <= 120) {
+															return Promise.resolve();
+														}
+														return Promise.reject(new Error('Age must be 1 to 120'));
+													}
+												}
+											]}
+										>
+											<InputNumber style={{width: '100%'}} placeholder="Age" min={1} max={120} precision={0} />
+										</Form.Item>
+										<Form.Item
+											label="Gender"
+											name="gender"
+											className="w-[49%]"
+											rules={[{required: true, message: 'Please select Gender'}]}
+										>
+											<Select
+												style={{width: '100%'}}
+												placeholder="Select Gender"
+												options={[
+													{value: 'Male', label: 'Male'},
+													{value: 'Female', label: 'Female'},
+													{value: 'Other', label: 'Other'},
+												]}
+											/>
+										</Form.Item>
+									</div>
+									<div className="flex justify-between flex-wrap w-full">
+										<Form.Item
+											label="Relationship"
+											name="relationship"
+											className="w-[49%]"
+											rules={[{required: true, message: 'Please enter Relationship'}]}
+										>
+											<Input placeholder="e.g. Spouse, Son, Mother" />
+										</Form.Item>
+										<Form.Item
+											label="Mobile Number"
+											name="phone"
+											className="w-[49%]"
+											rules={[
+												{required: true, message: 'Please enter Mobile Number'},
+												{
+													pattern: /^[0-9]{10}$/,
+													message: 'Please enter a valid 10-digit Mobile number',
+												},
+											]}
+										>
+											<Input placeholder="Enter 10-digit number" maxLength={10} />
+										</Form.Item>
+									</div>
+									<div className="flex justify-end gap-2 mt-4">
+										<Button
+											onClick={() => {
+												setIsModalVisible(false);
+												setEditingMember(null);
+												modalForm.resetFields();
+											}}
+										>
+											Cancel
+										</Button>
+										<Button
+											type="primary"
+											htmlType="submit"
+											loading={addFamilyMemberMut.isLoading || updateFamilyMemberMut.isLoading}
+										>
+											{editingMember ? 'Update' : 'Add'}
+										</Button>
+									</div>
+								</Form>
+							</Modal>
 						</div>
 					</div>
 				)}

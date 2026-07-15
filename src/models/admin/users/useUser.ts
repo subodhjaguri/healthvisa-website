@@ -36,6 +36,11 @@ import {
 	updateUser,
 	UserDeleteRequestParams,
 	UserUpdateRequestParams,
+	IFamilyMember,
+	getFamilyMembersByUserId,
+	addFamilyMember,
+	updateFamilyMember,
+	deleteFamilyMember,
 } from './User';
 import {UserKeys} from './api';
 
@@ -301,3 +306,81 @@ export function useAllowEHRUser(
 		},
 	});
 }
+
+export function useFamilyMembersByUserId(
+	userId: string,
+	queryOptions?: Partial<
+		Omit<
+			UseQueryOptions<
+				IFamilyMember[],
+				XHRErrorResponse,
+				IFamilyMember[],
+				[string, string]
+			>,
+			'queryKey' | 'queryFn'
+		>
+	>,
+): UseQueryResult<IFamilyMember[], XHRErrorResponse> {
+	return useQuery(['getFamilyMembersByUserId', userId], () => getFamilyMembersByUserId(userId), {
+		enabled: !!userId,
+		...queryOptions,
+	});
+}
+
+export function useAddFamilyMember(
+	queryOptions?: Partial<
+		Omit<
+			UseMutationOptions<IFamilyMember, XHRErrorResponse, Omit<IFamilyMember, 'id'>>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
+): UseMutationResult<IFamilyMember, XHRErrorResponse, Omit<IFamilyMember, 'id'>> {
+	const queryClient = useQueryClient();
+	return useMutation((data: Omit<IFamilyMember, 'id'>) => addFamilyMember(data), {
+		...queryOptions,
+		onSuccess(data, ...rest) {
+			queryClient.invalidateQueries(['getFamilyMembersByUserId', data.userId]);
+			return queryOptions?.onSuccess?.(data, ...rest);
+		},
+	});
+}
+
+export function useUpdateFamilyMember(
+	queryOptions?: Partial<
+		Omit<
+			UseMutationOptions<void, XHRErrorResponse, {id: string; userId: string; data: Partial<IFamilyMember>}>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
+): UseMutationResult<void, XHRErrorResponse, {id: string; userId: string; data: Partial<IFamilyMember>}> {
+	const queryClient = useQueryClient();
+	return useMutation(
+		({id, data}) => updateFamilyMember(id, data),
+		{
+			...queryOptions,
+			onSuccess(_, variables, ...rest) {
+				queryClient.invalidateQueries(['getFamilyMembersByUserId', variables.userId]);
+				return queryOptions?.onSuccess?.(_, variables, ...rest);
+			},
+		},
+	);
+}
+
+export function useDeleteFamilyMember(
+	queryOptions?: Partial<
+		Omit<
+			UseMutationOptions<void, XHRErrorResponse, {id: string; userId: string}>,
+			'mutationFn' | 'mutationKey'
+		>
+	>,
+): UseMutationResult<void, XHRErrorResponse, {id: string; userId: string}> {
+	const queryClient = useQueryClient();
+	return useMutation(({id}) => deleteFamilyMember(id), {
+		...queryOptions,
+		onSuccess(_, variables, ...rest) {
+			queryClient.invalidateQueries(['getFamilyMembersByUserId', variables.userId]);
+			return queryOptions?.onSuccess?.(_, variables, ...rest);
+		},
+	});
+}
+

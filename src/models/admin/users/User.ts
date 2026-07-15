@@ -264,3 +264,42 @@ export function addMembershipTransaction({
 		},
 	);
 }
+
+export interface IFamilyMember {
+	id?: string;
+	name: string;
+	age: number;
+	gender?: string;
+	userId: string;
+	relationship?: string;
+	metadata?: {phone?: string};
+	createdAt?: string;
+	updatedAt?: string;
+}
+
+export function getFamilyMembersByUserId(userId: string): Promise<IFamilyMember[]> {
+	return ajaxGet<IFamilyMember[]>({
+		url: `${getApiUrl('card', '/family-members/userId')}/${userId}`,
+	});
+}
+
+export function addFamilyMember(data: Omit<IFamilyMember, 'id'>): Promise<IFamilyMember> {
+	return ajaxPost<Omit<IFamilyMember, 'id'>, IFamilyMember>({
+		data,
+		url: getApiUrl('card', '/family-members'),
+	});
+}
+
+export function updateFamilyMember(id: string, data: Partial<IFamilyMember>): Promise<void> {
+	return ajaxPatch<Partial<IFamilyMember>, void>({
+		data,
+		url: `${getApiUrl('card', '/family-members')}/${id}`,
+	});
+}
+
+export function deleteFamilyMember(id: string): Promise<void> {
+	return ajaxDelete<void>({
+		url: `${getApiUrl('card', '/family-members')}/${id}`,
+	});
+}
+
