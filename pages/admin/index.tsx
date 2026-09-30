@@ -24,8 +24,9 @@ const Login = () => {
 					localStorage.setItem('adminData', JSON.stringify(data.admin));
 					router.push('/admin/dashboard');
 				},
-				onError: () => {
-					message.error('Invalid email or password');
+				onError: (err: any) => {
+					// Backend message covers both bad credentials and the 429 lockout.
+					message.error(err?.errors?.error?.message ?? 'Invalid email or password');
 				},
 			},
 		);
