@@ -4,7 +4,18 @@ import {
 	useNewsById,
 	useUpdateNews,
 } from '@healthvisa/models/admin/news/useNews';
-import {Button, DatePicker, Form, Input, message, Skeleton, Switch} from 'antd';
+import {
+	AutoComplete,
+	Button,
+	DatePicker,
+	Form,
+	Input,
+	message,
+	Skeleton,
+	Switch,
+} from 'antd';
+import {useProduct} from '@healthvisa/models/admin/products/useProduct';
+import {useCategories} from '@healthvisa/models/admin/category/useCategories';
 import {RcFile, UploadProps} from 'antd/es/upload';
 import Dragger from 'antd/lib/upload/Dragger';
 import {UploadFile} from 'antd/lib/upload/interface';
@@ -38,6 +49,37 @@ const quillModules = {
 const EMPTY_HTML = '<p><br></p>';
 
 export const NewsFormPage = ({id}: {id?: string}) => {
+	// Doctors are offered as suggestions for the author; any other name can be
+	// typed freely (news isn't limited to doctors).
+	const {data: doctors} = useProduct({
+		staleTime: 5 * 60 * 1000, // names rarely change; don't refetch every visit
+		refetchOnWindowFocus: false,
+	});
+	const {data: categories} = useCategories({
+		staleTime: 5 * 60 * 1000,
+		refetchOnWindowFocus: false,
+	});
+	const authorOptions = React.useMemo(() => {
+		// Without categories we can't tell doctors from venues — suggest nothing
+		// (typing still works) rather than briefly listing gyms etc.
+		if (!categories) return [];
+		// Leave out gyms / yoga / zumba centres (categories tagged only "Health").
+		const venueCategories = new Set(
+			categories
+				.filter((c) => c.tags?.length && c.tags.every((t) => t === 'Health'))
+				.map((c) => c.id),
+		);
+		return [
+			...new Set(
+				(doctors ?? [])
+					.filter((d) => !venueCategories.has(d.categoryId))
+					.map((d) => d.name)
+					.filter(Boolean),
+			),
+		]
+			.sort()
+			.map((name) => ({value: name}));
+	}, [doctors, categories]);
 	const router = useRouter();
 	const isEdit = !!id;
 
@@ -163,7 +205,15 @@ export const NewsFormPage = ({id}: {id?: string}) => {
 								className="w-[49%]"
 								rules={[{required: true, message: 'Please enter the author'}]}
 							>
-								<Input placeholder="e.g. Dr. Meera Sharma" />
+								<AutoComplete
+									options={authorOptions}
+									placeholder="Type a name, or pick a doctor"
+									filterOption={(input, option) =>
+										String(option?.value ?? '')
+											.toLowerCase()
+											.includes(input.toLowerCase())
+									}
+								/>
 							</Form.Item>
 							<Form.Item
 								label="Published date"

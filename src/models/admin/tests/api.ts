@@ -4,6 +4,8 @@ export enum TestKeys {
 	GetTests = 'getTests',
 	GetTestsCount = 'getTestsCount',
 	UpdateTest = 'updateTest',
+	CreateTest = 'createTest',
+	DeleteTest = 'deleteTest',
 }
 
 export enum TestAPI {

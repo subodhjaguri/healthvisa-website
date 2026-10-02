@@ -45,4 +45,11 @@ export const formatPrice = (num: number) => {
 	return numberFormatter.format(Math.round(num));
 };
 
+/** Exact amount to the paisa (e.g. 899.1 → "899.10"), as the app/API charge it. */
+export const formatAmount = (num: number) =>
+	new Intl.NumberFormat('en-GB', {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	}).format(Math.round(num * 100) / 100);
+
 export const whatsappLink = 'https://wa.me/9997774204';

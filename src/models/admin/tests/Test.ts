@@ -1,4 +1,10 @@
-import {ajaxGet, ajaxPatch, getApiUrl} from '@healthvisa/utils';
+import {
+	ajaxDelete,
+	ajaxGet,
+	ajaxPatch,
+	ajaxPost,
+	getApiUrl,
+} from '@healthvisa/utils';
 import {TestAPI, Service} from './api';
 
 export interface ITest {
@@ -63,4 +69,22 @@ export function updateTest({
 		data: body,
 		url: `${getApiUrl(Service, TestAPI.Tests)}/${id}`,
 	});
+}
+
+export interface TestCreateRequestParams {
+	name: string;
+	price: number;
+	discount?: number;
+	labId: string;
+	diagnosticId: string;
+}
+export function createTest(body: TestCreateRequestParams): Promise<ITest> {
+	return ajaxPost<TestCreateRequestParams, ITest>({
+		data: body,
+		url: getApiUrl(Service, TestAPI.Tests),
+	});
+}
+
+export function deleteTest({id}: {id: string}): Promise<void> {
+	return ajaxDelete<void>({url: `${getApiUrl(Service, TestAPI.Tests)}/${id}`});
 }

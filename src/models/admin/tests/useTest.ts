@@ -9,9 +9,12 @@ import {
 } from 'react-query';
 import {TestKeys} from './api';
 import {
+	createTest,
+	deleteTest,
 	getTests,
 	getTestsCount,
 	ITest,
+	TestCreateRequestParams,
 	TestQuery,
 	TestUpdateRequestParams,
 	updateTest,
@@ -56,5 +59,33 @@ export function useUpdateTest(
 			queryClient.invalidateQueries([TestKeys.GetTests]);
 			return queryOptions?.onSuccess?.(data, ...rest);
 		},
+	});
+}
+
+// Add/delete change the list and its count, so refresh both.
+const refreshTests = (queryClient: ReturnType<typeof useQueryClient>) => {
+	queryClient.invalidateQueries([TestKeys.GetTests]);
+	queryClient.invalidateQueries([TestKeys.GetTestsCount]);
+};
+
+export function useCreateTest(): UseMutationResult<
+	ITest,
+	XHRErrorResponse,
+	TestCreateRequestParams
+> {
+	const queryClient = useQueryClient();
+	return useMutation((req: TestCreateRequestParams) => createTest(req), {
+		retry: 0,
+		mutationKey: [TestKeys.CreateTest],
+		onSuccess: () => refreshTests(queryClient),
+	});
+}
+
+export function useDeleteTest(): UseMutationResult<void, XHRErrorResponse, {id: string}> {
+	const queryClient = useQueryClient();
+	return useMutation((req: {id: string}) => deleteTest(req), {
+		retry: 0,
+		mutationKey: [TestKeys.DeleteTest],
+		onSuccess: () => refreshTests(queryClient),
 	});
 }

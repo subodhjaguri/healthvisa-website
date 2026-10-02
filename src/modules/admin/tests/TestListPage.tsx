@@ -4,6 +4,8 @@ import {
 	useGetLabs,
 } from '@healthvisa/models/admin/lab-appointments/useLab';
 import {
+	useCreateTest,
+	useDeleteTest,
 	useTests,
 	useTestsCount,
 	useUpdateTest,
@@ -16,12 +18,13 @@ import {
 	InputNumber,
 	message,
 	Modal,
+	Popconfirm,
 	Select,
 	Skeleton,
 	Table,
 } from 'antd';
 import {ColumnsType} from 'antd/lib/table';
-import {formatPrice} from '@healthvisa/utils';
+import {formatAmount, formatPrice} from '@healthvisa/utils';
 import React, {useEffect, useMemo, useState} from 'react';
 
 const PAGE_SIZE = 10;
@@ -30,6 +33,8 @@ export const TestListPage = () => {
 	const {data: labs} = useGetLabs();
 	const {data: diagnostics} = useDiagnosticItems();
 	const updateTest = useUpdateTest();
+	const createTest = useCreateTest();
+	const deleteTest = useDeleteTest();
 	const [form] = Form.useForm();
 
 	const [labId, setLabId] = useState<string | undefined>();
@@ -37,7 +42,9 @@ export const TestListPage = () => {
 	const [searchInput, setSearchInput] = useState<string>(''); // immediate field value
 	const [search, setSearch] = useState<string>(''); // debounced value used in the query
 	const [page, setPage] = useState(1);
-	const [editing, setEditing] = useState<ITest | null>(null);
+	// The modal edits an existing test, or adds a new one ('new').
+	const [editing, setEditing] = useState<ITest | 'new' | null>(null);
+	const isNew = editing === 'new';
 
 	// Debounce the search so it filters as you type (no button / Enter needed).
 	useEffect(() => {
@@ -68,15 +75,65 @@ export const TestListPage = () => {
 		return m;
 	}, [diagnostics]);
 
+	const labOptions = useMemo(
+		() => (labs ?? []).map((l) => ({value: l.id, label: l.name})),
+		[labs],
+	);
+	// In the add form, offer only labs attached to the chosen diagnostic — the app
+	// lists a diagnostic's tests only at those labs, so others would be unreachable.
+	const addDiagnosticId = Form.useWatch('diagnosticId', form);
+	const addLabOptions = useMemo(() => {
+		const allowed = (diagnostics ?? []).find((d) => d.id === addDiagnosticId)?.labs;
+		return allowed ? labOptions.filter((o) => allowed.includes(o.value)) : [];
+	}, [diagnostics, addDiagnosticId, labOptions]);
+	const diagnosticOptions = useMemo(
+		() => (diagnostics ?? []).map((d) => ({value: d.id, label: d.name})),
+		[diagnostics],
+	);
+
 	const resetPage = () => setPage(1);
 
 	const openEdit = (t: ITest) => {
 		setEditing(t);
 		form.setFieldsValue({name: t.name, price: t.price, discount: t.discount ?? 0});
 	};
+	const openAdd = () => {
+		setEditing('new');
+		// Start from the current filters — the usual way tests are browsed.
+		const allowedLabs = (diagnostics ?? []).find((d) => d.id === diagnosticId)?.labs;
+		form.setFieldsValue({
+			name: '',
+			price: undefined,
+			discount: 0,
+			diagnosticId,
+			labId: labId && allowedLabs?.includes(labId) ? labId : undefined,
+		});
+	};
 	const submitEdit = async () => {
-		const v = await form.validateFields();
-		if (!editing) return;
+		// Invalid fields are already shown inline by the form.
+		const v = await form.validateFields().catch(() => null);
+		if (!v || !editing) return;
+		if (isNew) {
+			createTest.mutate(
+				{
+					name: v.name.trim(),
+					price: v.price,
+					discount: v.discount ?? 0,
+					labId: v.labId,
+					diagnosticId: v.diagnosticId,
+				},
+				{
+					onSuccess: () => {
+						message.success('Test added');
+						setEditing(null);
+					},
+					onError: (e: any) => {
+						message.error(e?.errors?.error?.message ?? 'Failed to add test');
+					},
+				},
+			);
+			return;
+		}
 		updateTest.mutate(
 			{id: editing.id, name: v.name, price: v.price, discount: v.discount},
 			{
@@ -120,22 +177,46 @@ export const TestListPage = () => {
 		{
 			title: 'Discounted',
 			key: 'discounted',
-			render: (_, r) =>
-				`₹${formatPrice(Math.round(r.price * (1 - (r.discount ?? 0) / 100)))}`,
+			// Same per-test amount the app shows and the API charges (to the paisa).
+			render: (_, r) => `₹${formatAmount(r.price * (1 - (r.discount ?? 0) / 100))}`,
 		},
 		{
 			title: 'Action',
 			key: 'action',
 			render: (_, r) => (
-				<Button
-					size="small"
-					onClick={() => openEdit(r)}
-					type="default"
-					style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-					className="uppercase"
-				>
-					Edit
-				</Button>
+				<div className="flex gap-2">
+					<Button
+						size="small"
+						onClick={() => openEdit(r)}
+						type="default"
+						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
+						className="uppercase"
+					>
+						Edit
+					</Button>
+					<Popconfirm
+						title="Delete this test? Existing bookings keep their own copy."
+						okText="Yes"
+						cancelText="No"
+						onConfirm={() =>
+							deleteTest.mutate(
+								{id: r.id},
+								{
+									onSuccess: () => {
+										message.success('Test deleted');
+									},
+									onError: (e: any) => {
+										message.error(e?.errors?.error?.message ?? 'Failed to delete');
+									},
+								},
+							)
+						}
+					>
+						<Button size="small" danger className="uppercase">
+							Delete
+						</Button>
+					</Popconfirm>
+				</div>
 			),
 		},
 	];
@@ -143,7 +224,12 @@ export const TestListPage = () => {
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
-				<h1 className="text-xl font-bold mb-2">Tests</h1>
+				<div className="flex justify-between items-center mb-2">
+					<h1 className="text-xl font-bold">Tests</h1>
+					<Button type="primary" onClick={openAdd}>
+						Add Test
+					</Button>
+				</div>
 
 				<div className="flex flex-wrap gap-2 mb-3">
 					<Select
@@ -157,7 +243,7 @@ export const TestListPage = () => {
 							setLabId(v);
 							resetPage();
 						}}
-						options={(labs ?? []).map((l) => ({value: l.id, label: l.name}))}
+						options={labOptions}
 					/>
 					<Select
 						allowClear
@@ -170,7 +256,7 @@ export const TestListPage = () => {
 							setDiagnosticId(v);
 							resetPage();
 						}}
-						options={(diagnostics ?? []).map((d) => ({value: d.id, label: d.name}))}
+						options={diagnosticOptions}
 					/>
 					<Input
 						allowClear
@@ -207,14 +293,45 @@ export const TestListPage = () => {
 				)}
 
 				<Modal
-					title="Edit Test"
+					title={isNew ? 'Add Test' : 'Edit Test'}
 					visible={!!editing}
 					onOk={submitEdit}
-					confirmLoading={updateTest.isLoading}
+					confirmLoading={updateTest.isLoading || createTest.isLoading}
 					onCancel={() => setEditing(null)}
-					okText="Save"
+					okText={isNew ? 'Add' : 'Save'}
 				>
 					<Form form={form} layout="vertical">
+						{isNew && (
+							<>
+								<Form.Item
+									label="Diagnostic"
+									name="diagnosticId"
+									rules={[{required: true, message: 'Select a diagnostic'}]}
+								>
+									<Select
+										showSearch
+										optionFilterProp="label"
+										placeholder="Select diagnostic"
+										options={diagnosticOptions}
+										onChange={() => form.setFieldsValue({labId: undefined})}
+									/>
+								</Form.Item>
+								<Form.Item
+									label="Lab"
+									name="labId"
+									rules={[{required: true, message: 'Select a lab'}]}
+									extra="Only labs that offer this diagnostic (set on the Diagnostics page)."
+								>
+									<Select
+										showSearch
+										optionFilterProp="label"
+										placeholder={addDiagnosticId ? 'Select lab' : 'Select a diagnostic first'}
+										disabled={!addDiagnosticId}
+										options={addLabOptions}
+									/>
+								</Form.Item>
+							</>
+						)}
 						<Form.Item
 							label="Name"
 							name="name"
