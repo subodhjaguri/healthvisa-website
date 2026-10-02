@@ -18,7 +18,6 @@ export interface IOrder {
 	id: string;
 	userId: string;
 	items: IItems[];
-	addressId: string;
 	uniqueOrderIdentifier: number;
 	status: string;
 	totalAmount: number;
@@ -36,7 +35,6 @@ export interface IOrder {
 
 export interface PleaceOrderRequestParams {
 	userId: string;
-	addressId: string;
 	status: string;
 	totalAmount: number;
 	discount: number;
@@ -51,7 +49,6 @@ export function placeOrder({
 }: PleaceOrderRequestParams): Promise<IOrder[]> {
 	const {
 		userId,
-		addressId,
 		status,
 		totalAmount,
 		discount,
@@ -64,7 +61,6 @@ export function placeOrder({
 
 	const data: PleaceOrderRequestParams = {
 		userId,
-		addressId,
 		status,
 		totalAmount,
 		discount,

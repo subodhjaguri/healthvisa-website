@@ -118,8 +118,11 @@ export const NewMembersListPage = () => {
 
 					message.success('Access granted');
 				},
-				onError: (error) => {
-					console.log('error ', error);
+				onError: (error: any) => {
+					// e.g. "Unknown membership plan — cannot grant access"
+					message.error(
+						error?.errors?.error?.message ?? 'Could not grant membership access',
+					);
 				},
 			});
 		}
