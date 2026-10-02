@@ -30,6 +30,8 @@ export interface ILabAppointment {
 	date: string;
 	slots: string[];
 	prescription: string;
+	/** Short-lived signed link to the prescription (the S3 folder is private). */
+	prescriptionUrl?: string;
 	amount: number;
 	status: string;
 	healthPackage: string;

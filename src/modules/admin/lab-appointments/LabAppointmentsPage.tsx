@@ -42,7 +42,7 @@ interface DataType {
 	tests: string;
 	note: string;
 	metadata: any;
-	prescription?: string;
+	prescriptionUrl?: string;
 	date?: string;
 	slots?: string[];
 }
@@ -128,7 +128,7 @@ export const LabAppointmentsPage = () => {
 						: '',
 					note: appointment.metadata?.note || '',
 					metadata: appointment.metadata,
-					prescription: appointment?.prescription || '',
+					prescriptionUrl: appointment?.prescriptionUrl,
 					date: appointment.date,
 					slots: appointment.slots,
 			  }))
@@ -209,21 +209,9 @@ export const LabAppointmentsPage = () => {
 			render: (option, record) => (
 				<>
 					<div className="font-semibold capitalize">{option}</div>
-					{option === 'prescription' && record?.prescription && (
-						// <Button
-						//   size="small"
-						//   onClick={() => window.open(`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`,'_blank')}
-						//   type="link"
-						//   style={{ color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px' }}
-						// >
-						//   View Prescription
-						// </Button>
-
-						<Link
-							href={`https://hv-documents.s3.ap-south-1.amazonaws.com/${record.prescription}`}
-							target="_blank"
-							//   style={{ marginLeft: 8 }}
-						>
+					{option === 'prescription' && record?.prescriptionUrl && (
+						// Signed, short-lived link from the API (the S3 folder is private).
+						<Link href={record.prescriptionUrl} target="_blank">
 							View
 						</Link>
 					)}

@@ -151,6 +151,8 @@ export interface INewMember {
 	appliedFor: string;
 	createdAt: string;
 	metadata?: any;
+	/** Short-lived signed link to an attached prescription (S3 folder is private). */
+	documentUrl?: string;
 }
 
 export type GetNewMemberResponse = INewMember[];

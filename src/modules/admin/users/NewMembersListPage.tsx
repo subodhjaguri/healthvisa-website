@@ -33,6 +33,7 @@ interface DataType {
 	id: string;
 	userId: string;
 	metadata?: any;
+	documentUrl?: string;
 }
 
 export const NewMembersListPage = () => {
@@ -138,6 +139,7 @@ export const NewMembersListPage = () => {
 					userId: user.userId,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
 					metadata: user?.metadata || {},
+					documentUrl: user?.documentUrl,
 			  }))
 			: [];
 
@@ -238,15 +240,11 @@ export const NewMembersListPage = () => {
 						</Button>
 					)}
 					{record.appliedFor === 'order medicine' &&
-						record?.metadata?.document && (
+						record?.documentUrl && (
 							<Button
 								size="small"
-								onClick={() =>
-									window.open(
-										`https://hv-documents.s3.ap-south-1.amazonaws.com/${record?.metadata?.document}`,
-										'_blank',
-									)
-								}
+								// Signed, short-lived link from the API (the S3 folder is private).
+								onClick={() => window.open(record.documentUrl, '_blank')}
 								type="default"
 								style={{
 									color: '#1990FF',
