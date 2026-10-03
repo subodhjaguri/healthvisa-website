@@ -3,7 +3,7 @@ import {Layout} from '@healthvisa/components';
 import {Button, message, Modal, Select, Skeleton, Space, Table, Tag} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
-import React from 'react';
+import React, {useState} from 'react';
 import {
 	useDeleteUser,
 	useGetMemberships,
@@ -14,6 +14,8 @@ import {
 } from '@healthvisa/models/admin/users/useUser';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import {CSVLink} from 'react-csv';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {
 	AddMembershipTransactionRequestParams,
 	NewMemberUpdateRequestParams,
@@ -29,6 +31,7 @@ interface DataType {
 	key: string;
 	appliedFor: string;
 	name: string;
+	mobile?: string;
 	status: string;
 	id: string;
 	userId: string;
@@ -145,6 +148,12 @@ export const NewMembersListPage = () => {
 					documentUrl: user?.documentUrl,
 			  }))
 			: [];
+
+	const [search, setSearch] = useState('');
+	// What the table shows is also what Export downloads.
+	const visibleRequests = userArray.filter((r) =>
+		matchesSearch(search, [r.name, r.mobile, r.appliedFor, r.status]),
+	);
 
 	const columns: ColumnsType<DataType> = [
 		{
@@ -291,10 +300,13 @@ export const NewMembersListPage = () => {
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
 					<h2 className="text-xl font-bold">List of User Requests</h2>
 					<Button type="primary">
-						<CSVLink data={userArray} filename="UserList" target="_blank">
+						<CSVLink data={visibleRequests} filename="UserList" target="_blank">
 							Export
 						</CSVLink>
 					</Button>
+				</div>
+				<div className="my-2">
+					<TableSearch placeholder="Search name, mobile, request or status" onSearch={setSearch} />
 				</div>
 				{isLoading ? (
 					<Skeleton active />
@@ -304,7 +316,7 @@ export const NewMembersListPage = () => {
 						rowKey={(obj) => obj.key}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={userArray}
+						dataSource={visibleRequests}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

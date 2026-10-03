@@ -8,7 +8,9 @@ import {Button, message, Modal, Skeleton, Space, Switch, Table} from 'antd';
 import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
-import React from 'react';
+import React, {useState} from 'react';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import {CSVLink} from 'react-csv';
 import {NEWS_S3_BASE} from './NewsFormPage';
@@ -88,6 +90,12 @@ export const NewsListPage = () => {
 			  }))
 			: [];
 
+	const [search, setSearch] = useState('');
+	// What the table shows is also what Export downloads.
+	const visibleRows = rows.filter((r) =>
+		matchesSearch(search, [r.Title, r.Author]),
+	);
+
 	const columns: ColumnsType<DataType> = [
 		{title: 'Sr. No.', dataIndex: 'index', key: 'index'},
 		{
@@ -153,13 +161,16 @@ export const NewsListPage = () => {
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={rows} filename="HealthNews" target="_blank">
+							<CSVLink data={visibleRows} filename="HealthNews" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
 					</div>
 				</div>
 
+				<div className="my-2">
+					<TableSearch placeholder="Search title or author" onSearch={setSearch} />
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (
@@ -168,7 +179,7 @@ export const NewsListPage = () => {
 						rowKey={(obj) => obj.Id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={rows}
+						dataSource={visibleRows}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

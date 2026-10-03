@@ -4,6 +4,8 @@ import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React, {useEffect, useState} from 'react';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {
 	useCategories,
 	useDeleteCategory,
@@ -18,7 +20,7 @@ interface DataType {
 	key: string;
 	category: string;
 	description: string;
-	tags: unknown;
+	tags: string;
 	image: string;
 	createdOn: string;
 }
@@ -53,7 +55,8 @@ export const CategoryListPage = () => {
 					key: category.id,
 					category: category.category,
 					description: category?.description,
-					tags: category?.tags[0],
+					// Every tag (a category can have several) — shown, searched and exported.
+					tags: (category?.tags ?? []).join(', '),
 					image: category.image.url,
 					createdOn: moment(category.createdAt).format('DD MMM YYYY'),
 			  }))
@@ -72,6 +75,12 @@ export const CategoryListPage = () => {
 			},
 		});
 	};
+
+	const [search, setSearch] = useState('');
+	// What the table shows is also what Export downloads.
+	const visibleCategories = productsArray.filter((r) =>
+		matchesSearch(search, [r.category, r.description, r.tags]),
+	);
 
 	const columns: ColumnsType<DataType> = [
 		{
@@ -164,13 +173,16 @@ export const CategoryListPage = () => {
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={productsArray} filename="CategoryList" target="_blank">
+							<CSVLink data={visibleCategories} filename="CategoryList" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
 					</div>
 				</div>
 
+				<div className="my-2">
+					<TableSearch placeholder="Search name, description or tags" onSearch={setSearch} />
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (
@@ -179,7 +191,7 @@ export const CategoryListPage = () => {
 						rowKey={(obj) => obj.key}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={productsArray}
+						dataSource={visibleCategories}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

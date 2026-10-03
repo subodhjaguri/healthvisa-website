@@ -2,6 +2,7 @@ import {Layout} from '@healthvisa/components';
 
 import {
 	Button,
+	DatePicker,
 	Input,
 	message,
 	Modal,
@@ -23,27 +24,13 @@ import {formatPrice} from '@healthvisa/utils';
 import {useGetOrders, useUpdateOrder} from '@healthvisa/models/admin/orders/useOrder';
 import {CSVLink} from 'react-csv';
 import {OrderUpdateRequestParams} from '@healthvisa/models/admin/orders/Order';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
+import {APPOINTMENT_STATUS_OPTIONS} from '@healthvisa/utils/appointmentStatus';
 
 const {Option} = Select;
 const {TextArea} = Input;
-
-// Day-granular "past": booking dates are date-only and slots are free text, so
-// an appointment is past once its calendar day is before today.
-const isAppointmentPast = (raw?: string): boolean => {
-	if (!raw) {
-		return false;
-	}
-	const d = new Date(raw);
-	if (isNaN(d.getTime())) {
-		return false;
-	}
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	return (
-		new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() <
-		today.getTime()
-	);
-};
+const {RangePicker} = DatePicker;
 
 interface DataType {
 	Mobile: string;
@@ -88,6 +75,23 @@ export const OrderListPage = () => {
 
 	const updateOrder = useUpdateOrder();
 
+	const [search, setSearch] = useState('');
+	const [appointmentRange, setAppointmentRange] = useState<DateRange>(null);
+	const [bookedRange, setBookedRange] = useState<DateRange>(null);
+	const [doctor, setDoctor] = useState<string>();
+	const [statusFilter, setStatusFilter] = useState<string>();
+	const [payment, setPayment] = useState<string>();
+	// What the table shows is also what Export downloads.
+	const visibleOrders = orderArray.filter(
+		(o) =>
+			matchesSearch(search, [o.Order_Id, o.User, o.Mobile, o.doctor]) &&
+			inDateRange(o.appointment?.date, appointmentRange) &&
+			inDateRange(o.CreatedOn, bookedRange) &&
+			(!doctor || o.doctor === doctor) &&
+			(!statusFilter || o.Status === statusFilter) &&
+			(!payment || o.Payment === payment),
+	);
+
 	const [cancelModal, setCancelModal] = useState(false);
 	const [cancelReason, setCancelReason] = useState('');
 	const [cancelRow, setCancelRow] = useState<DataType | null>(null);
@@ -110,7 +114,7 @@ export const OrderListPage = () => {
 	// Cancelling needs a reason, so it routes through a modal instead of the
 	// inline status Select. The reason + who/when is written to metadata.
 	const openCancel = (record: DataType) => {
-		if (isAppointmentPast(record.appointment?.date)) {
+		if (isDayPast(record.appointment?.date)) {
 			message.warning('Cannot cancel a past appointment.');
 			return;
 		}
@@ -247,7 +251,7 @@ export const OrderListPage = () => {
 			dataIndex: 'Status',
 			render: (_, record) => {
 				const {Status, id} = record;
-				const past = isAppointmentPast(record.appointment?.date);
+				const past = isDayPast(record.appointment?.date);
 				return (
 					<Select
 						bordered={false}
@@ -288,10 +292,48 @@ export const OrderListPage = () => {
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
 					<h2 className="text-xl font-bold">Doctor Appointments</h2>
 					<Button type="primary">
-						<CSVLink data={orderArray} filename="OrderList" target="_blank">
+						<CSVLink data={visibleOrders} filename="OrderList" target="_blank">
 							Export
 						</CSVLink>
 					</Button>
+				</div>
+				<div className="my-2 flex items-center gap-2 flex-wrap">
+					<TableSearch placeholder="Search order ID, user, mobile or doctor" onSearch={setSearch} />
+					<RangePicker
+						placeholder={['Appointment from', 'to']}
+						value={appointmentRange}
+						onChange={(v) => setAppointmentRange(v as DateRange)}
+					/>
+					<RangePicker
+						placeholder={['Booked from', 'to']}
+						value={bookedRange}
+						onChange={(v) => setBookedRange(v as DateRange)}
+					/>
+					<Select
+						allowClear
+						showSearch
+						placeholder="Doctor"
+						style={{width: 200}}
+						value={doctor}
+						onChange={setDoctor}
+						options={optionsOf(orderArray.map((o) => o.doctor))}
+					/>
+					<Select
+						allowClear
+						placeholder="Status"
+						style={{width: 170}}
+						value={statusFilter}
+						onChange={setStatusFilter}
+						options={APPOINTMENT_STATUS_OPTIONS}
+					/>
+					<Select
+						allowClear
+						placeholder="Payment"
+						style={{width: 130}}
+						value={payment}
+						onChange={setPayment}
+						options={optionsOf(orderArray.map((o) => o.Payment))}
+					/>
 				</div>
 				{isLoading ? (
 					<Skeleton active />
@@ -301,7 +343,7 @@ export const OrderListPage = () => {
 						rowKey={(obj) => obj.Order_Id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={orderArray}
+						dataSource={visibleOrders}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

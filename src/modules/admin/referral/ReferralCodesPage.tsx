@@ -24,6 +24,8 @@ import {ColumnsType} from 'antd/lib/table';
 import {QRCodeCanvas} from 'qrcode.react';
 import moment from 'moment';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 
 // Play Store link for the app; append an install `referrer` carrying the code
 // so it auto-applies at registration after a Play install (`code%3D` = `code=`).
@@ -172,6 +174,11 @@ export const ReferralCodesPage = () => {
 		);
 	};
 
+	const [search, setSearch] = useState('');
+	const visibleCodes = (codes ?? []).filter((r) =>
+		matchesSearch(search, [r.code, r.referrerName, r.notes]),
+	);
+
 	const columns: ColumnsType<IReferralCode> = [
 		{title: 'Code', dataIndex: 'code', key: 'code'},
 		{title: 'Referrer Name', dataIndex: 'referrerName', key: 'referrerName'},
@@ -247,6 +254,9 @@ export const ReferralCodesPage = () => {
 					</Button>
 				</div>
 
+				<div className="my-2">
+					<TableSearch placeholder="Search code, referrer or notes" onSearch={setSearch} />
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (
@@ -255,7 +265,7 @@ export const ReferralCodesPage = () => {
 						rowKey={(obj) => obj.id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={codes ?? []}
+						dataSource={visibleCodes}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

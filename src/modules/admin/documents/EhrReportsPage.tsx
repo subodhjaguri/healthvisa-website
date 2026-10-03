@@ -1,13 +1,16 @@
 import {Layout} from '@healthvisa/components';
-import {Button, Skeleton, Table, Typography} from 'antd';
+import {Button, DatePicker, Skeleton, Table, Typography} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
-import React from 'react';
+import React, {useState} from 'react';
 import moment from 'moment';
 import {CSVLink} from 'react-csv';
 import {useUser} from '@healthvisa/models/admin/users/useUser';
 import {useGetEhrDocuments} from '@healthvisa/models/admin/documents/useDocument';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {DateRange, inDateRange, matchesSearch} from '@healthvisa/utils/tableFilter';
 
 const {Link} = Typography;
+const {RangePicker} = DatePicker;
 
 interface DataType {
 	User: string;
@@ -42,6 +45,15 @@ export const EhrReportsPage = () => {
 					};
 			  })
 			: [];
+
+	const [search, setSearch] = useState('');
+	const [uploadedRange, setUploadedRange] = useState<DateRange>(null);
+	// What the table shows is also what Export downloads.
+	const visibleReports = reports.filter(
+		(r) =>
+			matchesSearch(search, [r.User, r.Mobile, r.patientName, r.title]) &&
+			inDateRange(r.CreatedOn, uploadedRange),
+	);
 
 	const columns: ColumnsType<DataType> = [
 		{
@@ -98,10 +110,18 @@ export const EhrReportsPage = () => {
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
 					<h2 className="text-xl font-bold">EHR Reports</h2>
 					<Button type="primary">
-						<CSVLink data={reports} filename="EhrReports" target="_blank">
+						<CSVLink data={visibleReports} filename="EhrReports" target="_blank">
 							Export
 						</CSVLink>
 					</Button>
+				</div>
+				<div className="my-2 flex items-center gap-2 flex-wrap">
+					<TableSearch placeholder="Search user, mobile, patient or title" onSearch={setSearch} />
+					<RangePicker
+						placeholder={['Uploaded from', 'to']}
+						value={uploadedRange}
+						onChange={(v) => setUploadedRange(v as DateRange)}
+					/>
 				</div>
 				{isLoading || loading ? (
 					<Skeleton active />
@@ -111,7 +131,7 @@ export const EhrReportsPage = () => {
 						rowKey={(obj) => obj.id}
 						pagination={{pageSize: 8, showSizeChanger: false}}
 						columns={columns}
-						dataSource={reports}
+						dataSource={visibleReports}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

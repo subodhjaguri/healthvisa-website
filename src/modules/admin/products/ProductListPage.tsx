@@ -1,6 +1,6 @@
 import {Layout} from '@healthvisa/components';
 import {useDeleteProduct, useProduct} from '@healthvisa/models/admin/products/useProduct';
-import {Button, Input, message, Modal, Skeleton, Space, Table} from 'antd';
+import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
 import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
@@ -10,6 +10,8 @@ import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 
 const {confirm} = Modal;
 interface DataType {
@@ -161,19 +163,18 @@ export const ProductListPage = () => {
 		},
 	];
 
+	// What the table shows is also what Export downloads.
+	const visibleProducts = productsArray.filter((p) =>
+		matchesSearch(search, [p.Name, p.CategoryName]),
+	);
+
 	return (
 		<Layout>
 			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
 					<h1 className="text-xl font-bold">Doctors</h1>
 					<div className="flex items-center gap-2">
-						<Input
-							allowClear
-							placeholder="Search doctor / category"
-							style={{width: 220}}
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-						/>
+						<TableSearch placeholder="Search doctor / category" onSearch={setSearch} width={220} />
 						<Button
 							type="primary"
 							onClick={() => router.push('/admin/products/create')}
@@ -181,7 +182,7 @@ export const ProductListPage = () => {
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={productsArray} filename="ProductList" target="_blank">
+							<CSVLink data={visibleProducts} filename="ProductList" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
@@ -199,11 +200,7 @@ export const ProductListPage = () => {
 							showSizeChanger: false,
 						}}
 						columns={columns}
-						dataSource={productsArray.filter((p) =>
-							`${p.Name} ${p.CategoryName}`
-								.toLowerCase()
-								.includes(search.toLowerCase()),
-						)}
+						dataSource={visibleProducts}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

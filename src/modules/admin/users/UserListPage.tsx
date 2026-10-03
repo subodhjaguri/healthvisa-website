@@ -13,6 +13,8 @@ import {
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {CSVLink} from 'react-csv';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {CheckboxProps} from 'antd/es/checkbox';
 
 const {confirm} = Modal;
@@ -28,6 +30,7 @@ interface DataType {
 	membershipEndDate?: string;
 	membershipPlanId?: string;
 	referredBy: string;
+	uniqueId: string;
 }
 
 export const UserListPage = () => {
@@ -64,6 +67,7 @@ export const UserListPage = () => {
 		});
 	};
 	const [isEHRChecked, setIsEHR] = useState(false);
+	const [search, setSearch] = useState('');
 	const handleDelete = async (id: string) => {
 		deleteUser.mutate(
 			{id},
@@ -254,6 +258,12 @@ export const UserListPage = () => {
 			),
 		},
 	];
+	// What the table shows is also what Export downloads.
+	const visibleUsers = userArray.filter(
+		(u) =>
+			(!isEHRChecked || u.isEHR) &&
+			matchesSearch(search, [u.name, u.mobileNumber, u.uniqueId, u.userName, u.referredBy]),
+	);
 	const onChange: CheckboxProps['onChange'] = (e) => {
 		setIsEHR(e.target.checked);
 	};
@@ -269,13 +279,14 @@ export const UserListPage = () => {
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={userArray} filename="UserList" target="_blank">
+							<CSVLink data={visibleUsers} filename="UserList" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
 					</div>
 				</div>
-				<div className="my-2">
+				<div className="my-2 flex items-center gap-4 flex-wrap">
+					<TableSearch placeholder="Search name, mobile or HF ID" onSearch={setSearch} />
 					<Checkbox onChange={onChange}>Show EHR Users</Checkbox>
 				</div>
 				{isLoading ? (
@@ -286,11 +297,7 @@ export const UserListPage = () => {
 						rowKey={(obj) => obj.key}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={
-							isEHRChecked
-								? userArray.filter((user) => user.isEHR)
-								: userArray
-						}
+						dataSource={visibleUsers}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

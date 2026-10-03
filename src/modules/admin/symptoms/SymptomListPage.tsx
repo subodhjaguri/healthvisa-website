@@ -4,6 +4,8 @@ import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React, {useEffect, useState} from 'react';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {
 	useSymptoms,
 	useDeleteSymptom,
@@ -168,6 +170,12 @@ export const SymptomListPage = () => {
 		},
 	];
 
+	const [search, setSearch] = useState('');
+	// What the table shows is also what Export downloads.
+	const visibleSymptoms = symptomsArray.filter((s) =>
+		matchesSearch(search, [s.name, ...s.categoryId.map((id) => categoryMap[id])]),
+	);
+
 	// For exporting CSV
 	const headers = [
 		{label: 'Sr. No.', key: 'index'},
@@ -177,7 +185,7 @@ export const SymptomListPage = () => {
 		{label: 'Created On', key: 'createdOn'},
 	];
 
-	const csvData = symptomsArray.map((s) => ({
+	const csvData = visibleSymptoms.map((s) => ({
 		index: s.index,
 		name: s.name,
 		categoryIdString: s.categoryId.join('; '),
@@ -213,13 +221,16 @@ export const SymptomListPage = () => {
 						</Button>
 					</div>
 				</div>
+				<div className="mb-3">
+					<TableSearch placeholder="Search symptom or speciality" onSearch={setSearch} />
+				</div>
 				<div className="flex-1 overflow-auto">
 					{!isLoading ? (
 						<Table
 							key={key_}
 							pagination={{pageSize: 10}}
 							columns={columns}
-							dataSource={symptomsArray}
+							dataSource={visibleSymptoms}
 						/>
 					) : (
 						<>

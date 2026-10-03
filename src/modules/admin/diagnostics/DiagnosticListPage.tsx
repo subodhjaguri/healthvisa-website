@@ -8,7 +8,9 @@ import {Button, message, Modal, Skeleton, Space, Table} from 'antd';
 import {ThumbPreview} from '@healthvisa/components/ThumbPreview';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
-import React from 'react';
+import React, {useState} from 'react';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import moment from 'moment';
 import {CSVLink} from 'react-csv';
@@ -76,6 +78,12 @@ export const DiagnosticListPage = () => {
 					CreatedOn: moment(d.createdAt).format('DD MMM YYYY'),
 			  }))
 			: [];
+
+	const [search, setSearch] = useState('');
+	// What the table shows is also what Export downloads.
+	const visibleDiagnostics = productsArray.filter((r) =>
+		matchesSearch(search, [r.Name]),
+	);
 
 	const columns: ColumnsType<DataType> = [
 		{title: 'Sr. No.', dataIndex: 'index', key: 'index'},
@@ -162,13 +170,16 @@ export const DiagnosticListPage = () => {
 							Add New
 						</Button>
 						<Button type="primary">
-							<CSVLink data={productsArray} filename="Diagnostics" target="_blank">
+							<CSVLink data={visibleDiagnostics} filename="Diagnostics" target="_blank">
 								Export
 							</CSVLink>
 						</Button>
 					</div>
 				</div>
 
+				<div className="my-2">
+					<TableSearch placeholder="Search diagnostic name" onSearch={setSearch} />
+				</div>
 				{isLoading ? (
 					<Skeleton active />
 				) : (
@@ -177,7 +188,7 @@ export const DiagnosticListPage = () => {
 						rowKey={(obj) => obj.Id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={productsArray}
+						dataSource={visibleDiagnostics}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 					/>
 				)}

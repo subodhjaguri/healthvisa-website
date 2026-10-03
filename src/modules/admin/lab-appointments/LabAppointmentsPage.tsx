@@ -1,6 +1,7 @@
 import {Layout} from '@healthvisa/components';
 import {
 	Button,
+	DatePicker,
 	message,
 	Select,
 	Skeleton,
@@ -16,13 +17,15 @@ import {
 	InfoCircleOutlined,
 } from '@ant-design/icons';
 import {Typography} from 'antd';
-const {Link} = Typography;
 import {ColumnsType} from 'antd/lib/table';
 import React, {useState} from 'react';
 import {useUser} from '@healthvisa/models/admin/users/useUser';
 import moment from 'moment';
 import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
+import {TableSearch} from '@healthvisa/components/TableSearch';
+import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
+import {APPOINTMENT_STATUS_OPTIONS} from '@healthvisa/utils/appointmentStatus';
 import {
 	useDiagnosticItems,
 	useGetLabAppointments,
@@ -38,6 +41,9 @@ interface DataType {
 	CreatedOn: string;
 	Amount: string;
 	visit: string;
+	test?: string;
+	lab?: string;
+	Option?: string;
 	id: string;
 	tests: string;
 	note: string;
@@ -55,26 +61,10 @@ const labelStyle: React.CSSProperties = {
 	fontSize: 13,
 };
 
+const {Link} = Typography;
 const {Option} = Select;
 const {TextArea} = Input;
-
-// Day-granular "past": an appointment is past once its calendar day is before
-// today. Undated lab visits (no scheduled day) are never past.
-const isAppointmentPast = (raw?: string): boolean => {
-	if (!raw) {
-		return false;
-	}
-	const d = new Date(raw);
-	if (isNaN(d.getTime())) {
-		return false;
-	}
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	return (
-		new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() <
-		today.getTime()
-	);
-};
+const {RangePicker} = DatePicker;
 
 export const LabAppointmentsPage = () => {
 	const {isLoading, data: userList} = useUser();
@@ -134,10 +124,29 @@ export const LabAppointmentsPage = () => {
 			  }))
 			: [];
 
+	const [search, setSearch] = useState('');
+	const [visitRange, setVisitRange] = useState<DateRange>(null);
+	const [bookedRange, setBookedRange] = useState<DateRange>(null);
+	const [lab, setLab] = useState<string>();
+	const [diagnostic, setDiagnostic] = useState<string>();
+	const [optionFilter, setOptionFilter] = useState<string>();
+	const [statusFilter, setStatusFilter] = useState<string>();
+	// What the table shows is also what Export downloads.
+	const visibleAppointments = appointmentsArray.filter(
+		(a) =>
+			matchesSearch(search, [a.User, a.Mobile, a.lab, a.test, a.tests]) &&
+			inDateRange(a.date, visitRange) &&
+			inDateRange(a.CreatedOn, bookedRange) &&
+			(!lab || a.lab === lab) &&
+			(!diagnostic || a.test === diagnostic) &&
+			(!optionFilter || a.Option === optionFilter) &&
+			(!statusFilter || a.Status === statusFilter),
+	);
+
 	// Cancelling needs a reason → routes through its own modal (not the inline
 	// status Select). Reason + who/when is written to metadata.cancellation.
 	const openCancel = (record: DataType) => {
-		if (isAppointmentPast(record.date)) {
+		if (isDayPast(record.date)) {
 			message.warning('Cannot cancel a past appointment.');
 			return;
 		}
@@ -267,7 +276,7 @@ export const LabAppointmentsPage = () => {
 			dataIndex: 'Status',
 			render: (_, record) => {
 				const {Status, id} = record;
-				const past = isAppointmentPast(record.date);
+				const past = isDayPast(record.date);
 				return (
 					<Select
 						bordered={false}
@@ -308,12 +317,59 @@ export const LabAppointmentsPage = () => {
 					<h2 className="text-xl font-bold">Lab Appointments</h2>
 					<Button type="primary">
 						<CSVLink
-							data={appointmentsArray}
+							data={visibleAppointments}
 							filename="OrderList"
 							target="_blank">
 							Export
 						</CSVLink>
 					</Button>
+				</div>
+				<div className="my-2 flex items-center gap-2 flex-wrap">
+					<TableSearch placeholder="Search user, mobile, lab or test" onSearch={setSearch} />
+					<RangePicker
+						placeholder={['Visit from', 'to']}
+						value={visitRange}
+						onChange={(v) => setVisitRange(v as DateRange)}
+					/>
+					<RangePicker
+						placeholder={['Booked from', 'to']}
+						value={bookedRange}
+						onChange={(v) => setBookedRange(v as DateRange)}
+					/>
+					<Select
+						allowClear
+						showSearch
+						placeholder="Lab"
+						style={{width: 180}}
+						value={lab}
+						onChange={setLab}
+						options={optionsOf(appointmentsArray.map((a) => a.lab))}
+					/>
+					<Select
+						allowClear
+						showSearch
+						placeholder="Diagnostic"
+						style={{width: 180}}
+						value={diagnostic}
+						onChange={setDiagnostic}
+						options={optionsOf(appointmentsArray.map((a) => a.test))}
+					/>
+					<Select
+						allowClear
+						placeholder="Option"
+						style={{width: 140}}
+						value={optionFilter}
+						onChange={setOptionFilter}
+						options={optionsOf(appointmentsArray.map((a) => a.Option))}
+					/>
+					<Select
+						allowClear
+						placeholder="Status"
+						style={{width: 170}}
+						value={statusFilter}
+						onChange={setStatusFilter}
+						options={APPOINTMENT_STATUS_OPTIONS}
+					/>
 				</div>
 				{isLoading || loading ? (
 					<Skeleton active />
@@ -323,7 +379,7 @@ export const LabAppointmentsPage = () => {
 						rowKey={(obj) => obj.id}
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
-						dataSource={appointmentsArray}
+						dataSource={visibleAppointments}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
 						expandable={{
 							expandedRowRender: (record) => {
