@@ -1,5 +1,12 @@
 import {Layout} from '@healthvisa/components';
-import {UserUpdateRequestParams, IFamilyMember} from '@healthvisa/models/admin/users/User';
+import {
+	UserUpdateRequestParams,
+	IFamilyMember,
+	RELATIONSHIPS,
+	RELATIONSHIP_OTHER,
+	relationshipChoice,
+	toMobile10,
+} from '@healthvisa/models/admin/users/User';
 import {
 	useUpdateMembershipExpiry,
 	useUpdateUser,
@@ -56,16 +63,19 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 	const [isModalVisible, setIsModalVisible] = useState(false);
 	const [editingMember, setEditingMember] = useState<IFamilyMember | null>(null);
 	const [modalForm] = Form.useForm();
+	const relationshipValue = Form.useWatch('relationship', modalForm);
 
 	const handleAddEditMember = async (values: any) => {
 		const memberData = {
 			name: values.name,
 			age: Number(values.age),
 			gender: values.gender,
-			relationship: values.relationship,
+			relationship:
+				values.relationship === RELATIONSHIP_OTHER ? values.relationshipOther.trim() : values.relationship,
 			userId: id,
 			metadata: {
-				phone: values.phone,
+				// The validator has already accepted it, so this is the 10-digit form.
+				phone: toMobile10(values.phone) ?? values.phone,
 			},
 		};
 
@@ -101,7 +111,7 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 			name: member.name,
 			age: member.age,
 			gender: member.gender,
-			relationship: member.relationship,
+			...relationshipChoice(member.relationship),
 			phone: member.metadata?.phone || '',
 		});
 		setIsModalVisible(true);
@@ -494,24 +504,47 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 											label="Relationship"
 											name="relationship"
 											className="w-[49%]"
-											rules={[{required: true, message: 'Please enter Relationship'}]}
+											rules={[{required: true, message: 'Please select Relationship'}]}
 										>
-											<Input placeholder="e.g. Spouse, Son, Mother" />
+											<Select
+												placeholder="Select Relationship"
+												options={RELATIONSHIPS.map(r => ({value: r, label: r}))}
+											/>
 										</Form.Item>
 										<Form.Item
 											label="Mobile Number"
 											name="phone"
 											className="w-[49%]"
+											// Digits only, never trimmed: an over-long paste must fail validation.
+											normalize={(v?: string) => (v ?? '').replace(/\D/g, '')}
 											rules={[
 												{required: true, message: 'Please enter Mobile Number'},
 												{
-													pattern: /^[0-9]{10}$/,
-													message: 'Please enter a valid 10-digit Mobile number',
+													validator: (_, value) => {
+														if (!value || toMobile10(value)) return Promise.resolve();
+														return Promise.reject(
+															new Error(
+																editingMember && value === editingMember.metadata?.phone
+																	? "This member's saved mobile number is incomplete. Please enter the full 10-digit number."
+																	: 'Mobile number must be exactly 10 digits',
+															),
+														);
+													},
 												},
 											]}
 										>
-											<Input placeholder="Enter 10-digit number" maxLength={10} />
+											<Input addonBefore="+91" placeholder="Enter 10-digit number" />
 										</Form.Item>
+										{relationshipValue === RELATIONSHIP_OTHER && (
+											<Form.Item
+												label="Relationship (Other)"
+												name="relationshipOther"
+												className="w-[49%]"
+												rules={[{required: true, whitespace: true, message: 'Please type the Relationship'}]}
+											>
+												<Input placeholder="Type the relationship" maxLength={50} />
+											</Form.Item>
+										)}
 									</div>
 									<div className="flex justify-end gap-2 mt-4">
 										<Button

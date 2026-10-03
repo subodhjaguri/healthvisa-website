@@ -279,6 +279,42 @@ export interface IFamilyMember {
 	updatedAt?: string;
 }
 
+/** Relationship to the card holder (same list as the app). "Other" = typed by the admin. */
+export const RELATIONSHIP_OTHER = 'Other';
+export const RELATIONSHIPS = [
+	'Spouse',
+	'Son',
+	'Daughter',
+	'Father',
+	'Mother',
+	'Brother',
+	'Sister',
+	'Grandfather',
+	'Grandmother',
+	'Father-in-law',
+	'Mother-in-law',
+	RELATIONSHIP_OTHER,
+];
+
+/** Saved relationship → dropdown choice + custom text (old free-text values show as "Other"). */
+export function relationshipChoice(saved?: string): {relationship?: string; relationshipOther?: string} {
+	const value = saved?.trim() ?? '';
+	if (!value) return {};
+	const match = RELATIONSHIPS.find(r => r.toLowerCase() === value.toLowerCase());
+	return match ? {relationship: match} : {relationship: RELATIONSHIP_OTHER, relationshipOther: value};
+}
+
+/**
+ * An Indian mobile number as the 10 digits we store (same rule as the app).
+ * Accepts "+91 98765 43210", "919876543210", "09876543210"; null if not 10 digits.
+ */
+export function toMobile10(input?: string): string | null {
+	let digits = (input ?? '').replace(/\D/g, '');
+	if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2);
+	else if (digits.length === 11 && digits.startsWith('0')) digits = digits.slice(1);
+	return /^\d{10}$/.test(digits) ? digits : null;
+}
+
 export function getFamilyMembersByUserId(userId: string): Promise<IFamilyMember[]> {
 	return ajaxGet<IFamilyMember[]>({
 		url: `${getApiUrl('card', '/family-members/userId')}/${userId}`,
