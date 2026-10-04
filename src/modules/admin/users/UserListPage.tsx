@@ -73,7 +73,7 @@ export const UserListPage = () => {
 			{id},
 			{
 				onSuccess: (response) => {
-					message.success('Deleted Successfully..!');
+					message.success('User and all their data deleted');
 				},
 				onError: (err: any) => {
 					message.error(err?.errors.error.message);
@@ -84,9 +84,10 @@ export const UserListPage = () => {
 
 	const showModal = (id: string) => {
 		confirm({
-			title: 'Are you sure you want to delete this?',
+			title: 'Delete this user and all of their data?',
 			icon: <ExclamationCircleFilled />,
-			content: '',
+			content:
+				'Their profile, health records and files, family members, bookings, orders and membership history are permanently deleted. This cannot be undone.',
 			okText: 'Yes',
 			okType: 'danger',
 			cancelText: 'No',

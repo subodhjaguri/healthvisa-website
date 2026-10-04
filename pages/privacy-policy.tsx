@@ -762,10 +762,26 @@ const PrivacyPolicyPage = () => {
 					</li>
 					<li>
 						If you confirm by selecting <strong>“Delete”</strong>, your
-						account and all associated data will be permanently deleted from
-						our database.
+						account and all of its data are permanently deleted.
 					</li>
 				</ol>
+
+				<p>
+					You can also request deletion without the app: see{' '}
+					<a href="/delete-account">Delete your HealthiFam account</a>, or email{' '}
+					<a href="mailto:healthifam@gmail.com">healthifam@gmail.com</a> from
+					any email address with the mobile number registered on your account.
+				</p>
+
+				<h3>What is deleted</h3>
+				<p>
+					Your profile (name, mobile number, password), health records and
+					prescriptions with their uploaded files, family members, lab and
+					doctor bookings, medicine orders, cart, addresses, reviews, membership
+					history and requests you sent us. We do not keep a copy of any of
+					this. Payments for memberships and services are made offline, outside
+					the app, so the app holds no payment records that must be retained.
+				</p>
 
 				<h3>Important Notes:</h3>
 				<ul>
@@ -773,9 +789,8 @@ const PrivacyPolicyPage = () => {
 						Once deleted, your account <strong>cannot be recovered</strong>.
 					</li>
 					<li>
-						Any personal data linked to your account will be{' '}
-						<strong>permanently erased</strong> in accordance with our data
-						retention policy.
+						Deletion from the app happens immediately. Requests by email are
+						completed within 30 days.
 					</li>
 					<li>
 						If you need assistance with account deletion, you can contact us
