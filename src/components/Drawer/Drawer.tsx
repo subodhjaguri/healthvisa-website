@@ -11,6 +11,7 @@ import {
 	MdOutlineAssignment,
 	MdPeople,
 	MdLocalOffer,
+	MdSystemUpdate,
 	MdSick,
 } from 'react-icons/md';
 import {
@@ -77,6 +78,7 @@ export const DrawerComponent = () => {
 		getItem('Health News', '/admin/news', <FaRegNewspaper />),
 		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),
 		getItem('Referrals', '/admin/referral-codes', <MdLocalOffer />),
+		getItem('App Versions', '/admin/app-version', <MdSystemUpdate />),
 	];
 	const onClick: MenuProps['onClick'] = (e) => {
 		router.push(e.key);
