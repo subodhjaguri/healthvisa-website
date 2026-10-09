@@ -24,7 +24,7 @@ import moment from 'moment';
 import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
-import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
+import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf, parseDay} from '@healthvisa/utils/tableFilter';
 import {APPOINTMENT_STATUS_OPTIONS, availableAppointmentStatuses, appointmentStatusColor} from '@healthvisa/utils/appointmentStatus';
 import {
 	useDiagnosticItems,
@@ -436,7 +436,7 @@ export const LabAppointmentsPage = () => {
 															icon={<CalendarOutlined />}
 															color="geekblue"
 															style={{margin: 0}}>
-															{record.date}
+															{parseDay(record.date)?.format('DD MMM YYYY') ?? record.date}
 														</Tag>
 													) : null}
 													{slotList.length ? (
