@@ -128,8 +128,12 @@ export const NewsFormPage = ({id}: {id?: string}) => {
 			message.error('Please write the news content');
 			return;
 		}
-		if (!isEdit && fileList.length === 0) {
+		if (fileList.length === 0 && (!isEdit || existingImages.length === 0)) {
 			message.error('Please add at least one image');
+			return;
+		}
+		if (!isEdit && description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length < 80) {
+			message.error('Please add at least 80 characters of article content');
 			return;
 		}
 

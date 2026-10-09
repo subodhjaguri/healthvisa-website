@@ -165,7 +165,7 @@ export const Dashboard = () => {
 				<StatCard
 					icon={<FaUserMd {...ICON} />}
 					value={products?.count}
-					label="Doctors"
+					label="Products & Services"
 					color="#93C841"
 					onClick={() => router.push('/admin/products')}
 				/>

@@ -8,7 +8,7 @@ import {
 	useDeleteUser,
 	useGetMemberships,
 	useGetNewMembers,
-	useSelectMembership,
+	useApproveMembershipRequest,
 	useUpdateNewMember,
 	useUser,
 } from '@healthvisa/models/admin/users/useUser';
@@ -16,10 +16,7 @@ import {ExclamationCircleFilled} from '@ant-design/icons';
 import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
 import {matchesSearch} from '@healthvisa/utils/tableFilter';
-import {
-	AddMembershipTransactionRequestParams,
-	NewMemberUpdateRequestParams,
-} from '@healthvisa/models/admin/users/User';
+import {NewMemberUpdateRequestParams} from '@healthvisa/models/admin/users/User';
 import {formatPrice} from '@healthvisa/utils';
 import moment from 'moment';
 
@@ -40,9 +37,13 @@ interface DataType {
 }
 
 export const NewMembersListPage = () => {
-	const {isLoading, data: userList} = useGetNewMembers();
+	const {isLoading, data: userList, refetch} = useGetNewMembers();
 	const {data: usersArray} = useUser();
 	const {data: plans} = useGetMemberships();
+	const planById = React.useMemo(
+		() => new Map((plans || []).map((p) => [p.id, p])),
+		[plans],
+	);
 	const planTitleById = React.useMemo(() => {
 		const map: Record<string, string> = {};
 		(plans || []).forEach((p) => (map[p.id] = p.title));
@@ -77,7 +78,8 @@ export const NewMembersListPage = () => {
 			},
 		});
 	};
-	const selectMembership = useSelectMembership();
+	const approveMembership = useApproveMembershipRequest();
+	const [pendingApprovalId, setPendingApprovalId] = useState<string | null>(null);
 	const updateNewMember = useUpdateNewMember();
 
 	const UpdateStatus = async (id: string, status: string) => {
@@ -90,45 +92,40 @@ export const NewMembersListPage = () => {
 				message.success('User Updated Successfully');
 			},
 			onError: (errors: any) => {
-				message.error(errors?.errors.data.message);
+				message.error(errors?.errors?.data?.message ?? errors?.errors?.error?.message ?? 'Could not update request');
 			},
 		});
 	};
-	const allowAccess = async (appliedFor: string, userId: string, metadata:any) => {
-		// EHR is free for all users now (granted by default at signup), so there's
-		// no EHR approval here — only membership requests need admin action.
-		if (appliedFor === 'membership') {
-			// The user's request always carries the chosen plan id; don't fall back
-			// to a bogus hardcoded id (it doesn't match any real plan).
-			if (!metadata?.membershipId) {
-				message.error('No membership plan on this request — cannot approve.');
-				return;
-			}
-			const body: AddMembershipTransactionRequestParams = {
-				userId,
-				membershipId: metadata.membershipId,
-				optedAt: new Date(),
-				isActive: true,
-				metadata: {},
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				// Renewal requests stack the new period onto remaining time.
-				source: metadata?.renewal ? 'renewal' : 'new',
-			};
-			selectMembership.mutate(body, {
-				onSuccess: (data) => {
-					console.log('data: ', data);
-
-					message.success('Access granted');
-				},
-				onError: (error: any) => {
-					// e.g. "Unknown membership plan — cannot grant access"
-					message.error(
-						error?.errors?.error?.message ?? 'Could not grant membership access',
-					);
-				},
-			});
+	const allowAccess = (record: DataType) => {
+		const plan = planById.get(record.metadata?.membershipId);
+		if (!plan) {
+			message.error('No valid membership plan on this request — cannot approve.');
+			return;
 		}
+		const amount = record.metadata?.referral?.finalPrice ??
+			record.metadata?.renewalDiscount?.finalPrice ?? plan.discountPrice;
+		confirm({
+			title: record.status === 'approving' ? 'Resume membership approval?' : 'Allow membership access?',
+			icon: <ExclamationCircleFilled />,
+			content: `${record.name || 'This user'} · ${plan.title}${amount != null ? ` · Collect ₹${formatPrice(amount)} offline` : ''}. This will grant access and complete the request.`,
+			okText: record.status === 'approving' ? 'Resume Approval' : 'Allow Access',
+			onOk: async () => {
+				setPendingApprovalId(record.id);
+				try {
+					await approveMembership.mutateAsync({
+						id: record.id,
+						resume: record.status === 'approving',
+					});
+					message.success('Membership access granted; request completed');
+				} catch (error: any) {
+					refetch();
+					message.error(error?.errors?.error?.message ?? 'Could not approve membership');
+					throw error;
+				} finally {
+					setPendingApprovalId(null);
+				}
+			},
+		});
 	};
 
 	const userArray: DataType[] =
@@ -232,23 +229,18 @@ export const NewMembersListPage = () => {
 			render: (text, record) => (
 				<Space size="middle">
 					{record.appliedFor === 'membership' && (
-						<Button
-							disabled={['completed', 'rejected'].includes(record.status)}
-							size="small"
-							onClick={() =>
-								allowAccess(
-									record.appliedFor,
-									record.userId,
-									record?.metadata || {},
-								)
-							}
+							<Button
+								disabled={!['active', 'approving'].includes(record.status) || (!!pendingApprovalId && pendingApprovalId !== record.id)}
+								loading={pendingApprovalId === record.id}
+								size="small"
+								onClick={() => allowAccess(record)}
 							type="default"
 							style={{
 								color: '#1990FF',
 								border: '1px solid #1990FF',
 								padding: '0 10px',
 							}}>
-							Allow Access
+								{record.status === 'approving' ? 'Resume Approval' : 'Allow Access'}
 						</Button>
 					)}
 					{record.appliedFor === 'order medicine' &&
@@ -274,23 +266,40 @@ export const NewMembersListPage = () => {
 			title: 'Status',
 			key: 'status',
 			dataIndex: 'Status',
-			render: (_, {status, id}) => (
-				<Select
-					bordered={false}
-					defaultValue={status}
-					onChange={(value) => UpdateStatus(id, value)}
-					style={{width: 140}}>
+				render: (_, {status, id, appliedFor}) =>
+				appliedFor === 'membership' && status !== 'active' ? (
+					<Tag color={status === 'completed' ? 'green' : status === 'approving' ? 'gold' : 'red'}>
+						{status === 'approving' ? 'Approving' : status === 'completed' ? 'Completed' : 'Rejected'}
+					</Tag>
+				) : (
+					<Select
+						bordered={false}
+						value={status}
+						disabled={updateNewMember.isLoading}
+						onChange={(value) => {
+							if (appliedFor === 'membership' && value === 'rejected') {
+								confirm({
+									title: 'Reject this membership request?',
+									okText: 'Reject',
+									okType: 'danger',
+									onOk: () => UpdateStatus(id, value),
+								});
+							} else {
+								UpdateStatus(id, value);
+							}
+						}}
+						style={{width: 140}}>
 					<Option value="active">
 						<Tag color="blue">Active</Tag>
 					</Option>
-					<Option value="completed">
+						<Option value="completed" disabled={appliedFor === 'membership'}>
 						<Tag color="green">Completed</Tag>
 					</Option>
 					<Option value="rejected">
 						<Tag color="red">Rejected</Tag>
 					</Option>
-				</Select>
-			),
+					</Select>
+				),
 		},
 	];
 

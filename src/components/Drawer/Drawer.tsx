@@ -63,7 +63,7 @@ export const DrawerComponent = () => {
 		getItem('Products and Services', 'products', <MdStorefront />, [
 			getItem('Categories', '/admin/categories', <BiCategoryAlt />),
 			getItem('Symptoms', '/admin/symptoms', <MdSick />),
-			getItem('Doctors', '/admin/products', <FaUserMd />),
+			getItem('Products & Services', '/admin/products', <FaUserMd />),
 			getItem('Diagnostics', '/admin/diagnostics', <MdBiotech />),
 			getItem('Labs', '/admin/labs', <FaFlask />),
 			getItem('Tests', '/admin/tests', <FaVials />),

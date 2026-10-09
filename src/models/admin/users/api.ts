@@ -12,6 +12,7 @@ export enum UserKeys {
 	GetNewMembers = 'GetNewMembers',
 	UpdateNewMember = 'updateNewMembers',
 	AddMembershipTransaction = 'addNewMembership',
+	ApproveMembershipRequest = 'approveMembershipRequest',
 	GetMemberships = 'GetMemberships',
 	RevokeMembership = 'revokeMembership',
 	UpdateMembershipExpiry = 'updateMembershipExpiry',

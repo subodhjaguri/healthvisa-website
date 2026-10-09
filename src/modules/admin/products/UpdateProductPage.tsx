@@ -222,7 +222,7 @@ export const UpdateProductPage = ({id}: {id: string}) => {
 									>
 										<Select
 											options={[
-												{value: 'Service', label: 'Service (Doctor)'},
+											{value: 'Service', label: 'Service'},
 												{value: 'Product', label: 'Product'},
 											]}
 										/>

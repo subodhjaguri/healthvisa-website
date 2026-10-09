@@ -210,6 +210,21 @@ export function updateNewMember({
 	});
 }
 
+export interface ApproveMembershipRequestParams {
+	id: string;
+	resume?: boolean;
+}
+
+export function approveMembershipRequest({
+	id,
+	resume = false,
+}: ApproveMembershipRequestParams): Promise<INewMember> {
+	return ajaxPost<{resume: boolean}, INewMember>({
+		data: {resume},
+		url: `${getApiUrl(Service, UserAPI.GetNewMembers)}/${id}/approve`,
+	});
+}
+
 export interface AddMembershipTransactionRequestParams {
 	userId: string;
 	membershipId: string;
@@ -340,4 +355,3 @@ export function deleteFamilyMember(id: string): Promise<void> {
 		url: `${getApiUrl('card', '/family-members')}/${id}`,
 	});
 }
-

@@ -329,7 +329,7 @@ export function useUpdateLabAppointment(
 			retry: 2, // Try at least Thrice before giving up
 			...queryOptions,
 			onSuccess(data: any, ...rest) {
-				queryClient.invalidateQueries(LabKeys.UpdateLabAppointments);
+				queryClient.invalidateQueries(LabKeys.GetLabAppointments);
 				return queryOptions?.onSuccess?.(data, ...rest);
 			},
 		},

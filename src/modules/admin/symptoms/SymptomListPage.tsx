@@ -125,7 +125,7 @@ export const SymptomListPage = () => {
 					<div className="flex flex-wrap gap-1">
 						{catIds.map((id) => (
 							<Tag color="blue" key={id}>
-								{categoryMap[id] || id}
+								{categoryMap[id] || 'Speciality unavailable'}
 							</Tag>
 						))}
 					</div>

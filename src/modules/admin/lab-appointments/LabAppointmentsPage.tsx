@@ -25,7 +25,7 @@ import {formatPrice} from '@healthvisa/utils';
 import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
 import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
-import {APPOINTMENT_STATUS_OPTIONS} from '@healthvisa/utils/appointmentStatus';
+import {APPOINTMENT_STATUS_OPTIONS, availableAppointmentStatuses, appointmentStatusColor} from '@healthvisa/utils/appointmentStatus';
 import {
 	useDiagnosticItems,
 	useGetLabAppointments,
@@ -83,9 +83,11 @@ export const LabAppointmentsPage = () => {
 		updateLabAppointment.mutate(body, {
 			onSuccess: (res) => {
 				message.success('Appointment Updated Successfully');
+				refetch();
 			},
 			onError: (errors: any) => {
-				message.error(errors?.errors.data.message);
+				message.error(errors?.errors?.error?.message ?? errors?.errors?.data?.message ?? 'Could not update appointment');
+				refetch();
 			},
 		});
 	};
@@ -99,14 +101,14 @@ export const LabAppointmentsPage = () => {
 					Mobile:
 						userList?.find((user) => user.id === appointment.userId)
 							?.mobileNumber ?? '',
-					Amount: appointment.amount
+					Amount: appointment.amount != null && (appointment.optionSelected !== 'health package' || appointment.healthPackageId)
 						? `₹${formatPrice(appointment.amount)}`
-						: '-',
+						: appointment.optionSelected === 'health package' ? 'Confirm price' : '-',
 					Status: appointment.status,
 					CreatedOn: moment(appointment.createdAt).format('DD MMM YYYY'),
-					test: DiagnosticItems?.find(
+					test: appointment.healthPackage || (appointment.optionSelected === 'health package' ? 'Package details unavailable' : DiagnosticItems?.find(
 						(item) => item.id === appointment.diagnosticId,
-					)?.name,
+					)?.name),
 					lab: labs.find((item) => item.id === appointment.labId)?.name,
 					visit: appointment.visit,
 					id: appointment.id,
@@ -182,7 +184,8 @@ export const LabAppointmentsPage = () => {
 				setCancelModal(false);
 			},
 			onError: (errors: any) => {
-				message.error(errors?.errors?.data?.message ?? 'Failed to cancel');
+				message.error(errors?.errors?.error?.message ?? errors?.errors?.data?.message ?? 'Failed to cancel');
+				refetch();
 			},
 		});
 	};
@@ -278,32 +281,33 @@ export const LabAppointmentsPage = () => {
 				const {Status, id} = record;
 				const past = isDayPast(record.date);
 				return (
-					<Select
-						bordered={false}
-						value={Status}
+						<Select
+							bordered={false}
+							value={Status}
+							disabled={updateLabAppointment.isLoading || availableAppointmentStatuses(Status).length === 1}
 						onChange={(value) => {
 							if (value === 'cancelled') {
 								openCancel(record);
+							} else if (value === 'completed' || value === 'rejected') {
+								Modal.confirm({
+									title: `Mark this appointment ${value}?`,
+									content: 'This status is final in the normal workflow.',
+									onOk: () => UpdateStatus(id, value),
+								});
 							} else {
 								UpdateStatus(id, value);
 							}
 						}}
 						style={{width: 180}}>
-						<Option value="placed">
-							<Tag color="blue">Placed</Tag>
-						</Option>
-						<Option value="appointment booked">
-							<Tag color="cyan">Appointment Booked</Tag>
-						</Option>
-						<Option value="rejected">
-							<Tag color="orange">Rejected</Tag>
-						</Option>
-						<Option value="completed">
-							<Tag color="green">Completed</Tag>
-						</Option>
-						<Option value="cancelled" disabled={past}>
-							<Tag color="red">Cancelled</Tag>
-						</Option>
+						{availableAppointmentStatuses(Status)
+							.filter(value => value !== 'cancelled' || !past || value === Status)
+							.map(value => (
+								<Option key={value} value={value}>
+									<Tag color={appointmentStatusColor[value]}>
+										{value.replace(/\b\w/g, c => c.toUpperCase())}
+									</Tag>
+								</Option>
+							))}
 					</Select>
 				);
 			},

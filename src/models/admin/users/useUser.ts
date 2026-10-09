@@ -10,6 +10,8 @@ import {
 
 import {XHRErrorResponse} from '@healthvisa/utils';
 import {
+	approveMembershipRequest,
+	ApproveMembershipRequestParams,
 	addMembershipTransaction,
 	AddMembershipTransactionRequestParams,
 	addUser,
@@ -249,11 +251,26 @@ export function useUpdateNewMember(
 			retry: 2, // Try at least Thrice before giving up
 			...queryOptions,
 			onSuccess(data: any, ...rest) {
-				queryClient.invalidateQueries(UserKeys.UpdateNewMember);
+				queryClient.invalidateQueries(UserKeys.GetNewMembers);
 				return queryOptions?.onSuccess?.(data, ...rest);
 			},
 		},
 	);
+}
+
+export function useApproveMembershipRequest(): UseMutationResult<
+	any,
+	XHRErrorResponse,
+	ApproveMembershipRequestParams
+> {
+	const queryClient = useQueryClient();
+	return useMutation(approveMembershipRequest, {
+		mutationKey: [UserKeys.ApproveMembershipRequest],
+		onSuccess() {
+			queryClient.invalidateQueries(UserKeys.GetNewMembers);
+			queryClient.invalidateQueries(UserKeys.GetUser);
+		},
+	});
 }
 
 export function useSelectMembership(
@@ -383,4 +400,3 @@ export function useDeleteFamilyMember(
 		},
 	});
 }
-

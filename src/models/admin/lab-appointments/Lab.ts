@@ -35,6 +35,7 @@ export interface ILabAppointment {
 	amount: number;
 	status: string;
 	healthPackage: string;
+	healthPackageId?: string;
 	optionSelected: string;
 	createdAt: string;
 	updatedAt: string;
