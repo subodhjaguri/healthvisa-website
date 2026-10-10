@@ -10,7 +10,7 @@ const TermsAndConditionsPage = () => {
 			<p>
 				HealthiFam, on behalf of itself and its affiliates/group companies under
 				the brand &apos;HealthiFam&apos; (“HealthiFam”), is the author and
-				publisher of the internet resource www.HealthiFam.com and the mobile
+				publisher of the internet resource www.healthifam.in and the mobile
 				application ‘HealthiFam’ (together, “Website”).
 			</p>
 
@@ -19,7 +19,7 @@ const TermsAndConditionsPage = () => {
 
 				<p>
 					Please carefully go through these terms and conditions (“Terms”) and
-					the privacy policy available at https://www.HealthiFam.com/privacy
+					the privacy policy available at https://www.healthifam.in/privacy-policy
 					(“Privacy Policy”) before you decide to access the Website or avail
 					the services made available on the Website by HealthiFam. These Terms
 					and the Privacy Policy together constitute a legal agreement
@@ -238,7 +238,7 @@ const TermsAndConditionsPage = () => {
 						purposes of debugging customer support related issues.
 					</li>
 					<li>
-						Against every Practitioner listed in healthifam.com, you may see a
+						Against every Practitioner listed in healthifam.in, you may see a
 						‘show number’ option. When you choose this option, you choose to
 						call the number through a free telephony service provided by
 						HealthiFam, and the records of such calls are recorded and stored
@@ -442,10 +442,10 @@ const TermsAndConditionsPage = () => {
 						<ul className="ml-4">
 							<li>
 								User’s account will be temporarily disabled from booking
-								further online appointments on HealthiFam.com for next
+								further online appointments on healthifam.in for next
 								four (4) months, in case of, three(3) Valid PNS, as per
 								the Patient-No-Show Policy. However, the User can continue
-								to call the clinic via healthifam.com to get an
+								to call the clinic via healthifam.in to get an
 								appointment.
 							</li>
 							<li>
@@ -1011,12 +1011,12 @@ const TermsAndConditionsPage = () => {
 					<li>
 						Every time a User using (i) Android version; or (ii) iOS version
 						of the HealthiFam mobile application; or (iii) the HealthiFam
-						website (www.healthifam.com), uses Membership card to pay online
+						website (www.healthifam.in), uses Membership card to pay online
 						for any of the Permitted Services availed by him/her, only such
 						percentage of the total amount to be paid for the availed
 						Permitted Services, as may be prescribed by HealthiFam from time
 						to time on the respective HealthiFam mobile application or website
-						( www.healthifam.com ), can be redeemed by such User using the
+						( www.healthifam.in ), can be redeemed by such User using the
 						HealthiFam Membership card per transaction.
 					</li>
 					<li>
@@ -1089,7 +1089,7 @@ const TermsAndConditionsPage = () => {
 						including content platforms.
 					</li>
 					<li>
-						When you are listed on healthifam.com, End-Users may see a ‘show
+						When you are listed on healthifam.in, End-Users may see a ‘show
 						number’ option. When End-Users choose this option, they choose to
 						call your number through a free telephony service provided by
 						HealthiFam, and the records of such calls are recorded and stored
@@ -1139,7 +1139,7 @@ const TermsAndConditionsPage = () => {
 				<ul className="ml-4">
 					<li>
 						All Critical Content is content created by the Users of
-						www.healthifam.com (“Website”) and the clients of HealthiFam
+						www.healthifam.in (“Website”) and the clients of HealthiFam
 						customers and Practitioners, including the End-Users. As a
 						platform, HealthiFam does not take responsibility for Critical
 						Content and its role with respect to Critical Content is
@@ -1534,7 +1534,7 @@ const TermsAndConditionsPage = () => {
 					this Agreement, the Services, or anything related to any of the
 					foregoing, HealthiFam customer support can be reached at the following
 					email address: support@healthifam.com or via the contact information
-					available from the following hyperlink: www.healthifam.com/
+					available from the following hyperlink: www.healthifam.in/
 				</h2>
 			</div>
 

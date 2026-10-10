@@ -1,34 +1,90 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# HealthiFam admin website (`healthvisa-website`)
 
-## Getting Started
+Next.js website with two parts:
 
-First, run the development server:
+- **Admin website** (`/admin`): where HealthiFam staff confirm appointments, approve
+  memberships, manage doctors, labs and content, and watch for new activity.
+- **Public pages:** privacy policy (`/privacy-policy`), terms (`/terms-and-conditions`),
+  refund policy (`/refund-policy`), and how to request account deletion
+  (`/delete-account`, the page linked from Google Play). `/` shows a static landing page
+  from `public/landing/`.
+
+It is hosted on Vercel at **https://healthifam.vercel.app** (admin at `/admin`). The
+marketing site at `www.healthifam.in` is separate and not part of this repository.
+
+- **Staff instructions:** [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md).
+- **System documentation** (architecture, data model, feature flows, operations): the
+  `healthvisa-api` repository under `docs/`.
+
+## Tech stack
+
+Next.js 12, React 18, TypeScript, Ant Design 4, Tailwind CSS, react-query, Zustand.
+
+## Prerequisites
+
+Node.js 24.x (the version set on Vercel) and npm. The repository has both `package-lock.json`
+and `yarn.lock`; use npm.
+
+## Setup and running
 
 ```bash
-npm run dev
-# or
-yarn dev
+npm install
+npm run dev          # http://localhost:3001
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development server on port 3001 |
+| `npm run build` | Production build (what Vercel runs) |
+| `npm start` | Serve the production build on port 3001 |
+| `npm run check-types` | TypeScript check |
+| `npm run check-lint` / `npm run check-format` | ESLint / Prettier |
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Configuration
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+The site reads **no environment variables**. Its settings are constants in
+`src/utils/common.ts`:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+```ts
+const API_TARGET = 'aws' as 'local' | 'aws';
+```
 
-## Learn More
+| Value | API used |
+|---|---|
+| `'aws'` | The production API |
+| `'local'` | A local API at `http://127.0.0.1:3100` |
 
-To learn more about Next.js, take a look at the following resources:
+**`API_TARGET` must be `'aws'` in anything you commit or deploy.** When using a local API,
+point it at the test database (see "Test and production databases" in the API's
+`docs/OPERATIONS.md`).
 
--   [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
--   [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Logins and roles
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Staff sign in at `/admin` with an email and password (`POST /admin/login`). Accounts are
+  created by a developer with the API's `scripts/seed-admin.js`. There is no sign-up page.
+- **There is one role.** Every admin can see and change everything.
+- The session token is kept in the browser's `localStorage` and lasts 12 hours. After that,
+  or if the account is removed or switched off, staff are returned to the login page.
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The Vercel project is connected to this repository. Every push to `master` is built
+(`next build`) and published to production. There is no `vercel.json`; Vercel's Next.js
+defaults are used, with Node.js 24.x set in the project settings.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Make sure `API_TARGET` is `'aws'`.
+2. Run `npm run build` locally to check it builds.
+3. Push to `master`, then check the deployment in the Vercel dashboard and open `/admin`.
+4. To undo a release, promote an earlier deployment in Vercel or revert the commit.
+
+## Project layout
+
+```
+pages/                 routes: /admin/* pages and the public pages
+src/modules/admin/     admin page components (lists, forms) by area
+src/models/            API calls and react-query hooks by area
+src/components/        layout, sidebar (Drawer), header with notification bell, shared UI
+src/hooks/             useNotificationWatcher: polls for new bookings and requests
+src/utils/             API_TARGET, HTTP client, appointment status rules
+public/                static files, landing page, notification sound
+```

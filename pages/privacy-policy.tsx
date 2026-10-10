@@ -9,7 +9,7 @@ const PrivacyPolicyPage = () => {
 			</h1>
 			<p>
 				HealthiFam (“us”, “we”, or “HealthiFam”) is the author and publisher of
-				the internet resource www.healthifam.com(“Website”) on the world wide web
+				the internet resource www.healthifam.in(“Website”) on the world wide web
 				as well as the software and applications provided by HealthiFam, including
 				but not limited to the mobile application ‘HealthiFam, (together with the
 				Website, referred to as the “Services”).
@@ -534,7 +534,7 @@ const PrivacyPolicyPage = () => {
 						available through the service, including text and other forms of
 						messaging. The End-Users can change their e-mail and contact
 						preferences at any time by logging into their &apos;Account&apos;
-						at www.HealthiFam.com and changing the account settings.
+						at www.healthifam.in and changing the account settings.
 					</li>
 					<li>
 						At times, HealthiFam conducts a user survey to collect information
@@ -817,13 +817,13 @@ const PrivacyPolicyPage = () => {
 								You can create an account by giving us information
 								regarding your [name, mobile number, email address], and
 								such other information as requested on the End-User
-								registration page http://www. HealthiFam.com/login. This
+								registration page http://www.healthifam.in/login. This
 								is to enable us to provide you with the facility to use
 								the account to book your appointments and store other
 								health related information.
 							</p>
 							<p>
-								Against every Practitioner listed in HealthiFam.com, you
+								Against every Practitioner listed in healthifam.in, you
 								may see a ‘show number’ option. When you choose this
 								option, you choose to call the number through a free
 								telephony service provided by HealthiFam, and the records
@@ -847,7 +847,7 @@ const PrivacyPolicyPage = () => {
 								appointment.
 							</p>
 							<p>
-								Against every Practitioner listed HealthiFam.com, you may
+								Against every Practitioner listed healthifam.in, you may
 								see a ‘show number’ option. When you choose this option,
 								you choose to call the number through a free telephony
 								service provided by HealthiFam, and the records of such
