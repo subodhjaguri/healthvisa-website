@@ -14,6 +14,7 @@ export const Header = () => {
 	const items = useNotificationStore((s) => s.items);
 	const counts = useNotificationStore((s) => s.counts);
 	const acknowledge = useNotificationStore((s) => s.acknowledge);
+	const dismiss = useNotificationStore((s) => s.dismiss);
 	const total = counts.orders + counts.labs + counts.requests;
 
 	const logoutHandler = () => {
@@ -46,7 +47,7 @@ export const Header = () => {
 						<div
 							key={`${it.kind}-${it.id}`}
 							onClick={() => {
-								acknowledge();
+								dismiss(it);
 								router.push(it.route);
 							}}
 							className="cursor-pointer px-2 py-2 rounded hover:bg-gray-100">

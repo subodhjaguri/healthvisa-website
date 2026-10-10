@@ -24,6 +24,7 @@ import {
 	useDiagnosticItems,
 	useGetLabAppointments,
 } from '@healthvisa/models/admin/lab-appointments/useLab';
+import {isDayPast} from '@healthvisa/utils/tableFilter';
 
 type CardValue = number | undefined;
 
@@ -99,12 +100,19 @@ export const Dashboard = () => {
 					!['completed', 'rejected'].includes(m.status),
 		  ).length
 		: undefined;
-	const unconfirmedDoctor = orders
-		? orders.filter((o) => o.status === 'placed').length
-		: undefined;
-	const unconfirmedLab = labAppointments
-		? labAppointments.filter((a) => a.status === 'placed').length
-		: undefined;
+	// Placed bookings whose date has passed can't be confirmed any more (only
+	// rejected or cancelled), so they are counted apart from the real queue.
+	const placedOrders = orders?.filter((o) => o.status === 'placed');
+	const pastOrders = placedOrders?.filter((o) =>
+		isDayPast(o.items?.[0]?.metadata?.bookings?.[0]?.date),
+	).length;
+	const unconfirmedDoctor =
+		placedOrders && placedOrders.length - (pastOrders ?? 0);
+	const placedLabs = labAppointments?.filter((a) => a.status === 'placed');
+	const pastLabs = placedLabs?.filter((a) => isDayPast(a.date)).length;
+	const unconfirmedLab = placedLabs && placedLabs.length - (pastLabs ?? 0);
+	const withPast = (label: string, past?: number) =>
+		past ? `${label} · ${past} past date` : label;
 
 	// ── People ─────────────────────────────────────────────────────────────
 	const totalUsers = userList?.length;
@@ -129,7 +137,7 @@ export const Dashboard = () => {
 				<StatCard
 					icon={<FaCalendarCheck {...ICON} />}
 					value={unconfirmedDoctor}
-					label="Doctor Appts to confirm"
+					label={withPast('Doctor Appts to confirm', pastOrders)}
 					color="#465CA8"
 					highlight
 					onClick={() => router.push('/admin/orders')}
@@ -137,7 +145,7 @@ export const Dashboard = () => {
 				<StatCard
 					icon={<FaVial {...ICON} />}
 					value={unconfirmedLab}
-					label="Lab Appts to confirm"
+					label={withPast('Lab Appts to confirm', pastLabs)}
 					color="#56b5ac"
 					highlight
 					onClick={() => router.push('/admin/lab-appointments')}

@@ -20,6 +20,8 @@ interface NotificationState {
 	bump: (items: NotifItem[]) => void;
 	/** Called from the header bell to clear the badge + list. */
 	acknowledge: () => void;
+	/** Marks one item read (the bell item that was opened). */
+	dismiss: (item: NotifItem) => void;
 }
 
 const EMPTY_COUNTS: Record<NotifKind, number> = {orders: 0, labs: 0, requests: 0};
@@ -40,4 +42,14 @@ export const useNotificationStore = create<NotificationState>((set) => ({
 			return {counts, items: [...newItems, ...state.items].slice(0, 30)};
 		}),
 	acknowledge: () => set({counts: {...EMPTY_COUNTS}, items: []}),
+	dismiss: (item) =>
+		set((state) => {
+			if (!state.items.some((it) => it.kind === item.kind && it.id === item.id)) {
+				return state;
+			}
+			return {
+				counts: {...state.counts, [item.kind]: Math.max(0, state.counts[item.kind] - 1)},
+				items: state.items.filter((it) => !(it.kind === item.kind && it.id === item.id)),
+			};
+		}),
 }));

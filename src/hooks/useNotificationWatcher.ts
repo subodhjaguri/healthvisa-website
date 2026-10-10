@@ -9,6 +9,7 @@ import {
 } from '@healthvisa/models/admin/notifications/api';
 import {
 	NotifItem,
+	NotifKind,
 	useNotificationStore,
 } from '@healthvisa/zustand/useNotificationStore';
 import {IOrder} from '@healthvisa/models/admin/orders/Order';
@@ -35,6 +36,30 @@ interface LastSeen {
  * running while the panel tab is in the background — the browser throttles it
  * to ~once/min when hidden, which is acceptable.
  */
+const KIND_LABEL: Record<NotifKind, [string, string]> = {
+	orders: ['doctor appointment', 'doctor appointments'],
+	labs: ['lab appointment', 'lab appointments'],
+	requests: ['user request', 'user requests'],
+};
+
+/** One item stays as is; several become "3 new items" with a count per kind. */
+function summarize(fresh: NotifItem[]): NotifItem {
+	if (fresh.length === 1) return fresh[0];
+	const counts = new Map<NotifKind, number>();
+	fresh.forEach((it) => counts.set(it.kind, (counts.get(it.kind) ?? 0) + 1));
+	const body = [...counts]
+		.map(([kind, n]) => `${n} ${KIND_LABEL[kind][n === 1 ? 0 : 1]}`)
+		.join(', ');
+	return {
+		...fresh[0],
+		id: 'summary',
+		title: `${fresh.length} new items`,
+		body,
+		// All one kind: open that list; mixed: the dashboard.
+		route: counts.size === 1 ? fresh[0].route : '/admin/dashboard',
+	};
+}
+
 export function useNotificationWatcher(): void {
 	const router = useRouter();
 	const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -180,15 +205,17 @@ export function useNotificationWatcher(): void {
 					setLocalStorage(LAST_SEEN_KEY, next);
 					bump(fresh);
 					playAlarm();
-					fresh.forEach((item) => {
-						fireBanner(item);
-						notification.open({
-							message: item.title,
-							description: item.body,
-							placement: 'topRight',
-							duration: 6,
-							onClick: () => router.push(item.route),
-						});
+					// One toast per poll, replacing any toast still on screen, so a
+					// burst of arrivals doesn't stack up. The bell keeps every item.
+					const toast = summarize(fresh);
+					fireBanner(toast);
+					notification.open({
+						key: 'new-admin-activity',
+						message: toast.title,
+						description: toast.body,
+						placement: 'topRight',
+						duration: 6,
+						onClick: () => router.push(toast.route),
 					});
 				}
 			} finally {

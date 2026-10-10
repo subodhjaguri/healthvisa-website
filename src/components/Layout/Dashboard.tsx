@@ -32,7 +32,9 @@ export const DashboardLayout: React.FC<IDashboardLayoutProps> = (props) => {
 		<div className="w-screen h-screen flex box-border overflow-hidden admin-panel">
 			<NotificationWatcher />
 			<DrawerComponent />
-			<div className="flex-1  relative bottom-0 h-full ">
+			{/* min-w-0: the content column fits the window (wide tables scroll
+			    inside it) instead of growing past the right edge. */}
+			<div className="flex-1 min-w-0 relative bottom-0 h-full">
 				<Header />
 				<div className="bg-[#EFF0F0] p-6 flex flex-col h-[calc(100vh_-_64px)] overflow-y-scroll">
 					{props.children}

@@ -25,7 +25,7 @@ import {useGetOrders, useUpdateOrder} from '@healthvisa/models/admin/orders/useO
 import {CSVLink} from 'react-csv';
 import {OrderUpdateRequestParams} from '@healthvisa/models/admin/orders/Order';
 import {TableSearch} from '@healthvisa/components/TableSearch';
-import {DateRange, inDateRange, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
+import {DateRange, inDateRange, isDayFuture, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
 import {APPOINTMENT_STATUS_OPTIONS, availableAppointmentStatuses, appointmentStatusColor} from '@healthvisa/utils/appointmentStatus';
 
 const {Option} = Select;
@@ -249,11 +249,14 @@ export const OrderListPage = () => {
 		},
 		{
 			title: 'Status',
+			fixed: 'right',
 			key: 'status',
 			dataIndex: 'Status',
 			render: (_, record) => {
 				const {Status, id} = record;
 				const past = isDayPast(record.appointment?.date);
+				// The API refuses Completed before the appointment's day.
+				const future = isDayFuture(record.appointment?.date);
 				return (
 						<Select
 							bordered={false}
@@ -272,10 +275,11 @@ export const OrderListPage = () => {
 								UpdateStatus(id, value);
 							}
 						}}
-						style={{width: 180}}
+						style={{width: 210}}
 					>
 						{availableAppointmentStatuses(Status)
 							.filter(value => value !== 'cancelled' || !past || value === Status)
+							.filter(value => value !== 'completed' || !future || value === Status)
 							.map(value => (
 								<Option key={value} value={value}>
 									<Tag color={appointmentStatusColor[value]}>
@@ -348,6 +352,8 @@ export const OrderListPage = () => {
 						columns={columns}
 						dataSource={visibleOrders}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
+						// Wide table: scroll it sideways inside the page, Status stays visible.
+						scroll={{x: 'max-content'}}
 					/>
 				)}
 

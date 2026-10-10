@@ -96,6 +96,9 @@ export const NewMembersListPage = () => {
 			},
 		});
 	};
+	const canApprove = (record: DataType) =>
+		['active', 'approving'].includes(record.status) &&
+		(!pendingApprovalId || pendingApprovalId === record.id);
 	const allowAccess = (record: DataType) => {
 		const plan = planById.get(record.metadata?.membershipId);
 		if (!plan) {
@@ -215,7 +218,9 @@ export const NewMembersListPage = () => {
 						</span>
 					);
 				}
-				return '—';
+				// No discount: collect the plan price.
+				const price = planById.get(metadata?.membershipId)?.discountPrice;
+				return price != null ? `Collect ₹${formatPrice(price)}` : '—';
 			},
 		},
 		{
@@ -230,16 +235,17 @@ export const NewMembersListPage = () => {
 				<Space size="middle">
 					{record.appliedFor === 'membership' && (
 							<Button
-								disabled={!['active', 'approving'].includes(record.status) || (!!pendingApprovalId && pendingApprovalId !== record.id)}
+								disabled={!canApprove(record)}
 								loading={pendingApprovalId === record.id}
 								size="small"
 								onClick={() => allowAccess(record)}
 							type="default"
-							style={{
+							// Blue only while it can be used, so a done request looks disabled.
+							style={canApprove(record) ? {
 								color: '#1990FF',
 								border: '1px solid #1990FF',
 								padding: '0 10px',
-							}}>
+							} : {padding: '0 10px'}}>
 								{record.status === 'approving' ? 'Resume Approval' : 'Allow Access'}
 						</Button>
 					)}
@@ -264,6 +270,7 @@ export const NewMembersListPage = () => {
 		{
 			width: 170,
 			title: 'Status',
+			fixed: 'right',
 			key: 'status',
 			dataIndex: 'Status',
 				render: (_, {status, id, appliedFor}) =>
@@ -327,6 +334,8 @@ export const NewMembersListPage = () => {
 						columns={columns}
 						dataSource={visibleRequests}
 						style={{width: '100%', border: '2px solid #ECECEC'}}
+						// Wide table: scroll it sideways inside the page, Status stays visible.
+						scroll={{x: 'max-content'}}
 					/>
 				)}
 			</div>

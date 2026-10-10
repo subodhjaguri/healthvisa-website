@@ -34,7 +34,7 @@ const Login = () => {
 
 	return (
 		<div className="w-screen h-screen flex flex-col justify-center items-center bg-slate-300">
-			<h1 className="text-5xl text-white">HealthVisa</h1>
+			<h1 className="text-5xl text-white">HealthiFam</h1>
 			<div className="shadow-2xl p-7 bg-white w-[500px]">
 				<h1 className="text-center text-xl">Sign in</h1>
 				<Form

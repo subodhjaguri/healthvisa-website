@@ -69,7 +69,7 @@ export const DrawerComponent = () => {
 			getItem('Tests', '/admin/tests', <FaVials />),
 		]),
 
-		getItem(<p className="p-0 m-0 w-[188px]">Peoples</p>, 'peoples', <MdPeople />, [
+		getItem(<p className="p-0 m-0 w-[188px]">People</p>, 'peoples', <MdPeople />, [
 			getItem('Users', '/admin/users', <FaUsers />),
 		]),
 		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),

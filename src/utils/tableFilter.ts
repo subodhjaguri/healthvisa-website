@@ -36,6 +36,10 @@ export function parseDay(value: unknown): Moment | null {
 export const isDayPast = (value: unknown): boolean =>
 	!!parseDay(value)?.isBefore(moment(), 'day');
 
+/** Day-granular "future": the date's calendar day is after today (no date = not future). */
+export const isDayFuture = (value: unknown): boolean =>
+	!!parseDay(value)?.isAfter(moment(), 'day');
+
 /** True when `value` falls within `range`, whole days inclusive (no range = true). */
 export function inDateRange(value: unknown, range: DateRange): boolean {
 	const [from, to] = range ?? [null, null];
