@@ -13,8 +13,9 @@ It is hosted on Vercel at **https://healthifam.vercel.app** (admin at `/admin`).
 marketing site at `www.healthifam.in` is separate and not part of this repository.
 
 - **Staff instructions:** [docs/ADMIN-GUIDE.md](docs/ADMIN-GUIDE.md).
-- **System documentation** (architecture, data model, feature flows, operations): the
-  `healthvisa-api` repository under `docs/`.
+- **System documentation:** the `healthvisa-api` repository under `docs/`. Start with
+  `docs/PROJECT-OVERVIEW.md` for what HealthiFam is and everything it does; the same
+  folder covers architecture, data model, feature flows and operations.
 
 ## Tech stack
 
