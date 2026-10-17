@@ -1,3 +1,4 @@
+import {ArrowLeftOutlined} from '@ant-design/icons';
 import {Layout} from '@healthvisa/components';
 import {AddUserPostResponse} from '@healthvisa/models/admin/users/User';
 import {useAddUser} from '@healthvisa/models/admin/users/useUser';
@@ -35,18 +36,10 @@ export const CreateUserPage = () => {
 	};
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid   ">
+			<div className="admin-card">
 				<div className="flex justify-between items-center pr-4">
-					<h1 className="text-xl font-bold">Add User</h1>
-					<Button
-						onClick={() => router.back()}
-						style={{
-							background: '#F8F9FA',
-							color: 'black',
-						}}
-						className="w-24"
-						type="primary"
-					>
+					<h1 className="admin-page-title">Add User</h1>
+					<Button onClick={() => router.back()} icon={<ArrowLeftOutlined />}>
 						Back
 					</Button>
 				</div>
@@ -115,21 +108,13 @@ export const CreateUserPage = () => {
 						<div className="flex ">
 							<Button
 								loading={addUser.isLoading}
-								style={{background: '#198753'}}
 								className="w-24 mr-3"
 								type="primary"
 								htmlType="submit"
 							>
 								Add
 							</Button>
-							<Button
-								onClick={() => router.back()}
-								style={{background: '#F8F9FA', color: 'black'}}
-								className="w-24"
-								type="primary"
-							>
-								Cancel
-							</Button>
+							<Button onClick={() => router.back()}>Cancel</Button>
 						</div>
 					</Form>
 				</div>

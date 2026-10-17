@@ -1,4 +1,5 @@
 import {Button, Form, Input, message} from 'antd';
+import {LockOutlined, MailOutlined} from '@ant-design/icons';
 import {useRouter} from 'next/router';
 import React from 'react';
 import {useAdminLogin} from '@healthvisa/models/admin/auth/useAuth';
@@ -33,46 +34,67 @@ const Login = () => {
 	};
 
 	return (
-		<div className="w-screen h-screen flex flex-col justify-center items-center bg-slate-300">
-			<h1 className="text-5xl text-white">HealthiFam</h1>
-			<div className="shadow-2xl p-7 bg-white w-[500px]">
-				<h1 className="text-center text-xl">Sign in</h1>
-				<Form
-					scrollToFirstError
-					layout="vertical"
-					name="basic"
-					initialValues={{remember: true}}
-					onFinish={onFinish}
-					autoComplete="off"
-				>
-					<Form.Item
-						label="Email"
-						name="email"
-						rules={[{required: true, message: 'Please input your email!'}]}
-					>
-						<Input />
-					</Form.Item>
+		<div className="hf-login">
+			<div className="hf-login__brand">
+				<div className="hf-login__brand-inner">
+					<span className="hf-login__logo">
+						<img src="/images/Logo.png" alt="HealthiFam" className="h-10 w-auto" />
+					</span>
+					<h1 className="text-3xl font-semibold text-white mt-10 mb-3 leading-snug">
+						Care for every family,
+						<br />
+						managed in one place.
+					</h1>
+					<p className="text-white/80 text-sm max-w-sm">
+						Confirm appointments, approve memberships, manage the catalog and keep
+						members informed: the HealthiFam admin console.
+					</p>
+				</div>
+				<span className="text-white/60 text-xs">© {new Date().getFullYear()} HealthiFam</span>
+			</div>
 
-					<Form.Item
-						label="Password"
-						name="password"
-						rules={[{required: true, message: 'Please input your password!'}]}
+			<div className="hf-login__form">
+				<div className="w-full max-w-[380px]">
+					<h2 className="text-2xl font-semibold text-slate-800 mb-1">Sign in</h2>
+					<p className="text-sm text-slate-500 mb-8">Use your staff email and password.</p>
+					<Form
+						scrollToFirstError
+						layout="vertical"
+						name="basic"
+						requiredMark={false}
+						initialValues={{remember: true}}
+						onFinish={onFinish}
+						autoComplete="off"
 					>
-						<Input.Password />
-					</Form.Item>
+						<Form.Item
+							label="Email"
+							name="email"
+							rules={[{required: true, message: 'Please input your email!'}]}
+						>
+							<Input size="large" prefix={<MailOutlined className="text-slate-400" />} placeholder="you@healthifam.in" />
+						</Form.Item>
 
-					<div className="flex justify-center">
+						<Form.Item
+							label="Password"
+							name="password"
+							rules={[{required: true, message: 'Please input your password!'}]}
+						>
+							<Input.Password size="large" prefix={<LockOutlined className="text-slate-400" />} placeholder="Password" />
+						</Form.Item>
+
 						<Button
 							loading={loginAccount.isLoading}
 							disabled={loginAccount.isLoading}
-							style={{width: '100%'}}
+							block
+							size="large"
 							type="primary"
 							htmlType="submit"
+							className="mt-2"
 						>
-							Login
+							Sign in
 						</Button>
-					</div>
-				</Form>
+					</Form>
+				</div>
 			</div>
 		</div>
 	);

@@ -154,7 +154,6 @@ export const SymptomListPage = () => {
 					<Button
 						onClick={() => router.push(`/admin/symptoms/${record.key}`)}
 						type="primary"
-						style={{background: '#0d6efd'}}
 					>
 						Edit
 					</Button>
@@ -197,9 +196,9 @@ export const SymptomListPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid h-[85vh]">
+			<div className="admin-card h-[85vh]">
 				<div className="flex justify-between items-center pb-5">
-					<h1 className="text-xl font-bold">Symptoms Management</h1>
+					<h1 className="admin-page-title">Symptoms Management</h1>
 					<div className="flex gap-2">
 						{csvData.length > 0 && (
 							<CSVLink
@@ -207,14 +206,13 @@ export const SymptomListPage = () => {
 								data={csvData}
 								filename={`symptoms-${moment().format('YYYY-MM-DD')}.csv`}
 							>
-								<Button style={{borderColor: '#198754', color: '#19875 green'}} type="ghost">
+								<Button>
 									Export CSV
 								</Button>
 							</CSVLink>
 						)}
 						<Button
 							onClick={() => router.push('/admin/symptoms/create')}
-							style={{background: '#198754'}}
 							type="primary"
 						>
 							Add Symptom

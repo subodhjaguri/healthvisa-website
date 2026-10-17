@@ -270,9 +270,9 @@ export const UserListPage = () => {
 	};
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">List of Users</h2>
+					<h2 className="admin-page-title">List of Users</h2>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"
@@ -299,7 +299,7 @@ export const UserListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleUsers}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>

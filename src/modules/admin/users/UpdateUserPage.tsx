@@ -30,7 +30,7 @@ import {
 	Divider,
 	Space,
 } from 'antd';
-import {ExclamationCircleFilled} from '@ant-design/icons';
+import {ExclamationCircleFilled, ArrowLeftOutlined} from '@ant-design/icons';
 import moment from 'moment';
 import {useRouter} from 'next/router';
 import React, {useEffect, useState} from 'react';
@@ -249,22 +249,14 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 	};
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid   ">
+			<div className="admin-card">
 				{isLoading ? (
 					<Skeleton active />
 				) : (
 					<div>
 						<div className="flex justify-between items-center pr-4">
-							<h1 className="text-xl font-bold">Update</h1>
-							<Button
-								onClick={() => router.back()}
-								style={{
-									background: '#F8F9FA',
-									color: 'black',
-								}}
-								className="w-24"
-								type="primary"
-							>
+							<h1 className="admin-page-title">Update</h1>
+							<Button onClick={() => router.back()} icon={<ArrowLeftOutlined />}>
 								Back
 							</Button>
 						</div>
@@ -386,19 +378,13 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 								<div className="flex ">
 									<Button
 										loading={saving}
-										style={{background: '#198753'}}
 										className="w-24 mr-3"
 										type="primary"
 										htmlType="submit"
 									>
 										Update
 									</Button>
-									<Button
-										onClick={() => router.back()}
-										style={{background: '#F8F9FA', color: 'black'}}
-										className="w-24"
-										type="primary"
-									>
+									<Button onClick={() => router.back()}>
 										Cancel
 									</Button>
 								</div>
@@ -430,7 +416,7 @@ export const UpdateUserPage = ({id}: {id: string}) => {
 									columns={memberColumns}
 									rowKey="id"
 									pagination={false}
-									style={{width: '100%', border: '1px solid #ECECEC'}}
+									style={{width: '100%'}}
 								/>
 							</div>
 

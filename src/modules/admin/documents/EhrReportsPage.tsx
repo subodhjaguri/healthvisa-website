@@ -106,9 +106,9 @@ export const EhrReportsPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">EHR Reports</h2>
+					<h2 className="admin-page-title">EHR Reports</h2>
 					<Button type="primary">
 						<CSVLink data={visibleReports} filename="EhrReports" target="_blank">
 							Export
@@ -132,7 +132,7 @@ export const EhrReportsPage = () => {
 						pagination={{pageSize: 8, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleReports}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>

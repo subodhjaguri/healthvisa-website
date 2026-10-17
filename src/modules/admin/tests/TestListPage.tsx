@@ -223,9 +223,9 @@ export const TestListPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex justify-between items-center mb-2">
-					<h1 className="text-xl font-bold">Tests</h1>
+					<h1 className="admin-page-title">Tests</h1>
 					<Button type="primary" onClick={openAdd}>
 						Add Test
 					</Button>
@@ -288,7 +288,7 @@ export const TestListPage = () => {
 							onChange: setPage,
 							showTotal: (t) => `${t} tests`,
 						}}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 

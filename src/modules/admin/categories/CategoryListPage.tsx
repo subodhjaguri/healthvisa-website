@@ -160,11 +160,11 @@ export const CategoryListPage = () => {
 	return (
 		<Layout>
 			<div
-				className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid"
+				className="admin-card"
 				key={key_}
 			>
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">Categories</h2>
+					<h2 className="admin-page-title">Categories</h2>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"
@@ -192,7 +192,7 @@ export const CategoryListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleCategories}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>

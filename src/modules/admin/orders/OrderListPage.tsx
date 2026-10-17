@@ -295,9 +295,9 @@ export const OrderListPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">Doctor Appointments</h2>
+					<h2 className="admin-page-title">Doctor Appointments</h2>
 					<Button type="primary">
 						<CSVLink data={visibleOrders} filename="OrderList" target="_blank">
 							Export
@@ -351,7 +351,7 @@ export const OrderListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleOrders}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 						// Wide table: scroll it sideways inside the page, Status stays visible.
 						scroll={{x: 'max-content'}}
 					/>
