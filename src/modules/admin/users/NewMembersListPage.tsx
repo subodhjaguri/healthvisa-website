@@ -19,6 +19,7 @@ import {matchesSearch} from '@healthvisa/utils/tableFilter';
 import {NewMemberUpdateRequestParams} from '@healthvisa/models/admin/users/User';
 import {formatPrice} from '@healthvisa/utils';
 import moment from 'moment';
+import {BOOKING_PAYMENT} from '@healthvisa/utils/paymentStatus';
 
 const {confirm} = Modal;
 
@@ -39,13 +40,12 @@ interface DataType {
 	amountPaid?: number;
 }
 
-/** How a membership request is (being) paid, for the Payment column + search. */
-const PAYMENT_LABEL: Record<string, {text: string; color: string}> = {
-	paid: {text: 'Paid online', color: 'green'},
-	pending: {text: 'Paying online…', color: 'gold'},
-	unpaid: {text: 'Awaiting online payment', color: 'blue'},
-	failed: {text: 'Online payment failed', color: 'red'},
-	offline: {text: 'Collect offline', color: 'default'},
+/** How a membership request is (being) paid: the booking labels, worded for requests. */
+const PAYMENT_LABEL: Record<string, {label: string; color: string}> = {
+	...BOOKING_PAYMENT,
+	unpaid: {...BOOKING_PAYMENT.unpaid, label: 'Awaiting online payment'},
+	failed: {...BOOKING_PAYMENT.failed, label: 'Online payment failed'},
+	offline: {...BOOKING_PAYMENT.offline, label: 'Collect offline'},
 };
 
 /** Why Allow Access is off for a request being paid online. */
@@ -200,7 +200,7 @@ export const NewMembersListPage = () => {
 			r.mobile,
 			r.appliedFor,
 			r.status,
-			r.paymentStatus && PAYMENT_LABEL[r.paymentStatus]?.text,
+			r.paymentStatus && PAYMENT_LABEL[r.paymentStatus]?.label,
 		]),
 	);
 
@@ -261,7 +261,7 @@ export const NewMembersListPage = () => {
 						)}
 						{!referral && renewal && <span>{`Renewal ${renewal.percent}% off`}</span>}
 						<Tag color={label.color}>
-							{label.text}
+							{label.label}
 							{shown != null ? ` · ₹${formatPrice(shown)}` : ''}
 						</Tag>
 					</Space>

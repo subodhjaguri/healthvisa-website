@@ -110,6 +110,22 @@ status from the menu in each row. Only the allowed next steps are offered:
 - If another staff member changed the same booking a moment earlier, you get a message.
   Refresh the list and check before trying again.
 
+**Online payment.** When online payment is switched on, members pay when they book. The
+**Payment** column (and filter) shows how each booking is paid:
+
+| Shown | Meaning |
+|---|---|
+| Paid online | Paid in the app. Confirm the slot as usual. |
+| Paying online… | The member is on the PhonePe page; you can't confirm it right now. |
+| Awaiting payment / Payment failed | Not paid. If left unpaid for 30 minutes it is cancelled automatically. |
+| Pay at visit | Collect at the clinic or lab (online payment off, or you confirmed it unpaid). |
+| Refund in progress / Refunded / Refund failed | The money is going back to the member. |
+
+- Confirming an unpaid booking asks **"Confirm, pay at visit"**: the member then pays at the
+  visit.
+- Rejecting or cancelling a **paid** booking refunds the member in full (the confirmation
+  says so).
+
 **Lab appointments** also show the visit type (lab, centre or home), the date and preferred
 time windows for home visits, the tests or package, and the amount. Bookings made by
 uploading a prescription have a link to the prescription and no amount. Confirm the price
