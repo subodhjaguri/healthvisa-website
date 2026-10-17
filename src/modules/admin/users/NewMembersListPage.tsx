@@ -34,7 +34,38 @@ interface DataType {
 	userId: string;
 	metadata?: any;
 	documentUrl?: string;
+	amount?: number;
+	paymentStatus?: string;
+	amountPaid?: number;
 }
+
+/** How a membership request is (being) paid, for the Payment column + search. */
+const PAYMENT_LABEL: Record<string, {text: string; color: string}> = {
+	paid: {text: 'Paid online', color: 'green'},
+	pending: {text: 'Paying online…', color: 'gold'},
+	unpaid: {text: 'Awaiting online payment', color: 'blue'},
+	failed: {text: 'Online payment failed', color: 'red'},
+	offline: {text: 'Collect offline', color: 'default'},
+};
+
+/** Why Allow Access is off for a request being paid online. */
+const APPROVE_HINT: Record<string, string> = {
+	pending: 'The member is paying online right now',
+	paid: 'Paid online: activated automatically',
+};
+
+/** Finished membership requests show a tag instead of the status picker. */
+const DONE_STATUS: Record<string, {text: string; color: string}> = {
+	approving: {text: 'Approving', color: 'gold'},
+	completed: {text: 'Completed', color: 'green'},
+	cancelled: {text: 'Cancelled by member', color: 'default'},
+	rejected: {text: 'Rejected', color: 'red'},
+};
+
+const DoneStatusTag = ({status}: {status: string}) => {
+	const shown = DONE_STATUS[status] ?? DONE_STATUS.rejected;
+	return <Tag color={shown.color}>{shown.text}</Tag>;
+};
 
 export const NewMembersListPage = () => {
 	const {isLoading, data: userList, refetch} = useGetNewMembers();
@@ -96,8 +127,16 @@ export const NewMembersListPage = () => {
 			},
 		});
 	};
+	// Paid / being paid online: the payment activates it, not Allow Access.
+	// ₹ due: priced by the server (`amount`); older requests from their snapshot.
+	const amountDue = (record: DataType) =>
+		record.amount ??
+		record.metadata?.referral?.finalPrice ??
+		record.metadata?.renewalDiscount?.finalPrice ??
+		planById.get(record.metadata?.membershipId)?.discountPrice;
 	const canApprove = (record: DataType) =>
 		['active', 'approving'].includes(record.status) &&
+		!['pending', 'paid'].includes(record.paymentStatus ?? '') &&
 		(!pendingApprovalId || pendingApprovalId === record.id);
 	const allowAccess = (record: DataType) => {
 		const plan = planById.get(record.metadata?.membershipId);
@@ -105,8 +144,7 @@ export const NewMembersListPage = () => {
 			message.error('No valid membership plan on this request — cannot approve.');
 			return;
 		}
-		const amount = record.metadata?.referral?.finalPrice ??
-			record.metadata?.renewalDiscount?.finalPrice ?? plan.discountPrice;
+		const amount = amountDue(record);
 		confirm({
 			title: record.status === 'approving' ? 'Resume membership approval?' : 'Allow membership access?',
 			icon: <ExclamationCircleFilled />,
@@ -146,13 +184,24 @@ export const NewMembersListPage = () => {
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
 					metadata: user?.metadata || {},
 					documentUrl: user?.documentUrl,
+					amount: user?.amount,
+					// Requests from before online payment have no status: offline.
+					paymentStatus:
+						user?.appliedFor === 'membership' ? user?.paymentStatus ?? 'offline' : undefined,
+					amountPaid: user?.amountPaid,
 			  }))
 			: [];
 
 	const [search, setSearch] = useState('');
 	// What the table shows is also what Export downloads.
 	const visibleRequests = userArray.filter((r) =>
-		matchesSearch(search, [r.name, r.mobile, r.appliedFor, r.status]),
+		matchesSearch(search, [
+			r.name,
+			r.mobile,
+			r.appliedFor,
+			r.status,
+			r.paymentStatus && PAYMENT_LABEL[r.paymentStatus]?.text,
+		]),
 	);
 
 	const columns: ColumnsType<DataType> = [
@@ -188,39 +237,35 @@ export const NewMembersListPage = () => {
 					: '—',
 		},
 		{
-			title: 'Discount / Collect',
+			title: 'Discount / Payment',
 			key: 'discount',
-			render: (_, {appliedFor, metadata}) => {
+			render: (_, record) => {
+				const {appliedFor, metadata, paymentStatus, amountPaid} = record;
 				if (appliedFor !== 'membership') {
 					return '—';
 				}
 				// First-time purchases may carry a referral discount; renewals carry
-				// the flat renewal discount. Both are offline, so show the amount the
-				// admin should collect.
+				// the flat renewal discount. The server prices `amount` with them.
 				const referral = metadata?.referral;
-				if (referral) {
-					const amount = referral.finalPrice ?? referral.listPrice;
-					return (
-						<span>
-							{referral.code}
-							{referral.referrerName ? ` · ${referral.referrerName}` : ''}
-							{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
-						</span>
-					);
-				}
-				const renewal = metadata?.renewalDiscount;
-				if (metadata?.renewal && renewal) {
-					const amount = renewal.finalPrice ?? renewal.listPrice;
-					return (
-						<span>
-							{`Renewal ${renewal.percent}% off`}
-							{amount != null ? ` · Collect ₹${formatPrice(amount)}` : ''}
-						</span>
-					);
-				}
-				// No discount: collect the plan price.
-				const price = planById.get(metadata?.membershipId)?.discountPrice;
-				return price != null ? `Collect ₹${formatPrice(price)}` : '—';
+				const renewal = metadata?.renewal ? metadata?.renewalDiscount : undefined;
+				const due = amountDue(record);
+				const label = PAYMENT_LABEL[paymentStatus!] ?? PAYMENT_LABEL.offline;
+				const shown = paymentStatus === 'paid' ? amountPaid ?? due : due;
+				return (
+					<Space direction="vertical" size={2}>
+						{referral && (
+							<span>
+								{referral.code}
+								{referral.referrerName ? ` · ${referral.referrerName}` : ''}
+							</span>
+						)}
+						{!referral && renewal && <span>{`Renewal ${renewal.percent}% off`}</span>}
+						<Tag color={label.color}>
+							{label.text}
+							{shown != null ? ` · ₹${formatPrice(shown)}` : ''}
+						</Tag>
+					</Space>
+				);
 			},
 		},
 		{
@@ -236,6 +281,7 @@ export const NewMembersListPage = () => {
 					{record.appliedFor === 'membership' && (
 							<Button
 								disabled={!canApprove(record)}
+								title={APPROVE_HINT[record.paymentStatus ?? '']}
 								loading={pendingApprovalId === record.id}
 								size="small"
 								onClick={() => allowAccess(record)}
@@ -275,9 +321,7 @@ export const NewMembersListPage = () => {
 			dataIndex: 'Status',
 				render: (_, {status, id, appliedFor}) =>
 				appliedFor === 'membership' && status !== 'active' ? (
-					<Tag color={status === 'completed' ? 'green' : status === 'approving' ? 'gold' : 'red'}>
-						{status === 'approving' ? 'Approving' : status === 'completed' ? 'Completed' : 'Rejected'}
-					</Tag>
+					<DoneStatusTag status={status} />
 				) : (
 					<Select
 						bordered={false}

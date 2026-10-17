@@ -43,8 +43,21 @@ once a minute) when the tab is in the background.
 
 ## Membership requests
 
-Members request a membership (or a renewal) in the app. Nothing is paid in the app: you
-collect payment offline.
+Members request a membership (or a renewal) in the app. When online payment is switched on,
+they pay in the app with PhonePe and the membership starts automatically: there is nothing
+for you to do. The **Discount / Payment** column shows how each request is paid:
+
+| Shown | Meaning | Your action |
+|---|---|---|
+| Paid online · ₹X | Paid; the request completes by itself | None |
+| Paying online… · ₹X | The member is on the PhonePe page right now | Wait (Allow Access is off) |
+| Awaiting online payment · ₹X | Request made, not paid yet | None; or collect cash and Allow Access |
+| Online payment failed · ₹X | The payment didn't go through; the member can retry | None; or collect cash and Allow Access |
+| Collect offline · ₹X | Online payment is off (or an older request) | Collect and Allow Access, below |
+
+A request the member withdrew shows **Cancelled by member**.
+
+For offline payment:
 
 1. Open **User Requests**. Membership requests show the plan, any referral code or renewal
    discount, and the amount to collect.
