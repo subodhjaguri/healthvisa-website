@@ -180,12 +180,35 @@ In **Referrals**:
 Only raise these numbers **after** the new app version is available on Google Play,
 otherwise members cannot use the app. Agree changes with the technical team.
 
+## Online payments
+
+**Payments** (sidebar) lists every online payment: member, what it was for, amount, state
+(Paid, Pending, Failed, Expired, Stuck, Amount mismatch), refunds and the PhonePe
+transaction id. Search by order id, transaction, member or item; filter by type and state;
+**Export** downloads what the table shows.
+
+- **Needs attention** shows the rows to look at: **Stuck** (PhonePe hasn't confirmed after
+  3 days: check it on the PhonePe dashboard), **Amount mismatch** (refunded automatically),
+  **Paid – not applied** (paid, but the membership or booking couldn't be updated: press
+  Re-check), **Refund failed**, **Refund owed**.
+- **Details** opens the payment with its full history.
+  - **Re-check with PhonePe** asks PhonePe for the latest status and finishes anything
+    pending.
+  - **Refund…** refunds all that's left, or a part (enter an amount), with a reason. It
+    can't refund more than was paid.
+  - **Check refund** updates a refund in progress.
+- Refunds happen **automatically** when you reject or cancel a paid booking, when a member
+  cancels a paid booking before its day, and for double payments. A member cancelling on
+  the appointment day itself is not refunded automatically; refund it here if you decide
+  to.
+
 ## Users and account deletion
 
 - **People → Users** shows each member's membership number, phone, referral source and
   membership.
 - **Delete** permanently removes the member and everything linked to them: records and
   files, bookings, requests, family members and memberships. It cannot be undone; the
-  warning lists what will be removed.
+  warning lists what will be removed. Online payment records are kept for accounting, with
+  the member's id removed.
 - Members can also delete their own account in the app, or request deletion by email
   through the `/delete-account` page.

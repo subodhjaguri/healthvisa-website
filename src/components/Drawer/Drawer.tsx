@@ -13,6 +13,7 @@ import {
 	MdLocalOffer,
 	MdSystemUpdate,
 	MdSick,
+	MdPayment,
 } from 'react-icons/md';
 import {
 	FaUsers,
@@ -74,6 +75,7 @@ export const DrawerComponent = () => {
 		]),
 		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),
 		getItem('Lab Appointments', '/admin/lab-appointments', <FaVial />),
+		getItem('Payments', '/admin/payments', <MdPayment />),
 		getItem('EHR Reports', '/admin/documents', <FaFileMedical />),
 		getItem('Health News', '/admin/news', <FaRegNewspaper />),
 		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),

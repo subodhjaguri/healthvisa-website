@@ -43,9 +43,10 @@ const DeleteAccountPage = () => (
 			membership history and requests you sent us.
 		</p>
 		<p className="mt-2">
-			Nothing is kept. Payments for memberships and services are made offline,
-			outside the app, so the app holds no payment records that must be retained.
-			Deletion cannot be undone.
+			Nothing else is kept. If you paid online in the app, the payment records
+			(amount, date and the payment provider&apos;s reference) are kept as financial
+			records required by law, without your name or account details. Deletion
+			cannot be undone.
 		</p>
 
 		<p className="mt-6">
