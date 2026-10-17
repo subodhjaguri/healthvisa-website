@@ -52,13 +52,17 @@ const REFUND: Record<string, {label: string; color: string}> = {
 const notApplied = (p: IPayment) =>
 	p.state === 'COMPLETED' && p.applyState === 'PENDING' && (p.applyAttempts ?? 0) >= 5;
 
+/** Money owed back but no refund running (none yet, or only an earlier partial one). */
+const refundOwed = (p: IPayment) =>
+	p.applyState === 'REFUND_REQUIRED' && ['NONE', 'COMPLETED'].includes(p.refundState ?? 'NONE');
+
 /** Rows someone should look at (design doc §7.1, §7.3, §9). */
 export const needsAttention = (p: IPayment) =>
 	p.state === 'STUCK' ||
 	p.state === 'MISMATCH' ||
 	notApplied(p) ||
 	p.refundState === 'FAILED' ||
-	(p.applyState === 'REFUND_REQUIRED' && (p.refundState ?? 'NONE') === 'NONE');
+	refundOwed(p);
 
 const refundable = (p: IPayment) =>
 	(p.state === 'COMPLETED' || p.state === 'MISMATCH') &&
@@ -177,7 +181,7 @@ export const PaymentsPage = () => {
 							{REFUND[p.refundState].label} {rupees(p.refundedAmount)}
 						</Tag>
 					)}
-					{p.applyState === 'REFUND_REQUIRED' && (p.refundState ?? 'NONE') === 'NONE' && (
+					{refundOwed(p) && (
 						<Tag color="volcano">Refund owed</Tag>
 					)}
 				</Space>
