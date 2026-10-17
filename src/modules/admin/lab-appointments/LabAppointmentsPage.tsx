@@ -26,6 +26,7 @@ import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
 import {DateRange, inDateRange, isDayFuture, isDayPast, matchesSearch, optionsOf, parseDay} from '@healthvisa/utils/tableFilter';
 import {APPOINTMENT_STATUS_OPTIONS, availableAppointmentStatuses, appointmentStatusColor} from '@healthvisa/utils/appointmentStatus';
+import {BOOKING_PAYMENT_OPTIONS, bookingPayment, needsPayAtVisit, refundNotice} from '@healthvisa/utils/paymentStatus';
 import {
 	useDiagnosticItems,
 	useGetLabAppointments,
@@ -40,6 +41,9 @@ interface DataType {
 	Status: string;
 	CreatedOn: string;
 	Amount: string;
+	/** How it is paid (label from utils/paymentStatus; also exported). */
+	PaymentStatus: string;
+	paymentStatus?: string;
 	visit: string;
 	test?: string;
 	lab?: string;
@@ -74,11 +78,13 @@ export const LabAppointmentsPage = () => {
 	const [cancelModal, setCancelModal] = useState(false);
 	const [cancelReason, setCancelReason] = useState('');
 	const [cancelRow, setCancelRow] = useState<DataType>();
+	const cancelRefund = cancelRow && refundNotice(cancelRow.paymentStatus, cancelRow.Amount);
 	const updateLabAppointment = useUpdateLabAppointment();
-	const UpdateStatus = async (id: string, status: string) => {
+	const UpdateStatus = async (id: string, status: string, payAtVisit?: boolean) => {
 		const body: LabAppointmentUpdateRequestParams = {
 			id,
 			status,
+			payAtVisit,
 		};
 		updateLabAppointment.mutate(body, {
 			onSuccess: (res) => {
@@ -105,6 +111,8 @@ export const LabAppointmentsPage = () => {
 						? `₹${formatPrice(appointment.amount)}`
 						: appointment.optionSelected === 'health package' ? 'Confirm price' : '-',
 					Status: appointment.status,
+					PaymentStatus: bookingPayment(appointment.paymentStatus).label,
+					paymentStatus: appointment.paymentStatus,
 					CreatedOn: moment(appointment.createdAt).format('DD MMM YYYY'),
 					test: appointment.healthPackage || (appointment.optionSelected === 'health package' ? 'Package details unavailable' : DiagnosticItems?.find(
 						(item) => item.id === appointment.diagnosticId,
@@ -133,6 +141,7 @@ export const LabAppointmentsPage = () => {
 	const [diagnostic, setDiagnostic] = useState<string>();
 	const [optionFilter, setOptionFilter] = useState<string>();
 	const [statusFilter, setStatusFilter] = useState<string>();
+	const [payment, setPayment] = useState<string>();
 	// What the table shows is also what Export downloads.
 	const visibleAppointments = appointmentsArray.filter(
 		(a) =>
@@ -142,7 +151,8 @@ export const LabAppointmentsPage = () => {
 			(!lab || a.lab === lab) &&
 			(!diagnostic || a.test === diagnostic) &&
 			(!optionFilter || a.Option === optionFilter) &&
-			(!statusFilter || a.Status === statusFilter),
+			(!statusFilter || a.Status === statusFilter) &&
+			(!payment || a.PaymentStatus === payment),
 	);
 
 	// Cancelling needs a reason → routes through its own modal (not the inline
@@ -249,6 +259,15 @@ export const LabAppointmentsPage = () => {
 			render: (amount) => <span className="font-bold">{amount}</span>,
 		},
 		{
+			title: 'Payment',
+			key: 'payment',
+			dataIndex: 'PaymentStatus',
+			render: (_, {paymentStatus}) => {
+				const shown = bookingPayment(paymentStatus);
+				return <Tag color={shown.color}>{shown.label}</Tag>;
+			},
+		},
+		{
 			title: 'Booked On',
 			dataIndex: 'CreatedOn',
 			key: 'createdOn',
@@ -301,8 +320,17 @@ export const LabAppointmentsPage = () => {
 							} else if (value === 'completed' || value === 'rejected') {
 								Modal.confirm({
 									title: `Mark this appointment ${value}?`,
-									content: 'This status is final in the normal workflow.',
+									content:
+										(value === 'rejected' && refundNotice(record.paymentStatus, record.Amount)) ||
+										'This status is final in the normal workflow.',
 									onOk: () => UpdateStatus(id, value),
+								});
+							} else if (value === 'appointment booked' && needsPayAtVisit(record.paymentStatus)) {
+								Modal.confirm({
+									title: 'This booking is not paid yet',
+									content: `The member hasn't paid online. Confirm it anyway, with ${record.Amount} to be paid at the visit?`,
+									okText: 'Confirm, pay at visit',
+									onOk: () => UpdateStatus(id, value, true),
 								});
 							} else {
 								UpdateStatus(id, value);
@@ -384,6 +412,14 @@ export const LabAppointmentsPage = () => {
 						value={statusFilter}
 						onChange={setStatusFilter}
 						options={APPOINTMENT_STATUS_OPTIONS}
+					/>
+					<Select
+						allowClear
+						placeholder="Payment"
+						style={{width: 180}}
+						value={payment}
+						onChange={setPayment}
+						options={BOOKING_PAYMENT_OPTIONS}
 					/>
 				</div>
 				{isLoading || loading ? (
@@ -490,6 +526,7 @@ export const LabAppointmentsPage = () => {
 					<p className="mb-2 text-gray-500">
 						Add a reason for cancelling. This will be visible to the user.
 					</p>
+					{cancelRefund && <p className="mb-2 font-semibold">{cancelRefund}</p>}
 					<TextArea
 						rows={5}
 						value={cancelReason}

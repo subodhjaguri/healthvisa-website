@@ -101,6 +101,7 @@ export const OrderListPage = () => {
 	const [cancelModal, setCancelModal] = useState(false);
 	const [cancelReason, setCancelReason] = useState('');
 	const [cancelRow, setCancelRow] = useState<DataType | null>(null);
+	const cancelRefund = cancelRow && refundNotice(cancelRow.paymentStatus, cancelRow.Amount);
 
 	const UpdateStatus = async (id: string, status: string, payAtVisit?: boolean) => {
 		const body: OrderUpdateRequestParams = {
@@ -385,9 +386,7 @@ export const OrderListPage = () => {
 					<p className="mb-2 text-gray-500">
 						Add a reason for cancelling. This will be visible to the user.
 					</p>
-					{cancelRow && refundNotice(cancelRow.paymentStatus, cancelRow.Amount) && (
-						<p className="mb-2 font-semibold">{refundNotice(cancelRow.paymentStatus, cancelRow.Amount)}</p>
-					)}
+					{cancelRefund && <p className="mb-2 font-semibold">{cancelRefund}</p>}
 					<TextArea
 						rows={5}
 						value={cancelReason}
