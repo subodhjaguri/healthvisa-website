@@ -435,8 +435,13 @@ export const AnalyticsPage = () => {
 						onChange={(v) => {
 							const [from, to] = (v ?? []) as Moment[];
 							if (!from || !to) return;
+							// Calendar days: a typed date is at 00:00, a clicked one keeps the time of day.
+							const days = to
+								.clone()
+								.startOf('day')
+								.diff(from.clone().startOf('day'), 'days');
 							setRange(
-								to.diff(from, 'days') > 365
+								days > 365
 									? [to.clone().subtract(365, 'days'), to]
 									: [from, to],
 							);
