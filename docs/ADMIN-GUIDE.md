@@ -59,9 +59,8 @@ India time. Hover a bar to see its exact numbers; long ranges are grouped by wee
 - **Users**: sign-ups, how many became members or booked, members who used the app in the
   last 7 and 30 days, and their app build.
 
-Test accounts (names starting with ZZTEST, mobiles starting 9000000) are hidden unless you
-switch on **Test data**. **Export CSV** downloads every figure on the page, plus the
-day-by-day numbers.
+The page counts everything recorded in the system. **Export CSV** downloads every figure
+on the page, plus the day-by-day numbers.
 
 ## Membership requests
 

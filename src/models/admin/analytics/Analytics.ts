@@ -19,7 +19,6 @@ export interface IReferralRow {
 /** GET /admin/analytics: India calendar days `from`..`to`, both included. */
 export interface IAnalytics {
 	range: {from: string; to: string};
-	includeTestData: boolean;
 	generatedAt: string;
 	bookings: {
 		total: {doctor: number; lab: number};
@@ -64,16 +63,11 @@ export interface IAnalytics {
 export interface IAnalyticsQuery {
 	from: string;
 	to: string;
-	includeTestData?: boolean;
 }
 
-export function getAnalytics({
-	from,
-	to,
-	includeTestData,
-}: IAnalyticsQuery): Promise<IAnalytics> {
+export function getAnalytics({from, to}: IAnalyticsQuery): Promise<IAnalytics> {
 	return ajaxGet<IAnalytics>({
 		url: getApiUrl(Service, ANALYTICS_URL),
-		query: {from, to, ...(includeTestData ? {includeTestData: true} : {})},
+		query: {from, to},
 	});
 }

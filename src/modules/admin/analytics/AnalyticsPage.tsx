@@ -6,7 +6,7 @@ import {
 } from '@healthvisa/models/admin/analytics/Analytics';
 import {useGetAnalytics} from '@healthvisa/models/admin/analytics/useAnalytics';
 import {DownloadOutlined} from '@ant-design/icons';
-import {Alert, Button, DatePicker, Skeleton, Switch, Table, Tooltip} from 'antd';
+import {Alert, Button, DatePicker, Skeleton, Table, Tooltip} from 'antd';
 import moment, {Moment} from 'moment';
 import React from 'react';
 import {CSVLink} from 'react-csv';
@@ -375,8 +375,7 @@ const AnalyticsBody: React.FC<{data: IAnalytics; dimmed: boolean}> = ({data, dim
 			</Panel>
 
 			<p className="text-xs text-slate-400 m-0">
-				Bookings count from when they were made. Test accounts are{' '}
-				{data.includeTestData ? 'included' : 'left out'}. Updated{' '}
+				Bookings count from when they were made. Updated{' '}
 				{moment(data.generatedAt).format('D MMM YYYY, h:mm a')}.
 			</p>
 		</div>
@@ -386,11 +385,9 @@ const AnalyticsBody: React.FC<{data: IAnalytics; dimmed: boolean}> = ({data, dim
 /** Business and process analytics from GET /admin/analytics. */
 export const AnalyticsPage = () => {
 	const [range, setRange] = React.useState<[Moment, Moment]>(PRESETS['Last 30 days']);
-	const [includeTestData, setIncludeTestData] = React.useState(false);
 	const query = {
 		from: range[0].format(DAY),
 		to: range[1].format(DAY),
-		includeTestData,
 	};
 	const {data, isFetching, error} = useGetAnalytics(query);
 	const csv = React.useMemo(() => data && csvRows(data), [data]);
@@ -407,16 +404,6 @@ export const AnalyticsPage = () => {
 					</p>
 				</div>
 				<div className="flex items-center gap-3 flex-wrap">
-					<Tooltip title="Include ZZTEST_ accounts (9000000xxx mobiles) and their records">
-						<span className="flex items-center gap-2 text-sm text-slate-500">
-							<Switch
-								size="small"
-								checked={includeTestData}
-								onChange={setIncludeTestData}
-							/>
-							Test data
-						</span>
-					</Tooltip>
 					<RangePicker
 						allowClear={false}
 						value={range}
@@ -442,8 +429,7 @@ export const AnalyticsPage = () => {
 					{data &&
 					csv &&
 					data.range.from === query.from &&
-					data.range.to === query.to &&
-					data.includeTestData === includeTestData ? (
+					data.range.to === query.to ? (
 						<CSVLink
 							data={csv}
 							filename={`healthifam-analytics_${data.range.from}_${data.range.to}.csv`}
