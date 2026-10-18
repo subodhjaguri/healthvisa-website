@@ -24,7 +24,6 @@ interface DataType {
 	userName: string;
 	status: boolean;
 	createdOn: string;
-	isEHR: boolean;
 	isMembership: boolean;
 	membershipEndDate?: string;
 	membershipPlanId?: string;
@@ -113,7 +112,6 @@ export const UserListPage = () => {
 					userName: user?.userName,
 					status: user?.isActive,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
-					isEHR: user.isEHR,
 					isMembership: user?.metadata?.membershipDetail?.length > 0,
 					membershipEndDate:
 						user?.metadata?.membershipDetail?.[0]?.endDate || '',
@@ -140,16 +138,6 @@ export const UserListPage = () => {
 			title: 'Mobile Number',
 			dataIndex: 'mobileNumber',
 			key: 'mobileNumber',
-		},
-		{
-			title: 'EHR',
-			dataIndex: 'ehr',
-			key: 'ehr',
-			render: (_, {isEHR}) => {
-				const color = isEHR === false ? 'volcano' : 'green';
-
-				return <Tag color={color}>{isEHR === true ? 'Active' : 'Inactive'}</Tag>;
-			},
 		},
 		{
 			title: 'Status',
