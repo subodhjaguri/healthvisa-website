@@ -407,6 +407,8 @@ export const AnalyticsPage = () => {
 	};
 	const {data, isFetching, error} = useGetAnalytics(query);
 	const csv = React.useMemo(() => data && csvRows(data), [data]);
+	// While a new range loads, or if it failed, `data` is still the previous one.
+	const current = data?.range.from === query.from && data?.range.to === query.to;
 
 	return (
 		<Layout>
@@ -440,12 +442,8 @@ export const AnalyticsPage = () => {
 							);
 						}}
 					/>
-					{/* Only for the range on screen: while a new one loads, or if it
-					    failed, `data` is still the previous range. */}
-					{data &&
-					csv &&
-					data.range.from === query.from &&
-					data.range.to === query.to ? (
+					{/* Only for the range on screen. */}
+					{data && csv && current ? (
 						<CSVLink
 							data={csv}
 							filename={`healthifam-analytics_${data.range.from}_${data.range.to}.csv`}
@@ -473,7 +471,7 @@ export const AnalyticsPage = () => {
 			)}
 
 			{data ? (
-				<AnalyticsBody data={data} dimmed={isFetching} />
+				<AnalyticsBody data={data} dimmed={isFetching || !current} />
 			) : (
 				!error && <Skeleton active paragraph={{rows: 10}} />
 			)}
