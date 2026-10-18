@@ -5,6 +5,7 @@ import {
 	IReferralRow,
 } from '@healthvisa/models/admin/analytics/Analytics';
 import {useGetAnalytics} from '@healthvisa/models/admin/analytics/useAnalytics';
+import {csvSafe} from '@healthvisa/utils/csv';
 import {capitalizeFirst} from '@healthvisa/utils/tableFilter';
 import {DownloadOutlined} from '@ant-design/icons';
 import {Alert, Button, DatePicker, Skeleton, Table, Tooltip} from 'antd';
@@ -104,7 +105,10 @@ Figure.defaultProps = {hint: undefined};
 const CANCELLED_BY: Record<string, string> = {user: 'Member', admin: 'Staff'};
 const VISIT: Record<string, string> = {home: 'Home collection', lab: 'At the lab'};
 
-/** Flat rows (section, metric, item, value) for the CSV download. */
+/**
+ * Flat rows (section, metric, item, value) for the CSV download. Text cells
+ * can hold what members typed (cancellation reasons), so each is made safe.
+ */
 function csvRows(a: IAnalytics) {
 	const rows: {
 		section: string;
@@ -113,7 +117,12 @@ function csvRows(a: IAnalytics) {
 		value: string | number;
 	}[] = [];
 	const add = (section: string, metric: string, item: string, value: string | number) =>
-		rows.push({section, metric, item, value});
+		rows.push({
+			section: csvSafe(section),
+			metric: csvSafe(metric),
+			item: csvSafe(item),
+			value: typeof value === 'string' ? csvSafe(value) : value,
+		});
 	const list = (section: string, metric: string, counts: ICount[]) =>
 		counts.forEach((c) => add(section, metric, c.key, c.count));
 	const b = a.bookings;
