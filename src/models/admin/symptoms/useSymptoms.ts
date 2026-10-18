@@ -63,6 +63,8 @@ export function useSymptomById(
 		[SymptomsKeys.GetSymptomById, queryParams.id],
 		() => getSymptomById(queryParams),
 		{
+			// Wait for the id (undefined until the router is ready).
+			enabled: !!queryParams.id,
 			...queryOptions,
 		},
 	);

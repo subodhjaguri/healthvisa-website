@@ -92,6 +92,8 @@ export function useCategoryById(
 		[CategoriesKeys.GetCategoriesById, queryParams.id],
 		() => getCategoryById(queryParams),
 		{
+			// Wait for the id (undefined until the router is ready).
+			enabled: !!queryParams.id,
 			...queryOptions,
 		},
 	);
