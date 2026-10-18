@@ -137,7 +137,7 @@ const CHART_H = 180;
 
 type DayBucket = {day: moment.Moment; doctor: number; lab: number};
 
-/** Bookings received per day (doctor by order date, lab by creation date). */
+/** Bookings received per day, by when the server recorded them. */
 const BookingsChartView: React.FC<{days: DayBucket[] | undefined}> = ({days}) => {
 	if (!days) {
 		return <div className="h-[220px] rounded-lg bg-slate-50 animate-pulse" />;
@@ -295,7 +295,8 @@ export const Dashboard = () => {
 				.diff(start, 'days');
 			if (idx >= 0 && idx < CHART_DAYS) buckets[idx][key] += 1;
 		};
-		orders.forEach((o) => add(o.orderDate, 'doctor'));
+		// Server clock for both series (orderDate is the phone's); older orders lack createdAt.
+		orders.forEach((o) => add(o.createdAt ?? o.orderDate, 'doctor'));
 		labAppointments.forEach((a) => add(a.createdAt, 'lab'));
 		return buckets;
 	}, [orders, labAppointments]);

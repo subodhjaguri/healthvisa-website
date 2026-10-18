@@ -8,16 +8,15 @@ import {findAdminNav} from '@healthvisa/constants/adminNav';
 import {AdminInfo} from '@healthvisa/models/admin/auth/Auth';
 import {getLocalStorage} from '@healthvisa/utils/localstorage';
 
-/** Name/email saved at login (see pages/admin/index.tsx). */
+/** Name/email saved at login (see pages/admin/index.tsx); read on first render (browser-only, like the sidebar). */
 const useAdminInfo = () => {
-	const [admin, setAdmin] = React.useState<Partial<AdminInfo>>({});
-	React.useEffect(() => {
+	const [admin] = React.useState<Partial<AdminInfo>>(() => {
 		try {
-			setAdmin(getLocalStorage<AdminInfo>('adminData') ?? {});
+			return getLocalStorage<AdminInfo>('adminData') ?? {};
 		} catch {
-			setAdmin({});
+			return {};
 		}
-	}, []);
+	});
 	return admin;
 };
 

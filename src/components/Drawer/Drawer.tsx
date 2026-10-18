@@ -12,14 +12,16 @@ export const DrawerComponent = () => {
 	const router = useRouter();
 	const activePath = findAdminNav(router.pathname)?.item.path;
 
-	const [collapsed, setCollapsed] = React.useState(false);
-	React.useEffect(() => {
+	// Read the saved choice up front: every page mounts its own Layout, so an
+	// effect would paint expanded first and animate shut on each navigation.
+	// Browser-only is safe here — DashboardLayout renders nothing until mounted.
+	const [collapsed, setCollapsed] = React.useState(() => {
 		try {
-			setCollapsed(getLocalStorage<boolean>(COLLAPSE_KEY) === true);
+			return getLocalStorage<boolean>(COLLAPSE_KEY) === true;
 		} catch {
-			// storage unavailable: stay expanded
+			return false; // storage unavailable: stay expanded
 		}
-	}, []);
+	});
 	// Keep the current page's entry visible on short screens.
 	React.useEffect(() => {
 		document
