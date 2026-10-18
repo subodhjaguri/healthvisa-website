@@ -27,6 +27,7 @@ import {OrderUpdateRequestParams} from '@healthvisa/models/admin/orders/Order';
 import {TableSearch} from '@healthvisa/components/TableSearch';
 import {DateRange, inDateRange, isDayFuture, isDayPast, matchesSearch, optionsOf} from '@healthvisa/utils/tableFilter';
 import {APPOINTMENT_STATUS_OPTIONS, availableAppointmentStatuses, appointmentStatusColor} from '@healthvisa/utils/appointmentStatus';
+import {BOOKING_PAYMENT_OPTIONS, bookingPayment, needsPayAtVisit, refundNotice} from '@healthvisa/utils/paymentStatus';
 
 const {Option} = Select;
 const {TextArea} = Input;
@@ -38,6 +39,9 @@ interface DataType {
 	Status: string;
 	CreatedOn: string;
 	Payment: string;
+	/** How it is paid (label from utils/paymentStatus; also exported). */
+	PaymentStatus: string;
+	paymentStatus?: string;
 	Order_Id: number;
 	Amount: string;
 	doctor: string;
@@ -62,6 +66,8 @@ export const OrderListPage = () => {
 					Amount: `₹${formatPrice(order.finalAmount)}`,
 					Status: order.status,
 					Payment: order.paymentMode,
+					PaymentStatus: bookingPayment(order.paymentStatus).label,
+					paymentStatus: order.paymentStatus,
 					CreatedOn: moment(order.orderDate).format('DD MMM YYYY'),
 					doctor: order.items[0].name,
 					discount: `₹${formatPrice(order.discount)}`,
@@ -89,17 +95,19 @@ export const OrderListPage = () => {
 			inDateRange(o.CreatedOn, bookedRange) &&
 			(!doctor || o.doctor === doctor) &&
 			(!statusFilter || o.Status === statusFilter) &&
-			(!payment || o.Payment === payment),
+			(!payment || o.PaymentStatus === payment),
 	);
 
 	const [cancelModal, setCancelModal] = useState(false);
 	const [cancelReason, setCancelReason] = useState('');
 	const [cancelRow, setCancelRow] = useState<DataType | null>(null);
+	const cancelRefund = cancelRow && refundNotice(cancelRow.paymentStatus, cancelRow.Amount);
 
-	const UpdateStatus = async (id: string, status: string) => {
+	const UpdateStatus = async (id: string, status: string, payAtVisit?: boolean) => {
 		const body: OrderUpdateRequestParams = {
 			id,
 			status,
+			payAtVisit,
 		};
 		updateOrder.mutate(body, {
 			onSuccess: (res) => {
@@ -208,11 +216,10 @@ export const OrderListPage = () => {
 		{
 			title: 'Payment',
 			key: 'payment',
-			dataIndex: 'Payment',
-			render: (_, {Payment}) => {
-				const color = Payment === 'other' ? 'volcano' : 'green';
-
-				return <Tag color={color}>{Payment}</Tag>;
+			dataIndex: 'PaymentStatus',
+			render: (_, {paymentStatus}) => {
+				const shown = bookingPayment(paymentStatus);
+				return <Tag color={shown.color}>{shown.label}</Tag>;
 			},
 		},
 		{
@@ -268,8 +275,17 @@ export const OrderListPage = () => {
 							} else if (value === 'completed' || value === 'rejected') {
 								Modal.confirm({
 									title: `Mark this appointment ${value}?`,
-									content: 'This status is final in the normal workflow.',
+									content:
+										(value === 'rejected' && refundNotice(record.paymentStatus, record.Amount)) ||
+										'This status is final in the normal workflow.',
 									onOk: () => UpdateStatus(id, value),
+								});
+							} else if (value === 'appointment booked' && needsPayAtVisit(record.paymentStatus)) {
+								Modal.confirm({
+									title: 'This booking is not paid yet',
+									content: `The member hasn't paid online. Confirm it anyway, with ${record.Amount} to be paid at the visit?`,
+									okText: 'Confirm, pay at visit',
+									onOk: () => UpdateStatus(id, value, true),
 								});
 							} else {
 								UpdateStatus(id, value);
@@ -336,10 +352,10 @@ export const OrderListPage = () => {
 					<Select
 						allowClear
 						placeholder="Payment"
-						style={{width: 130}}
+						style={{width: 180}}
 						value={payment}
 						onChange={setPayment}
-						options={optionsOf(orderArray.map((o) => o.Payment))}
+						options={BOOKING_PAYMENT_OPTIONS}
 					/>
 				</div>
 				{isLoading ? (
@@ -370,6 +386,7 @@ export const OrderListPage = () => {
 					<p className="mb-2 text-gray-500">
 						Add a reason for cancelling. This will be visible to the user.
 					</p>
+					{cancelRefund && <p className="mb-2 font-semibold">{cancelRefund}</p>}
 					<TextArea
 						rows={5}
 						value={cancelReason}

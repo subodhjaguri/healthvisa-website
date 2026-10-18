@@ -29,6 +29,9 @@ export interface IOrder {
 	rate: string;
 	review: string;
 	paymentMode: string;
+	/** Online payment state (utils/paymentStatus.ts); missing = offline. */
+	paymentStatus?: string;
+	amountPaid?: number;
 	metadata: any;
 	createdAt?: string;
 }
@@ -117,9 +120,11 @@ export interface OrderUpdateRequestParams {
 	id: string;
 	status?: string;
 	metadata?: any;
+	/** Confirm an unpaid booking: the member pays at the visit instead. */
+	payAtVisit?: boolean;
 }
 export function updateOrder({...requestBody}: OrderUpdateRequestParams): Promise<any> {
-	const {id, status, metadata} = requestBody;
+	const {id, status, metadata, payAtVisit} = requestBody;
 	const data: Record<string, unknown> = {
 		id,
 		status,
@@ -127,6 +132,6 @@ export function updateOrder({...requestBody}: OrderUpdateRequestParams): Promise
 	};
 	return ajaxPatch<Record<string, unknown>, any>({
 		data,
-		url: `${getApiUrl(Service, OrderAPI.UpdateOrder)}/${id}`,
+		url: `${getApiUrl(Service, OrderAPI.UpdateOrder)}/${id}${payAtVisit ? '?payAtVisit=true' : ''}`,
 	});
 }

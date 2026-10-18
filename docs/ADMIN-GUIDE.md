@@ -43,8 +43,21 @@ once a minute) when the tab is in the background.
 
 ## Membership requests
 
-Members request a membership (or a renewal) in the app. Nothing is paid in the app: you
-collect payment offline.
+Members request a membership (or a renewal) in the app. When online payment is switched on,
+they pay in the app with PhonePe and the membership starts automatically: there is nothing
+for you to do. The **Discount / Payment** column shows how each request is paid:
+
+| Shown | Meaning | Your action |
+|---|---|---|
+| Paid online · ₹X | Paid; the request completes by itself | None |
+| Paying online… · ₹X | The member is on the PhonePe page right now | Wait (Allow Access is off) |
+| Awaiting online payment · ₹X | Request made, not paid yet | None; or collect cash and Allow Access |
+| Online payment failed · ₹X | The payment didn't go through; the member can retry | None; or collect cash and Allow Access |
+| Collect offline · ₹X | Online payment is off (or an older request) | Collect and Allow Access, below |
+
+A request the member withdrew shows **Cancelled by member**.
+
+For offline payment:
 
 1. Open **User Requests**. Membership requests show the plan, any referral code or renewal
    discount, and the amount to collect.
@@ -96,6 +109,22 @@ status from the menu in each row. Only the allowed next steps are offered:
 - **Completed** and **Rejected** ask you to confirm, because they are final.
 - If another staff member changed the same booking a moment earlier, you get a message.
   Refresh the list and check before trying again.
+
+**Online payment.** When online payment is switched on, members pay when they book. The
+**Payment** column (and filter) shows how each booking is paid:
+
+| Shown | Meaning |
+|---|---|
+| Paid online | Paid in the app. Confirm the slot as usual. |
+| Paying online… | The member is on the PhonePe page; you can't confirm it right now. |
+| Awaiting payment / Payment failed | Not paid. If left unpaid for 30 minutes it is cancelled automatically. |
+| Pay at visit | Collect at the clinic or lab (online payment off, or you confirmed it unpaid). |
+| Refund in progress / Refunded / Refund failed | The money is going back to the member. |
+
+- Confirming an unpaid booking asks **"Confirm, pay at visit"**: the member then pays at the
+  visit.
+- Rejecting or cancelling a **paid** booking refunds the member in full (the confirmation
+  says so).
 
 **Lab appointments** also show the visit type (lab, centre or home), the date and preferred
 time windows for home visits, the tests or package, and the amount. Bookings made by
@@ -151,12 +180,35 @@ In **Referrals**:
 Only raise these numbers **after** the new app version is available on Google Play,
 otherwise members cannot use the app. Agree changes with the technical team.
 
+## Online payments
+
+**Payments** (sidebar) lists every online payment: member, what it was for, amount, state
+(Paid, Pending, Failed, Expired, Stuck, Amount mismatch), refunds and the PhonePe
+transaction id. Search by order id, transaction, member or item; filter by type and state;
+**Export** downloads what the table shows.
+
+- **Needs attention** shows the rows to look at: **Stuck** (PhonePe hasn't confirmed after
+  3 days: check it on the PhonePe dashboard), **Amount mismatch** (refunded automatically),
+  **Paid – not applied** (paid, but the membership or booking couldn't be updated: press
+  Re-check), **Refund failed**, **Refund owed**.
+- **Details** opens the payment with its full history.
+  - **Re-check with PhonePe** asks PhonePe for the latest status and finishes anything
+    pending.
+  - **Refund…** refunds all that's left, or a part (enter an amount), with a reason. It
+    can't refund more than was paid.
+  - **Check refund** updates a refund in progress.
+- Refunds happen **automatically** when you reject or cancel a paid booking, when a member
+  cancels a paid booking before its day, and for double payments. A member cancelling on
+  the appointment day itself is not refunded automatically; refund it here if you decide
+  to.
+
 ## Users and account deletion
 
 - **People → Users** shows each member's membership number, phone, referral source and
   membership.
 - **Delete** permanently removes the member and everything linked to them: records and
   files, bookings, requests, family members and memberships. It cannot be undone; the
-  warning lists what will be removed.
+  warning lists what will be removed. Online payment records are kept for accounting, with
+  the member's id removed.
 - Members can also delete their own account in the app, or request deletion by email
   through the `/delete-account` page.

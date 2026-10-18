@@ -779,8 +779,11 @@ const PrivacyPolicyPage = () => {
 					prescriptions with their uploaded files, family members, lab and
 					doctor bookings, medicine orders, cart, addresses, reviews, membership
 					history and requests you sent us. We do not keep a copy of any of
-					this. Payments for memberships and services are made offline, outside
-					the app, so the app holds no payment records that must be retained.
+					this. If you paid online in the app, the payment records (amount, date
+					and the payment provider&apos;s reference) are kept as financial records
+					required by law, without your name or account details. Online payments
+					are processed by PhonePe; HealthiFam does not receive or store your
+					card, UPI or bank details.
 				</p>
 
 				<h3>Important Notes:</h3>

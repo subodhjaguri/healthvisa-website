@@ -34,6 +34,9 @@ export interface ILabAppointment {
 	prescriptionUrl?: string;
 	amount: number;
 	status: string;
+	/** Online payment state (utils/paymentStatus.ts); missing = offline. */
+	paymentStatus?: string;
+	amountPaid?: number;
 	healthPackage: string;
 	healthPackageId?: string;
 	optionSelected: string;
@@ -223,12 +226,14 @@ export interface LabAppointmentUpdateRequestParams {
 	id: string;
 	status?: string;
 	metadata?: any;
+	/** Confirm an unpaid booking: the member pays at the visit instead. */
+	payAtVisit?: boolean;
 }
 
 export function updateLabAppointment({
 	...requestBody
 }: LabAppointmentUpdateRequestParams): Promise<any> {
-	const {id, status, metadata} = requestBody;
+	const {id, status, metadata, payAtVisit} = requestBody;
 
 	// Use Record<string, unknown> or explicitly define the types for the data object
 	const data: Record<string, unknown> = {
@@ -239,6 +244,6 @@ export function updateLabAppointment({
 
 	return ajaxPatch<Record<string, unknown>, any>({
 		data,
-		url: `${getApiUrl(Service, LabAPI.UpdateLabAppointments)}/${id}`,
+		url: `${getApiUrl(Service, LabAPI.UpdateLabAppointments)}/${id}${payAtVisit ? '?payAtVisit=true' : ''}`,
 	});
 }

@@ -153,6 +153,14 @@ export interface INewMember {
 	metadata?: any;
 	/** Short-lived signed link to an attached prescription (S3 folder is private). */
 	documentUrl?: string;
+	/** ₹ due for a membership request, priced by the server. */
+	amount?: number;
+	/** offline | unpaid | pending | paid | failed (missing = offline). */
+	paymentStatus?: string;
+	/** Online | Offline */
+	paymentMode?: string;
+	/** ₹ paid online. */
+	amountPaid?: number;
 }
 
 export type GetNewMemberResponse = INewMember[];
