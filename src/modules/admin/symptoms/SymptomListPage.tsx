@@ -152,15 +152,16 @@ export const SymptomListPage = () => {
 			render: (_, record) => (
 				<Space size="middle">
 					<Button
+						size="small"
 						onClick={() => router.push(`/admin/symptoms/${record.key}`)}
-						type="primary"
+						className="hf-action hf-action--edit"
 					>
 						Edit
 					</Button>
 					<Button
+						size="small"
 						onClick={() => showModal(record.key)}
-						type="primary"
-						danger
+						className="hf-action hf-action--delete"
 					>
 						Delete
 					</Button>

@@ -55,13 +55,13 @@ export const TestListPage = () => {
 		return () => clearTimeout(t);
 	}, [searchInput]);
 
-	const enabled = !!(labId || diagnosticId || search);
+	// No filter = all tests, newest first (paged on the server, so this stays cheap).
 	const query = {labId, diagnosticId, search: search || undefined};
 	const {data: tests, isLoading, isFetching} = useTests(
 		{...query, limit: PAGE_SIZE, skip: (page - 1) * PAGE_SIZE},
-		enabled,
+		true,
 	);
-	const {data: countRes} = useTestsCount(query, enabled);
+	const {data: countRes} = useTestsCount(query, true);
 	const total = countRes?.count ?? 0;
 
 	const labMap = useMemo(() => {
@@ -188,9 +188,7 @@ export const TestListPage = () => {
 					<Button
 						size="small"
 						onClick={() => openEdit(r)}
-						type="default"
-						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-						className="uppercase"
+						className="hf-action hf-action--edit"
 					>
 						Edit
 					</Button>
@@ -212,7 +210,7 @@ export const TestListPage = () => {
 							)
 						}
 					>
-						<Button size="small" danger className="uppercase">
+						<Button size="small" className="hf-action hf-action--delete">
 							Delete
 						</Button>
 					</Popconfirm>
@@ -267,11 +265,7 @@ export const TestListPage = () => {
 					/>
 				</div>
 
-				{!enabled ? (
-					<div className="text-gray-500 py-8 text-center">
-						Select a Lab or Diagnostic, or search by test name, to view tests.
-					</div>
-				) : isLoading ? (
+				{isLoading ? (
 					<Skeleton active />
 				) : (
 					<Table

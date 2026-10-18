@@ -131,18 +131,14 @@ export const NewsListPage = () => {
 					<Button
 						size="small"
 						onClick={() => router.push(`/admin/news/${record.Id}`)}
-						type="default"
-						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-						className="uppercase"
+						className="hf-action hf-action--edit"
 					>
 						Edit
 					</Button>
 					<Button
 						size="small"
 						onClick={() => showModal(record.Id)}
-						type="default"
-						style={{color: 'red', border: '1px solid red', padding: '0 10px'}}
-						className="uppercase"
+						className="hf-action hf-action--delete"
 					>
 						Delete
 					</Button>

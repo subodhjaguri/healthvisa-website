@@ -472,3 +472,62 @@
 .ant-notification-notice {
 	border-radius: 12px;
 }
+
+/* Row action buttons (Edit / Delete / Share / Revoke …) — one style on every page */
+.ant-btn.hf-action {
+	height: 28px;
+	padding: 0 12px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	font-size: 13px;
+	font-weight: 500;
+	box-shadow: none;
+}
+/* tone colours also hold on hover/focus (antd would switch them to primary) */
+.ant-btn.hf-action--edit,
+.ant-btn.hf-action--edit:hover,
+.ant-btn.hf-action--edit:focus {
+	color: var(--hf-primary);
+	background: var(--hf-primary-soft);
+}
+.ant-btn.hf-action--delete,
+.ant-btn.hf-action--delete:hover,
+.ant-btn.hf-action--delete:focus {
+	color: #dc2626;
+	background: #fef2f2;
+}
+.ant-btn.hf-action--share,
+.ant-btn.hf-action--share:hover,
+.ant-btn.hf-action--share:focus {
+	color: #15803d;
+	background: #f0fdf4;
+}
+.ant-btn.hf-action--warn,
+.ant-btn.hf-action--warn:hover,
+.ant-btn.hf-action--warn:focus {
+	color: #c2410c;
+	background: #fff7ed;
+}
+.ant-btn.hf-action:not([disabled]):hover {
+	border-color: currentColor;
+}
+
+/* Every modal (incl. Modal.confirm) is centred vertically and horizontally,
+   the same as antd's `centered` prop. */
+.ant-modal-wrap {
+	text-align: center;
+}
+.ant-modal-wrap::before {
+	content: '';
+	display: inline-block;
+	width: 0;
+	height: 100%;
+	vertical-align: middle;
+}
+.ant-modal-wrap .ant-modal {
+	top: 0;
+	display: inline-block;
+	padding-bottom: 0;
+	text-align: left;
+	vertical-align: middle;
+}

@@ -239,13 +239,8 @@ export const NewMembersListPage = () => {
 								loading={pendingApprovalId === record.id}
 								size="small"
 								onClick={() => allowAccess(record)}
-							type="default"
-							// Blue only while it can be used, so a done request looks disabled.
-							style={canApprove(record) ? {
-								color: '#1990FF',
-								border: '1px solid #1990FF',
-								padding: '0 10px',
-							} : {padding: '0 10px'}}>
+							// Coloured only while it can be used, so a done request looks disabled.
+							className={canApprove(record) ? 'hf-action hf-action--edit' : 'hf-action'}>
 								{record.status === 'approving' ? 'Resume Approval' : 'Allow Access'}
 						</Button>
 					)}
@@ -255,12 +250,7 @@ export const NewMembersListPage = () => {
 								size="small"
 								// Signed, short-lived link from the API (the S3 folder is private).
 								onClick={() => window.open(record.documentUrl, '_blank')}
-								type="default"
-								style={{
-									color: '#1990FF',
-									border: '1px solid #1990FF',
-									padding: '0 10px',
-								}}>
+								className="hf-action hf-action--edit">
 								View Prescription
 							</Button>
 						)}

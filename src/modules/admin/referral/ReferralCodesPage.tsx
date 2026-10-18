@@ -212,17 +212,13 @@ export const ReferralCodesPage = () => {
 					<Button
 						size="small"
 						onClick={() => setShareCode(record.code)}
-						type="default"
-						style={{color: '#198753', border: '1px solid #198753', padding: '0 10px'}}
-						className="uppercase">
+						className="hf-action hf-action--share">
 						Share
 					</Button>
 					<Button
 						size="small"
 						onClick={() => openEdit(record)}
-						type="default"
-						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-						className="uppercase">
+						className="hf-action hf-action--edit">
 						Edit
 					</Button>
 					<Popconfirm
@@ -233,9 +229,7 @@ export const ReferralCodesPage = () => {
 						onConfirm={() => handleDelete(record.id)}>
 						<Button
 							size="small"
-							type="default"
-							style={{color: 'red', border: '1px solid red', padding: '0 10px'}}
-							className="uppercase">
+							className="hf-action hf-action--delete">
 							Delete
 						</Button>
 					</Popconfirm>
