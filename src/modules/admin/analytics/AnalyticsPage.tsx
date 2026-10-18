@@ -29,12 +29,13 @@ const MEMBERSHIP_SERIES: ISeries[] = [
 const ACTIVE_SERIES: ISeries = {key: 'active', label: 'Active members', color: TEAL};
 const SIGNUP_SERIES: ISeries = {key: 'count', label: 'Sign-ups', color: TEAL};
 
-const PRESETS: Record<string, [Moment, Moment]> = {
-	'Last 7 days': [moment().subtract(6, 'days'), moment()],
-	'Last 30 days': [moment().subtract(29, 'days'), moment()],
-	'Last 90 days': [moment().subtract(89, 'days'), moment()],
-	'This month': [moment().startOf('month'), moment()],
-	'Last 12 months': [moment().subtract(1, 'year').add(1, 'day'), moment()],
+// Functions, so a page left open overnight still means "up to today".
+const PRESETS: Record<string, () => [Moment, Moment]> = {
+	'Last 7 days': () => [moment().subtract(6, 'days'), moment()],
+	'Last 30 days': () => [moment().subtract(29, 'days'), moment()],
+	'Last 90 days': () => [moment().subtract(89, 'days'), moment()],
+	'This month': () => [moment().startOf('month'), moment()],
+	'Last 12 months': () => [moment().subtract(1, 'year').add(1, 'day'), moment()],
 };
 
 const pct = (n: number | null | undefined) =>
@@ -436,8 +437,13 @@ export const AnalyticsPage = () => {
 							);
 						}}
 					/>
-					{/* Not while a new range loads: `data` is still the previous one. */}
-					{data && csv && !isFetching ? (
+					{/* Only for the range on screen: while a new one loads, or if it
+					    failed, `data` is still the previous range. */}
+					{data &&
+					csv &&
+					data.range.from === query.from &&
+					data.range.to === query.to &&
+					data.includeTestData === includeTestData ? (
 						<CSVLink
 							data={csv}
 							filename={`healthifam-analytics_${data.range.from}_${data.range.to}.csv`}
