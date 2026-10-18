@@ -31,13 +31,18 @@ const MEMBERSHIP_SERIES: ISeries[] = [
 const ACTIVE_SERIES: ISeries = {key: 'active', label: 'Active members', color: TEAL};
 const SIGNUP_SERIES: ISeries = {key: 'count', label: 'Sign-ups', color: TEAL};
 
+// The API counts India calendar days, so "today" is India's day whatever the
+// browser's time zone: a fixed +05:30 offset (IST has no daylight saving, and
+// moment-timezone isn't a dependency).
+const istNow = () => moment().utcOffset(330);
+
 // Functions, so a page left open overnight still means "up to today".
 const PRESETS: Record<string, () => [Moment, Moment]> = {
-	'Last 7 days': () => [moment().subtract(6, 'days'), moment()],
-	'Last 30 days': () => [moment().subtract(29, 'days'), moment()],
-	'Last 90 days': () => [moment().subtract(89, 'days'), moment()],
-	'This month': () => [moment().startOf('month'), moment()],
-	'Last 12 months': () => [moment().subtract(1, 'year').add(1, 'day'), moment()],
+	'Last 7 days': () => [istNow().subtract(6, 'days'), istNow()],
+	'Last 30 days': () => [istNow().subtract(29, 'days'), istNow()],
+	'Last 90 days': () => [istNow().subtract(89, 'days'), istNow()],
+	'This month': () => [istNow().startOf('month'), istNow()],
+	'Last 12 months': () => [istNow().subtract(1, 'year').add(1, 'day'), istNow()],
 };
 
 const pct = (n: number | null | undefined) =>
@@ -427,11 +432,16 @@ export const AnalyticsPage = () => {
 						value={range}
 						ranges={PRESETS}
 						format="D MMM YYYY"
-						disabledDate={(d) =>
-							d.isAfter(moment(), 'day') ||
-							// The API allows at most 366 days.
-							d.isBefore(moment().subtract(5, 'years'), 'day')
-						}
+						// By day label, so it holds for a cell in either offset (a typed
+						// date is in the browser's zone, a clicked one in IST).
+						disabledDate={(d) => {
+							const day = d.format(DAY);
+							return (
+								day > istNow().format(DAY) ||
+								// The API allows at most 366 days.
+								day < istNow().subtract(5, 'years').format(DAY)
+							);
+						}}
 						onChange={(v) => {
 							const [from, to] = (v ?? []) as Moment[];
 							if (!from || !to) return;
