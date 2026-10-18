@@ -436,10 +436,11 @@ export const AnalyticsPage = () => {
 							);
 						}}
 					/>
-					{csv ? (
+					{/* Not while a new range loads: `data` is still the previous one. */}
+					{data && csv && !isFetching ? (
 						<CSVLink
 							data={csv}
-							filename={`healthifam-analytics_${query.from}_${query.to}.csv`}
+							filename={`healthifam-analytics_${data.range.from}_${data.range.to}.csv`}
 						>
 							<Button icon={<DownloadOutlined />}>Export CSV</Button>
 						</CSVLink>
