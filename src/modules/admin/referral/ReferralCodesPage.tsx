@@ -212,17 +212,13 @@ export const ReferralCodesPage = () => {
 					<Button
 						size="small"
 						onClick={() => setShareCode(record.code)}
-						type="default"
-						style={{color: '#198753', border: '1px solid #198753', padding: '0 10px'}}
-						className="uppercase">
+						className="hf-action hf-action--share">
 						Share
 					</Button>
 					<Button
 						size="small"
 						onClick={() => openEdit(record)}
-						type="default"
-						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-						className="uppercase">
+						className="hf-action hf-action--edit">
 						Edit
 					</Button>
 					<Popconfirm
@@ -233,9 +229,7 @@ export const ReferralCodesPage = () => {
 						onConfirm={() => handleDelete(record.id)}>
 						<Button
 							size="small"
-							type="default"
-							style={{color: 'red', border: '1px solid red', padding: '0 10px'}}
-							className="uppercase">
+							className="hf-action hf-action--delete">
 							Delete
 						</Button>
 					</Popconfirm>
@@ -246,9 +240,9 @@ export const ReferralCodesPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h1 className="text-xl font-bold">Referrals</h1>
+					<h1 className="admin-page-title">Referrals</h1>
 					<Button type="primary" onClick={openCreate}>
 						Create Referral
 					</Button>
@@ -266,7 +260,7 @@ export const ReferralCodesPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleCodes}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>

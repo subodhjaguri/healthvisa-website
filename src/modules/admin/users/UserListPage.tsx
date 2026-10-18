@@ -1,6 +1,6 @@
 import {Layout} from '@healthvisa/components';
 
-import {Button, Checkbox, message, Modal, Skeleton, Space, Table, Tag} from 'antd';
+import {Button, message, Modal, Select, Skeleton, Space, Table, Tag} from 'antd';
 import {ColumnsType} from 'antd/lib/table';
 import router from 'next/router';
 import React, {useState} from 'react';
@@ -15,7 +15,6 @@ import moment from 'moment';
 import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
 import {matchesSearch} from '@healthvisa/utils/tableFilter';
-import {CheckboxProps} from 'antd/es/checkbox';
 
 const {confirm} = Modal;
 interface DataType {
@@ -25,13 +24,20 @@ interface DataType {
 	userName: string;
 	status: boolean;
 	createdOn: string;
-	isEHR: boolean;
 	isMembership: boolean;
 	membershipEndDate?: string;
 	membershipPlanId?: string;
 	referredBy: string;
 	uniqueId: string;
 }
+
+type MembershipFilter = 'active' | 'expired' | 'none';
+
+/** Same rule as the dashboard's "Active members" and the Expiry column: no end date, or not yet past. */
+const membershipState = (u: {isMembership: boolean; membershipEndDate?: string}): MembershipFilter => {
+	if (!u.isMembership) return 'none';
+	return !u.membershipEndDate || !moment(u.membershipEndDate).isBefore(moment()) ? 'active' : 'expired';
+};
 
 export const UserListPage = () => {
 	const {isLoading, data: userList} = useUser();
@@ -66,7 +72,7 @@ export const UserListPage = () => {
 			},
 		});
 	};
-	const [isEHRChecked, setIsEHR] = useState(false);
+	const [membership, setMembership] = useState<MembershipFilter>();
 	const [search, setSearch] = useState('');
 	const handleDelete = async (id: string) => {
 		deleteUser.mutate(
@@ -106,7 +112,6 @@ export const UserListPage = () => {
 					userName: user?.userName,
 					status: user?.isActive,
 					createdOn: moment(user.createdAt).format('DD MMM YYYY'),
-					isEHR: user.isEHR,
 					isMembership: user?.metadata?.membershipDetail?.length > 0,
 					membershipEndDate:
 						user?.metadata?.membershipDetail?.[0]?.endDate || '',
@@ -133,16 +138,6 @@ export const UserListPage = () => {
 			title: 'Mobile Number',
 			dataIndex: 'mobileNumber',
 			key: 'mobileNumber',
-		},
-		{
-			title: 'EHR',
-			dataIndex: 'ehr',
-			key: 'ehr',
-			render: (_, {isEHR}) => {
-				const color = isEHR === false ? 'volcano' : 'green';
-
-				return <Tag color={color}>{isEHR === true ? 'Active' : 'Inactive'}</Tag>;
-			},
 		},
 		{
 			title: 'Status',
@@ -218,26 +213,14 @@ export const UserListPage = () => {
 					<Button
 						size="small"
 						onClick={() => router.push(`/admin/users/${record.key}`)}
-						type="default"
-						style={{
-							color: '#1990FF',
-							border: '1px solid #1990FF',
-							padding: '0 10px',
-						}}
-						className="uppercase">
+						className="hf-action hf-action--edit">
 						Edit
 					</Button>
 
 					<Button
 						size="small"
 						onClick={() => showModal(record.key)}
-						type="default"
-						style={{
-							color: 'red',
-							border: '1px solid red',
-							padding: '0 10px',
-						}}
-						className="uppercase">
+						className="hf-action hf-action--delete">
 						Delete
 					</Button>
 
@@ -245,13 +228,7 @@ export const UserListPage = () => {
 						<Button
 							size="small"
 							onClick={() => handleRevoke(record.key)}
-							type="default"
-							style={{
-								color: '#fa8c16',
-								border: '1px solid #fa8c16',
-								padding: '0 10px',
-							}}
-							className="uppercase">
+							className="hf-action hf-action--warn">
 							Revoke
 						</Button>
 					)}
@@ -259,20 +236,21 @@ export const UserListPage = () => {
 			),
 		},
 	];
+	const counts = userArray.reduce(
+		(acc, u) => ({...acc, [membershipState(u)]: acc[membershipState(u)] + 1}),
+		{active: 0, expired: 0, none: 0} as Record<MembershipFilter, number>,
+	);
 	// What the table shows is also what Export downloads.
 	const visibleUsers = userArray.filter(
 		(u) =>
-			(!isEHRChecked || u.isEHR) &&
+			(!membership || membershipState(u) === membership) &&
 			matchesSearch(search, [u.name, u.mobileNumber, u.uniqueId, u.userName, u.referredBy]),
 	);
-	const onChange: CheckboxProps['onChange'] = (e) => {
-		setIsEHR(e.target.checked);
-	};
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">List of Users</h2>
+					<h2 className="admin-page-title">List of Users</h2>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"
@@ -288,7 +266,18 @@ export const UserListPage = () => {
 				</div>
 				<div className="my-2 flex items-center gap-4 flex-wrap">
 					<TableSearch placeholder="Search name, mobile or HF ID" onSearch={setSearch} />
-					<Checkbox onChange={onChange}>Show EHR Users</Checkbox>
+					<Select
+						allowClear
+						placeholder="Membership"
+						style={{minWidth: 200}}
+						value={membership}
+						onChange={setMembership}
+						options={[
+							{value: 'active', label: `Active members (${counts.active})`},
+							{value: 'expired', label: `Expired (${counts.expired})`},
+							{value: 'none', label: `Not a member (${counts.none})`},
+						]}
+					/>
 				</div>
 				{isLoading ? (
 					<Skeleton active />
@@ -299,7 +288,7 @@ export const UserListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleUsers}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>

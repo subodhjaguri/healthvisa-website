@@ -29,9 +29,9 @@ export const AppVersionPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid max-w-[720px]">
-				<h2 className="text-xl font-bold mb-1">App versions</h2>
-				<p className="text-gray-500 mb-4">
+			<div className="admin-card max-w-[720px]">
+				<h2 className="admin-page-title mb-1">App versions</h2>
+				<p className="text-sm text-slate-500 mb-5">
 					Build numbers are the Android <b>versionCode</b> of the app on the
 					Play Store. Raise &quot;Latest build&quot; after a new build is live
 					to offer an optional update. Raise &quot;Minimum build&quot; only for

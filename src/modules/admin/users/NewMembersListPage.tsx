@@ -239,13 +239,8 @@ export const NewMembersListPage = () => {
 								loading={pendingApprovalId === record.id}
 								size="small"
 								onClick={() => allowAccess(record)}
-							type="default"
-							// Blue only while it can be used, so a done request looks disabled.
-							style={canApprove(record) ? {
-								color: '#1990FF',
-								border: '1px solid #1990FF',
-								padding: '0 10px',
-							} : {padding: '0 10px'}}>
+							// Coloured only while it can be used, so a done request looks disabled.
+							className={canApprove(record) ? 'hf-action hf-action--edit' : 'hf-action'}>
 								{record.status === 'approving' ? 'Resume Approval' : 'Allow Access'}
 						</Button>
 					)}
@@ -255,12 +250,7 @@ export const NewMembersListPage = () => {
 								size="small"
 								// Signed, short-lived link from the API (the S3 folder is private).
 								onClick={() => window.open(record.documentUrl, '_blank')}
-								type="default"
-								style={{
-									color: '#1990FF',
-									border: '1px solid #1990FF',
-									padding: '0 10px',
-								}}>
+								className="hf-action hf-action--edit">
 								View Prescription
 							</Button>
 						)}
@@ -312,9 +302,9 @@ export const NewMembersListPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h2 className="text-xl font-bold">List of User Requests</h2>
+					<h2 className="admin-page-title">List of User Requests</h2>
 					<Button type="primary">
 						<CSVLink data={visibleRequests} filename="UserList" target="_blank">
 							Export
@@ -333,7 +323,7 @@ export const NewMembersListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleRequests}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 						// Wide table: scroll it sideways inside the page, Status stays visible.
 						scroll={{x: 'max-content'}}
 					/>

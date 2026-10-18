@@ -10,20 +10,23 @@ can do everything in the admin website, so keep logins personal.
 
 ## Finding your way
 
-The menu on the left:
+The menu on the left is grouped into sections. Click **Collapse** at the bottom to shrink it
+to icons (hover an icon to see its name); the website remembers your choice.
 
-| Menu item | Use it to |
-|---|---|
-| **Dashboard** | See what needs attention: appointments to confirm, open requests, totals |
-| **Products and Services** | Categories, Symptoms, Products & Services (doctors), Diagnostics, Labs, Tests |
-| **People → Users** | Look up members, edit details, change membership expiry, revoke membership, delete accounts |
-| **Doctor Appointments** | Confirm, complete, reject or cancel doctor bookings |
-| **Lab Appointments** | The same for lab and health-package bookings |
-| **EHR Reports** | View health records members have uploaded (read-only) |
-| **Health News** | Write and publish news shown in the app |
-| **User Requests** | Approve membership requests; handle medicine orders and other requests |
-| **Referrals** | Create referral codes and share links |
-| **App Versions** | Set which app builds are supported |
+| Section | Menu item | Use it to |
+|---|---|---|
+| Overview | **Dashboard** | See what needs attention (requests and appointments to confirm), bookings over the last 14 days, and totals |
+| Operations | **Doctor Appointments** | Confirm, complete, reject or cancel doctor bookings |
+| | **Lab Appointments** | The same for lab and health-package bookings |
+| | **User Requests** | Approve membership requests; handle medicine orders and other requests |
+| | **EHR Reports** | View health records members have uploaded (read-only) |
+| Products and Services | **Categories**, **Symptoms**, **Products & Services** (doctors), **Diagnostics**, **Labs**, **Tests** | Manage what members can browse and book |
+| People | **Users** | Look up members, edit details, change membership expiry, revoke membership, delete accounts |
+| | **Referrals** | Create referral codes and share links |
+| Content & Settings | **Health News** | Write and publish news shown in the app |
+| | **App Versions** | Set which app builds are supported |
+
+The top bar shows where you are, the notification **bell**, and your name. Click your name to log out.
 
 Most lists have a **search box** and an **Export** button (CSV of what the table shows).
 

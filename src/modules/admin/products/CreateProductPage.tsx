@@ -12,7 +12,7 @@ import {
 	Space,
 	Switch,
 } from 'antd';
-import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
+import {MinusCircleOutlined, PlusOutlined, ArrowLeftOutlined} from '@ant-design/icons';
 import {UploadProps, RcFile} from 'antd/es/upload';
 import TextArea from 'antd/lib/input/TextArea';
 import Dragger from 'antd/lib/upload/Dragger';
@@ -138,15 +138,10 @@ export const CreateProductPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid">
+			<div className="admin-card">
 				<div className="flex justify-between items-center pr-4">
-					<h1 className="text-xl font-bold">Add New Product/Service</h1>
-					<Button
-						onClick={() => router.back()}
-						style={{background: '#F8F9FA', color: 'black'}}
-						className="w-24"
-						type="primary"
-					>
+					<h1 className="admin-page-title">Add New Product/Service</h1>
+					<Button onClick={() => router.back()} icon={<ArrowLeftOutlined />}>
 						Back
 					</Button>
 				</div>
@@ -320,19 +315,13 @@ export const CreateProductPage = () => {
 							<div className="flex mt-3">
 								<Button
 									loading={addProduct.isLoading}
-									style={{background: '#198753'}}
 									className="w-24 mr-3"
 									type="primary"
 									htmlType="submit"
 								>
 									Add
 								</Button>
-								<Button
-									onClick={() => router.back()}
-									style={{background: '#F8F9FA', color: 'black'}}
-									className="w-24"
-									type="primary"
-								>
+								<Button onClick={() => router.back()}>
 									Cancel
 								</Button>
 							</div>

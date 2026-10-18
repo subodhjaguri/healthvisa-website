@@ -1,13 +1,24 @@
 import {Avatar, Badge, Menu, Popover} from 'antd';
 
 import * as React from 'react';
-import {
-	SettingOutlined,
-	ExportOutlined,
-	BellOutlined,
-} from '@ant-design/icons';
+import {ExportOutlined, BellOutlined, DownOutlined} from '@ant-design/icons';
 import {useRouter} from 'next/router';
 import {useNotificationStore} from '@healthvisa/zustand/useNotificationStore';
+import {findAdminNav} from '@healthvisa/constants/adminNav';
+import {AdminInfo} from '@healthvisa/models/admin/auth/Auth';
+import {getLocalStorage} from '@healthvisa/utils/localstorage';
+
+/** Name/email saved at login (see pages/admin/index.tsx); read on first render (browser-only, like the sidebar). */
+const useAdminInfo = () => {
+	const [admin] = React.useState<Partial<AdminInfo>>(() => {
+		try {
+			return getLocalStorage<AdminInfo>('adminData') ?? {};
+		} catch {
+			return {};
+		}
+	});
+	return admin;
+};
 
 export const Header = () => {
 	const router = useRouter();
@@ -17,6 +28,11 @@ export const Header = () => {
 	const dismiss = useNotificationStore((s) => s.dismiss);
 	const total = counts.orders + counts.labs + counts.requests;
 
+	const admin = useAdminInfo();
+	const displayName = admin.name || admin.email || 'HealthiFam Admin';
+	const nav = findAdminNav(router.pathname);
+	const isSubPage = nav && router.pathname !== nav.item.path;
+
 	const logoutHandler = () => {
 		localStorage.removeItem('@healthifam-token');
 		localStorage.removeItem('adminData');
@@ -24,21 +40,23 @@ export const Header = () => {
 	};
 
 	const bellContent = (
-		<div style={{width: 300}}>
+		<div style={{width: 320}}>
 			<div className="flex items-center justify-between px-1 pb-2">
-				<span className="font-semibold text-black">Notifications</span>
+				<span className="font-semibold text-slate-800">Notifications</span>
 				{items.length > 0 && (
 					// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
 					<span
 						onClick={() => acknowledge()}
-						className="cursor-pointer text-xs text-blue-500">
+						className="cursor-pointer text-xs hf-link"
+					>
 						Mark all as read
 					</span>
 				)}
 			</div>
 			{items.length === 0 ? (
-				<div className="text-gray-400 text-sm py-4 text-center">
-					No new notifications
+				<div className="text-slate-400 text-sm py-6 text-center">
+					<BellOutlined style={{fontSize: 22}} />
+					<div className="mt-2">You&apos;re all caught up</div>
 				</div>
 			) : (
 				<div style={{maxHeight: 320, overflowY: 'auto'}}>
@@ -50,9 +68,12 @@ export const Header = () => {
 								dismiss(it);
 								router.push(it.route);
 							}}
-							className="cursor-pointer px-2 py-2 rounded hover:bg-gray-100">
-							<div className="text-sm font-medium text-black">{it.title}</div>
-							<div className="text-xs text-gray-500">{it.body}</div>
+							className="cursor-pointer px-2 py-2 rounded-lg hover:bg-slate-50"
+						>
+							<div className="text-sm font-medium text-slate-800">
+								{it.title}
+							</div>
+							<div className="text-xs text-slate-500">{it.body}</div>
 						</div>
 					))}
 				</div>
@@ -61,43 +82,65 @@ export const Header = () => {
 	);
 
 	return (
-		<div className="flex h-[4rem] shadow-lg items-center bg-white justify-end overflow-y-hidden">
-			<ul className="flex flex-row items-center justify-end  px-3 m-0">
-				<Popover
-					placement="bottomRight"
-					content={bellContent}
-					trigger="click">
-					<li className="flex items-center list-none mr-5 cursor-pointer">
+		<header className="hf-header">
+			<div className="min-w-0">
+				<div className="hf-header__crumb">
+					{nav ? nav.group.title : 'Admin'}
+					{isSubPage && (
+						<>
+							<span className="mx-1">/</span>
+							{nav.item.label}
+						</>
+					)}
+				</div>
+				<div className="hf-header__title truncate">
+					{nav?.item.label ?? 'HealthiFam Admin'}
+				</div>
+			</div>
+			<div className="flex items-center gap-2">
+				<Popover placement="bottomRight" content={bellContent} trigger="click">
+					<button
+						type="button"
+						className="hf-icon-btn"
+						aria-label="Notifications"
+					>
 						<Badge count={total} size="small" overflowCount={99}>
-							<BellOutlined style={{fontSize: 20, color: '#4b5563'}} />
+							<BellOutlined style={{fontSize: 18, color: '#475569'}} />
 						</Badge>
-					</li>
+					</button>
 				</Popover>
+				<div className="w-px h-6 bg-slate-200 mx-2" />
 				<Popover
 					placement="bottomRight"
 					content={
-						<Menu>
-							<Menu.Item key="one" icon={<SettingOutlined />}>
-								Settings
-							</Menu.Item>
-
-							<Menu.Item
-								onClick={logoutHandler}
-								key="five"
-								icon={<ExportOutlined />}>
-								Logout
-							</Menu.Item>
-						</Menu>
+						<Menu
+							style={{border: 'none'}}
+							items={[
+								{
+									key: 'logout',
+									icon: <ExportOutlined />,
+									label: 'Logout',
+									onClick: logoutHandler,
+								},
+							]}
+						/>
 					}
-					trigger="click">
-					<li className="flex flex-row justify-between items-center list-none text-black">
-						<Avatar src="https://joeschmoe.io/api/v1/random" />
-						<span className="text-base mx-2 cursor-pointer hover:text-blue-500">
-							Healthifam Admin
+					trigger="click"
+				>
+					<button type="button" className="hf-user-btn">
+						<Avatar size={34} style={{background: 'var(--hf-primary)'}}>
+							{displayName.charAt(0).toUpperCase()}
+						</Avatar>
+						<span className="hidden md:flex flex-col items-start leading-tight">
+							<span className="text-sm font-medium text-slate-800 max-w-[180px] truncate">
+								{displayName}
+							</span>
+							<span className="text-xs text-slate-400">Administrator</span>
 						</span>
-					</li>
+						<DownOutlined style={{fontSize: 10, color: '#94a3b8'}} />
+					</button>
 				</Popover>
-			</ul>
-		</div>
+			</div>
+		</header>
 	);
 };

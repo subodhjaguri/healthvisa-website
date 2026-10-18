@@ -1,112 +1,109 @@
-import {Menu, MenuProps} from 'antd';
-
+import {Tooltip} from 'antd';
 import React from 'react';
-import {AppstoreOutlined, NotificationOutlined} from '@ant-design/icons';
-
-import {useRouter} from 'next/router';
-import {
-	MdOutlineDashboard,
-	MdStorefront,
-	MdBiotech,
-	MdOutlineAssignment,
-	MdPeople,
-	MdLocalOffer,
-	MdSystemUpdate,
-	MdSick,
-} from 'react-icons/md';
-import {
-	FaUsers,
-	FaUserMd,
-	FaFlask,
-	FaVial,
-	FaVials,
-	FaCalendarCheck,
-	FaRegNewspaper,
-	FaFileMedical,
-} from 'react-icons/fa';
 import Link from 'next/link';
-import {getActiveRoute, getCurrentRoute} from '@healthvisa/utils/common/DrawerState';
-import {BiCategoryAlt} from 'react-icons/bi';
+import {useRouter} from 'next/router';
+import {MenuFoldOutlined, MenuUnfoldOutlined} from '@ant-design/icons';
+import {ADMIN_NAV, findAdminNav} from '@healthvisa/constants/adminNav';
+import {getLocalStorage, setLocalStorage} from '@healthvisa/utils/localstorage';
+
+const COLLAPSE_KEY = '@healthifam-sidebar-collapsed';
 
 export const DrawerComponent = () => {
 	const router = useRouter();
-	type MenuItem = Required<MenuProps>['items'][number];
+	const activePath = findAdminNav(router.pathname)?.item.path;
 
-	function getItem(
-		label: React.ReactNode,
-		key: React.Key,
-		icon?: React.ReactNode,
-		children?: MenuItem[],
-		type?: 'group',
-	): MenuItem {
-		return {
-			key,
-			icon,
-			children,
-			label,
-			type,
-		} as MenuItem;
-	}
-
-	type NavigationLink = {
-		name: string;
-		path?: string;
-		icon: JSX.Element;
-		subRoutes?: NavigationLink[];
-		title?: string;
+	// Read the saved choice up front: every page mounts its own Layout, so an
+	// effect would paint expanded first and animate shut on each navigation.
+	// Browser-only is safe here — DashboardLayout renders nothing until mounted.
+	const [collapsed, setCollapsed] = React.useState(() => {
+		try {
+			return getLocalStorage<boolean>(COLLAPSE_KEY) === true;
+		} catch {
+			return false; // storage unavailable: stay expanded
+		}
+	});
+	// Keep the current page's entry visible on short screens.
+	React.useEffect(() => {
+		document
+			.querySelector('.hf-sidebar__item--active')
+			?.scrollIntoView({block: 'nearest'});
+	}, [activePath]);
+	const toggle = () => {
+		const next = !collapsed;
+		setCollapsed(next);
+		try {
+			setLocalStorage(COLLAPSE_KEY, next);
+		} catch {
+			// storage unavailable: the choice just isn't remembered
+		}
 	};
 
-	console.log('getCurrentRoute: ', getCurrentRoute(router), router.pathname);
-
-	const items: MenuProps['items'] = [
-		getItem('Dashboard', '/admin/dashboard', <MdOutlineDashboard />),
-		getItem('Products and Services', 'products', <MdStorefront />, [
-			getItem('Categories', '/admin/categories', <BiCategoryAlt />),
-			getItem('Symptoms', '/admin/symptoms', <MdSick />),
-			getItem('Products & Services', '/admin/products', <FaUserMd />),
-			getItem('Diagnostics', '/admin/diagnostics', <MdBiotech />),
-			getItem('Labs', '/admin/labs', <FaFlask />),
-			getItem('Tests', '/admin/tests', <FaVials />),
-		]),
-
-		getItem(<p className="p-0 m-0 w-[188px]">People</p>, 'peoples', <MdPeople />, [
-			getItem('Users', '/admin/users', <FaUsers />),
-		]),
-		getItem('Doctor Appointments', '/admin/orders', <FaCalendarCheck />),
-		getItem('Lab Appointments', '/admin/lab-appointments', <FaVial />),
-		getItem('EHR Reports', '/admin/documents', <FaFileMedical />),
-		getItem('Health News', '/admin/news', <FaRegNewspaper />),
-		getItem('User Requests', '/admin/new-members', <MdOutlineAssignment />),
-		getItem('Referrals', '/admin/referral-codes', <MdLocalOffer />),
-		getItem('App Versions', '/admin/app-version', <MdSystemUpdate />),
-	];
-	const onClick: MenuProps['onClick'] = (e) => {
-		router.push(e.key);
-	};
 	return (
-		<div className="w-[300px] flex flex-col h-screen">
-			<div className="w-[300px] h-16 p-2 flex justify-center items-center">
+		<aside className={`hf-sidebar ${collapsed ? 'hf-sidebar--collapsed' : ''}`}>
+			<div className="hf-sidebar__brand">
 				<Link href="/admin/dashboard">
 					{/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-					<a className="pt-[6px]">
-						{/* eslint-disable-next-line jsx-a11y/alt-text */}
+					<a className="flex items-center">
 						<img
 							src="/images/Logo.png"
 							alt="HealthiFam"
-							className="h-9 w-auto object-contain"
+							className={
+								collapsed
+									? 'h-7 w-10 object-cover object-left'
+									: 'h-9 w-auto object-contain'
+							}
 						/>
 					</a>
 				</Link>
 			</div>
-			<Menu
-				style={{width: '100%', color: '#B7C0CD', flex: 1}}
-				onClick={onClick}
-				defaultOpenKeys={[getCurrentRoute(router)]}
-				mode="inline"
-				items={items}
-				selectedKeys={[getActiveRoute(router)]}
-				theme="dark"
-			/>
-		</div>
+
+			<nav className="hf-sidebar__nav">
+				{ADMIN_NAV.map((group) => (
+					<div key={group.title} className="hf-sidebar__group">
+						<div className="hf-sidebar__group-title">
+							{collapsed ? '•' : group.title}
+						</div>
+						{group.items.map((item) => {
+							const link = (
+								<Link key={item.path} href={item.path}>
+									{/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+									<a
+										className={`hf-sidebar__item ${
+											activePath === item.path
+												? 'hf-sidebar__item--active'
+												: ''
+										}`}
+									>
+										<span className="hf-sidebar__icon">
+											{item.icon}
+										</span>
+										{!collapsed && (
+											<span className="truncate">{item.label}</span>
+										)}
+									</a>
+								</Link>
+							);
+							// Labels are hidden when collapsed, so show them on hover.
+							return collapsed ? (
+								<Tooltip
+									key={item.path}
+									title={item.label}
+									placement="right"
+								>
+									<div>{link}</div>
+								</Tooltip>
+							) : (
+								link
+							);
+						})}
+					</div>
+				))}
+			</nav>
+
+			<button type="button" className="hf-sidebar__toggle" onClick={toggle}>
+				{collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+				{!collapsed && <span>Collapse</span>}
+			</button>
+		</aside>
 	);
 };

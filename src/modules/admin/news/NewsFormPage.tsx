@@ -1,3 +1,4 @@
+import {ArrowLeftOutlined} from '@ant-design/icons';
 import {Layout} from '@healthvisa/components';
 import {
 	useAddNews,
@@ -166,17 +167,12 @@ export const NewsFormPage = ({id}: {id?: string}) => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid">
+			<div className="admin-card">
 				<div className="flex justify-between items-center pr-4">
-					<h1 className="text-xl font-bold">
+					<h1 className="admin-page-title">
 						{isEdit ? 'Edit News' : 'Add News'}
 					</h1>
-					<Button
-						onClick={() => router.back()}
-						style={{background: '#F8F9FA', color: 'black'}}
-						className="w-24"
-						type="primary"
-					>
+					<Button onClick={() => router.back()} icon={<ArrowLeftOutlined />}>
 						Back
 					</Button>
 				</div>
@@ -282,19 +278,13 @@ export const NewsFormPage = ({id}: {id?: string}) => {
 						<div className="flex">
 							<Button
 								loading={saving}
-								style={{background: '#198753'}}
 								className="w-24 mr-3"
 								type="primary"
 								htmlType="submit"
 							>
 								{isEdit ? 'Save' : 'Add'}
 							</Button>
-							<Button
-								onClick={() => router.back()}
-								style={{background: '#F8F9FA', color: 'black'}}
-								className="w-24"
-								type="primary"
-							>
+							<Button onClick={() => router.back()}>
 								Cancel
 							</Button>
 						</div>

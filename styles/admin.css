@@ -1,0 +1,533 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Admin theme. antd runs on its CSS-variable build (antd.variable.css), so
+   the primary colour below re-themes every antd component. A deeper shade of
+   the brand teal (#56b5ac) is used so white button text stays readable.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+	--hf-primary: #1f8a80;
+	--hf-primary-hover: #2a9f94;
+	--hf-primary-soft: #e8f6f4;
+	--hf-brand: #56b5ac;
+	--hf-bg: #f4f6f8;
+	--hf-surface: #ffffff;
+	--hf-border: #e6eaef;
+	--hf-text: #1e293b;
+	--hf-muted: #64748b;
+	--hf-radius: 12px;
+	--hf-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+	--hf-sidebar-w: 264px;
+	--hf-sidebar-w-collapsed: 76px;
+	--hf-header-h: 64px;
+	--hf-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+	--ant-primary-color: var(--hf-primary);
+	--ant-primary-color-hover: var(--hf-primary-hover);
+	--ant-primary-color-active: #176b63;
+	--ant-primary-color-outline: rgba(31, 138, 128, 0.2);
+	--ant-primary-color-disabled: #c9ebe6;
+	--ant-primary-color-deprecated-bg: var(--hf-primary-soft);
+	--ant-primary-color-deprecated-border: #a3dbd3;
+	--ant-primary-1: var(--hf-primary-soft);
+	--ant-primary-2: #c9ebe6;
+	--ant-primary-3: #a3dbd3;
+	--ant-primary-4: #7cc9bf;
+	--ant-primary-5: var(--hf-primary-hover);
+	--ant-primary-6: var(--hf-primary);
+	--ant-primary-7: #176b63;
+	--ant-primary-8: #105049;
+	--ant-primary-9: #0a3530;
+	--ant-primary-10: #051c19;
+	--ant-primary-color-deprecated-l-35: #b9e5df;
+	--ant-primary-color-deprecated-l-20: #7cc9bf;
+	--ant-primary-color-deprecated-t-20: #4ca199;
+	--ant-primary-color-deprecated-t-50: #8fc5c0;
+	--ant-primary-color-deprecated-f-12: rgba(31, 138, 128, 0.12);
+	--ant-primary-color-active-deprecated-f-30: rgba(232, 246, 244, 0.3);
+	--ant-primary-color-active-deprecated-d-02: #dff2ef;
+}
+
+/* ── Shell ─────────────────────────────────────────────────────────────── */
+.admin-panel {
+	font-family: var(--hf-font);
+	color: var(--hf-text);
+	background: var(--hf-bg);
+}
+.admin-panel p {
+	font-family: inherit;
+}
+
+.hf-sidebar {
+	width: var(--hf-sidebar-w);
+	flex-shrink: 0;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: var(--hf-surface);
+	border-right: 1px solid var(--hf-border);
+	transition: width 0.2s ease;
+}
+.hf-sidebar--collapsed {
+	width: var(--hf-sidebar-w-collapsed);
+}
+.hf-sidebar__brand {
+	height: var(--hf-header-h);
+	display: flex;
+	align-items: center;
+	padding: 0 20px;
+	border-bottom: 1px solid var(--hf-border);
+}
+/* globals.css styles every <nav> as a flex row (landing page) — undo it here */
+.hf-sidebar__nav {
+	display: block;
+	background: none;
+	flex: 1;
+	overflow-y: auto;
+	padding: 12px 12px 16px;
+}
+.hf-sidebar__group + .hf-sidebar__group {
+	margin-top: 14px;
+}
+.hf-sidebar__group-title {
+	padding: 0 12px 6px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #94a3b8;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.hf-sidebar--collapsed .hf-sidebar__group-title {
+	text-align: center;
+}
+.hf-sidebar__item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	height: 40px;
+	padding: 0 12px;
+	margin-bottom: 2px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #475569;
+	transition: background 0.15s ease, color 0.15s ease;
+}
+.hf-sidebar__item:hover {
+	background: #f1f5f9;
+	color: var(--hf-text);
+}
+.hf-sidebar__item--active,
+.hf-sidebar__item--active:hover {
+	background: var(--hf-primary-soft);
+	color: var(--hf-primary);
+	font-weight: 600;
+}
+.hf-sidebar--collapsed .hf-sidebar__item {
+	justify-content: center;
+	padding: 0;
+}
+.hf-sidebar__icon {
+	display: flex;
+	font-size: 18px;
+	flex-shrink: 0;
+}
+.hf-sidebar__toggle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 44px;
+	border-top: 1px solid var(--hf-border);
+	color: var(--hf-muted);
+	font-size: 13px;
+	background: none;
+	cursor: pointer;
+}
+.hf-sidebar__toggle:hover {
+	color: var(--hf-primary);
+}
+
+.hf-header {
+	height: var(--hf-header-h);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 0 24px;
+	background: rgba(255, 255, 255, 0.92);
+	border-bottom: 1px solid var(--hf-border);
+}
+.hf-header__crumb {
+	font-size: 12px;
+	color: #94a3b8;
+	line-height: 1.2;
+}
+.hf-header__title {
+	font-size: 17px;
+	font-weight: 600;
+	color: var(--hf-text);
+	line-height: 1.4;
+}
+.hf-icon-btn {
+	width: 38px;
+	height: 38px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 10px;
+	background: none;
+	cursor: pointer;
+}
+.hf-icon-btn:hover,
+.hf-user-btn:hover {
+	background: #f1f5f9;
+}
+.hf-user-btn {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 4px 8px 4px 4px;
+	border-radius: 10px;
+	background: none;
+	cursor: pointer;
+}
+.hf-link {
+	color: var(--hf-primary);
+}
+
+.hf-content {
+	height: calc(100vh - var(--hf-header-h));
+	overflow-y: auto;
+	padding: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+/* ── Page card (every list/form page sits in one) ──────────────────────── */
+.admin-card {
+	display: flex;
+	flex-direction: column;
+	background: var(--hf-surface);
+	border: 1px solid var(--hf-border);
+	border-radius: var(--hf-radius);
+	box-shadow: var(--hf-shadow);
+	padding: 20px 24px;
+	min-width: 0;
+}
+.admin-page-title {
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--hf-text);
+	margin: 0;
+}
+/* The row holding a page title (and its Back / Add / Export buttons) */
+.admin-card div:has(> .admin-page-title) {
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	padding-right: 0;
+	border-bottom: 1px solid var(--hf-border);
+}
+.admin-panel h1,
+.admin-panel h2,
+.admin-panel h3 {
+	color: var(--hf-text);
+}
+
+/* ── antd refinements (admin only) ─────────────────────────────────────── */
+.admin-panel .ant-btn,
+.ant-modal .ant-btn {
+	border-radius: 8px;
+	font-weight: 500;
+	box-shadow: none;
+}
+.admin-panel .ant-btn-primary a,
+.admin-panel .ant-btn-primary a:hover {
+	color: #fff;
+}
+:is(.admin-panel, .ant-modal)
+	:is(.ant-input, .ant-input-affix-wrapper, .ant-input-number, .ant-picker, .ant-select:not(.ant-select-customize-input)
+		.ant-select-selector) {
+	border-radius: 8px !important;
+	border-color: #dbe1e8;
+}
+/* inputs nested in an affix wrapper / input group keep square inner corners */
+:is(.admin-panel, .ant-modal) :is(.ant-input-affix-wrapper, .ant-input-group) .ant-input {
+	border-radius: 0 !important;
+}
+
+.admin-panel .ant-table {
+	border-radius: 10px;
+	color: var(--hf-text);
+}
+/* Wide tables without a scroll prop scroll sideways inside their card */
+.admin-panel .ant-table-content {
+	overflow-x: auto;
+}
+.admin-panel .ant-table-container {
+	border: 1px solid var(--hf-border);
+	border-radius: 10px;
+}
+.admin-panel .ant-table-container table > thead > tr:first-child th:first-child {
+	border-top-left-radius: 10px;
+}
+.admin-panel .ant-table-container table > thead > tr:first-child th:last-child {
+	border-top-right-radius: 10px;
+}
+.admin-panel .ant-table-thead > tr > th {
+	background: #f8fafc;
+	color: var(--hf-muted);
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+	border-bottom: 1px solid var(--hf-border);
+}
+.admin-panel .ant-table-thead > tr > th::before {
+	display: none;
+}
+.admin-panel .ant-table-tbody > tr > td {
+	border-bottom: 1px solid #eef1f5;
+}
+.admin-panel .ant-table-tbody > tr.ant-table-row:hover > td {
+	background: #f8fafc;
+}
+.admin-panel .ant-table-tbody > tr:last-child > td {
+	border-bottom: none;
+}
+.admin-panel .ant-table-pagination.ant-pagination {
+	margin: 16px 0 0;
+}
+.admin-panel .ant-pagination-item,
+.admin-panel .ant-pagination-prev .ant-pagination-item-link,
+.admin-panel .ant-pagination-next .ant-pagination-item-link {
+	border-radius: 8px;
+}
+
+.admin-panel .ant-tag {
+	border-radius: 6px;
+	font-weight: 500;
+}
+.admin-panel .ant-card {
+	border-radius: var(--hf-radius);
+	border-color: var(--hf-border);
+}
+.admin-panel .ant-tabs-tab {
+	font-weight: 500;
+}
+.admin-panel .ant-form-item-label > label {
+	color: #334155;
+	font-weight: 500;
+}
+
+.ant-modal-content {
+	border-radius: 14px;
+	overflow: hidden;
+}
+.ant-modal-header {
+	border-bottom-color: var(--hf-border);
+}
+.ant-modal-title {
+	font-weight: 600;
+}
+.ant-popover-inner {
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+.ant-message-notice-content {
+	border-radius: 10px;
+}
+
+/* Thin scrollbars inside the shell */
+.admin-panel ::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+.admin-panel ::-webkit-scrollbar-thumb {
+	background: #cbd5e1;
+	border-radius: 8px;
+}
+.admin-panel ::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* ── Dashboard ─────────────────────────────────────────────────────────── */
+.hf-attention {
+	background: var(--hf-surface);
+	border: 1px solid var(--hf-border);
+	border-radius: var(--hf-radius);
+	box-shadow: var(--hf-shadow);
+	padding: 20px;
+	cursor: pointer;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hf-attention:hover,
+.hf-stat.cursor-pointer:hover {
+	border-color: var(--ant-primary-3);
+	box-shadow: 0 4px 14px rgba(15, 23, 42, 0.07);
+}
+.hf-chip {
+	width: 42px;
+	height: 42px;
+	border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+.hf-chip--sm {
+	width: 38px;
+	height: 38px;
+}
+.hf-badge-warn,
+.hf-badge-ok {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 999px;
+}
+.hf-badge-warn {
+	background: #fef3c7;
+	color: #b45309;
+}
+.hf-badge-ok {
+	background: #dcfce7;
+	color: #15803d;
+}
+.hf-stat {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border: 1px solid var(--hf-border);
+	border-radius: 10px;
+	background: var(--hf-surface);
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hf-bar-col {
+	flex: 1;
+	height: 100%;
+	display: flex;
+	align-items: flex-end;
+	border-radius: 6px;
+	cursor: default;
+}
+.hf-bar-col:hover {
+	background: rgba(148, 163, 184, 0.12);
+}
+
+/* ── Login ─────────────────────────────────────────────────────────────── */
+.hf-login {
+	min-height: 100vh;
+	display: flex;
+	font-family: var(--hf-font);
+	background: #fff;
+}
+.hf-login__brand {
+	display: none;
+	flex: 1;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: 48px;
+	background: linear-gradient(150deg, #1f8a80 0%, #2a9f94 45%, #56b5ac 100%);
+}
+@media (min-width: 900px) {
+	.hf-login__brand {
+		display: flex;
+	}
+}
+.hf-login__brand-inner {
+	margin-top: 8vh;
+}
+.hf-login__logo {
+	display: inline-flex;
+	padding: 10px 14px;
+	background: #fff;
+	border-radius: 12px;
+}
+.hf-login__form {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 32px 16px;
+}
+.hf-login .ant-input-affix-wrapper,
+.hf-login .ant-btn {
+	border-radius: 10px;
+}
+.hf-login .ant-form-item-label > label {
+	font-weight: 500;
+	color: #334155;
+}
+
+/* Modals, drawers and popovers render outside .admin-panel (portals) */
+.ant-modal,
+.ant-modal p,
+.ant-popover,
+.ant-notification {
+	font-family: var(--hf-font);
+}
+.ant-notification-notice {
+	border-radius: 12px;
+}
+
+/* Row action buttons (Edit / Delete / Share / Revoke …) — one style on every page */
+.ant-btn.hf-action {
+	height: 28px;
+	padding: 0 12px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	font-size: 13px;
+	font-weight: 500;
+	box-shadow: none;
+}
+/* tone colours also hold on hover/focus (antd would switch them to primary) */
+.ant-btn.hf-action--edit,
+.ant-btn.hf-action--edit:hover,
+.ant-btn.hf-action--edit:focus {
+	color: var(--hf-primary);
+	background: var(--hf-primary-soft);
+}
+.ant-btn.hf-action--delete,
+.ant-btn.hf-action--delete:hover,
+.ant-btn.hf-action--delete:focus {
+	color: #dc2626;
+	background: #fef2f2;
+}
+.ant-btn.hf-action--share,
+.ant-btn.hf-action--share:hover,
+.ant-btn.hf-action--share:focus {
+	color: #15803d;
+	background: #f0fdf4;
+}
+.ant-btn.hf-action--warn,
+.ant-btn.hf-action--warn:hover,
+.ant-btn.hf-action--warn:focus {
+	color: #c2410c;
+	background: #fff7ed;
+}
+.ant-btn.hf-action:not([disabled]):hover {
+	border-color: currentColor;
+}
+
+/* Every modal (incl. Modal.confirm) is centred vertically and horizontally,
+   the same as antd's `centered` prop. */
+.ant-modal-wrap {
+	text-align: center;
+}
+.ant-modal-wrap::before {
+	content: '';
+	display: inline-block;
+	width: 0;
+	height: 100%;
+	vertical-align: middle;
+}
+.ant-modal-wrap .ant-modal {
+	top: 0;
+	display: inline-block;
+	padding-bottom: 0;
+	text-align: left;
+	vertical-align: middle;
+}

@@ -1,8 +1,9 @@
 import 'tailwindcss/tailwind.css';
 import 'inter-ui/inter.css';
-import 'antd/dist/antd.css';
+import 'antd/dist/antd.variable.min.css';
 import 'react-quill/dist/quill.snow.css';
 import '../styles/globals.css';
+import '../styles/admin.css';
 import type {AppProps} from 'next/app';
 import React from 'react';
 import {Hydrate, QueryClient, QueryClientProvider} from 'react-query';

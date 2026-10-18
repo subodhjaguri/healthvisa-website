@@ -36,9 +36,7 @@ export const DashboardLayout: React.FC<IDashboardLayoutProps> = (props) => {
 			    inside it) instead of growing past the right edge. */}
 			<div className="flex-1 min-w-0 relative bottom-0 h-full">
 				<Header />
-				<div className="bg-[#EFF0F0] p-6 flex flex-col h-[calc(100vh_-_64px)] overflow-y-scroll">
-					{props.children}
-				</div>
+				<main className="hf-content">{props.children}</main>
 			</div>
 		</div>
 	);

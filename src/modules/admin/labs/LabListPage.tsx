@@ -97,18 +97,14 @@ export const LabListPage = () => {
 					<Button
 						size="small"
 						onClick={() => router.push(`/admin/labs/${record.Id}`)}
-						type="default"
-						style={{color: '#1990FF', border: '1px solid #1990FF', padding: '0 10px'}}
-						className="uppercase"
+						className="hf-action hf-action--edit"
 					>
 						Edit
 					</Button>
 					<Button
 						size="small"
 						onClick={() => showModal(record.Id)}
-						type="default"
-						style={{color: 'red', border: '1px solid red', padding: '0 10px'}}
-						className="uppercase"
+						className="hf-action hf-action--delete"
 					>
 						Delete
 					</Button>
@@ -119,9 +115,9 @@ export const LabListPage = () => {
 
 	return (
 		<Layout>
-			<div className="flex flex-col bg-white p-4 shadow-xl border border-[#dde4eb] border-solid ">
+			<div className="admin-card">
 				<div className="flex items-center justify-between gap-2 flex-wrap mb-3">
-					<h1 className="text-xl font-bold">Labs</h1>
+					<h1 className="admin-page-title">Labs</h1>
 					<div className="flex items-center gap-2 flex-wrap">
 						<Button
 							type="primary"
@@ -149,7 +145,7 @@ export const LabListPage = () => {
 						pagination={{pageSize: 7, showSizeChanger: false}}
 						columns={columns}
 						dataSource={visibleRows}
-						style={{width: '100%', border: '2px solid #ECECEC'}}
+						style={{width: '100%'}}
 					/>
 				)}
 			</div>
