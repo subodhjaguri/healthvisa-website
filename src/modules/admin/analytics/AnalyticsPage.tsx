@@ -5,6 +5,7 @@ import {
 	IReferralRow,
 } from '@healthvisa/models/admin/analytics/Analytics';
 import {useGetAnalytics} from '@healthvisa/models/admin/analytics/useAnalytics';
+import {capitalizeFirst} from '@healthvisa/utils/tableFilter';
 import {DownloadOutlined} from '@ant-design/icons';
 import {Alert, Button, DatePicker, Skeleton, Table, Tooltip} from 'antd';
 import moment, {Moment} from 'moment';
@@ -41,8 +42,6 @@ const PRESETS: Record<string, () => [Moment, Moment]> = {
 const pct = (n: number | null | undefined) =>
 	n === null || n === undefined ? '—' : `${Math.round(n * 100)}%`;
 const share = (part: number, whole: number) => (whole ? part / whole : null);
-const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
 const Panel: React.FC<{
 	title: string;
 	subtitle?: string;
@@ -231,10 +230,18 @@ const AnalyticsBody: React.FC<{data: IAnalytics; dimmed: boolean}> = ({data, dim
 
 			<div className="grid gap-5 grid-cols-1 lg:grid-cols-2">
 				<Panel title="Doctor appointments" subtitle="By current status">
-					<RankedList rows={b.statuses.doctor} color={TEAL} format={sentence} />
+					<RankedList
+						rows={b.statuses.doctor}
+						color={TEAL}
+						format={capitalizeFirst}
+					/>
 				</Panel>
 				<Panel title="Lab appointments" subtitle="By current status">
-					<RankedList rows={b.statuses.lab} color={VIOLET} format={sentence} />
+					<RankedList
+						rows={b.statuses.lab}
+						color={VIOLET}
+						format={capitalizeFirst}
+					/>
 				</Panel>
 			</div>
 
@@ -266,7 +273,7 @@ const AnalyticsBody: React.FC<{data: IAnalytics; dimmed: boolean}> = ({data, dim
 						<RankedList
 							rows={b.labBookingTypes}
 							color={VIOLET}
-							format={sentence}
+							format={capitalizeFirst}
 						/>
 					</div>
 					<div className="text-xs font-medium text-slate-500 mb-2">Visit</div>

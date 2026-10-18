@@ -57,3 +57,13 @@ export function optionsOf(values: unknown[]): {value: string; label: string}[] {
 		.sort((a, b) => a.localeCompare(b))
 		.map((v) => ({value: v, label: v}));
 }
+
+/**
+ * Display text with only its first letter upper-cased; the rest is kept as
+ * stored ("order medicine" → "Order medicine", "D STUDIO" unchanged). Unlike
+ * CSS `capitalize`, it doesn't touch the other words.
+ */
+export const capitalizeFirst = (value: unknown): string => {
+	const text = value === null || value === undefined ? '' : String(value);
+	return text.charAt(0).toUpperCase() + text.slice(1);
+};
