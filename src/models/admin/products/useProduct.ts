@@ -104,6 +104,8 @@ export function useProductById(
 		{
 			notifyOnChangeProps: 'tracked',
 			refetchOnWindowFocus: true, // Frequency of Change would be Low
+			// Wait for the id (undefined until the router is ready).
+			enabled: !!queryParams.id,
 			...queryOptions,
 		},
 	);
