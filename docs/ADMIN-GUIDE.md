@@ -16,6 +16,7 @@ to icons (hover an icon to see its name); the website remembers your choice.
 | Section | Menu item | Use it to |
 |---|---|---|
 | Overview | **Dashboard** | See what needs attention (requests and appointments to confirm), bookings over the last 14 days, and totals |
+| | **Analytics** | See trends for a date range: bookings, cancellations, top doctors and labs, memberships and renewals, referral codes, sign-ups and active users. Export as CSV |
 | Operations | **Doctor Appointments** | Confirm, complete, reject or cancel doctor bookings |
 | | **Lab Appointments** | The same for lab and health-package bookings |
 | | **User Requests** | Approve membership requests; handle medicine orders and other requests |
@@ -43,6 +44,23 @@ requests every 20 seconds. When something new arrives:
 
 Keep the admin website open in a tab during working hours. Browsers check less often (about
 once a minute) when the tab is in the background.
+
+## Analytics
+
+**Analytics** shows numbers for the dates you pick (top right; at most a year). Days follow
+India time. Hover a bar to see its exact numbers; long ranges are grouped by week or month.
+
+- **Bookings**: doctor and lab bookings by the day they were made, their current status,
+  cancellation rate, who cancelled and why, and the most booked doctors, specialities, labs
+  and health packages.
+- **Memberships**: new and renewed memberships, active members over time, memberships
+  ending in the next 30 days that are not renewed yet, the renewal rate, and request counts.
+- **Referrals**: for each shop code, sign-ups, membership requests and approvals in the range.
+- **Users**: sign-ups, how many became members or booked, members who used the app in the
+  last 7 and 30 days, and their app build.
+
+The page counts everything recorded in the system. **Export CSV** downloads every figure
+on the page, plus the day-by-day numbers.
 
 ## Membership requests
 

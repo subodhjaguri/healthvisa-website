@@ -15,7 +15,7 @@ import {
 import {ExclamationCircleFilled} from '@ant-design/icons';
 import {CSVLink} from 'react-csv';
 import {TableSearch} from '@healthvisa/components/TableSearch';
-import {matchesSearch} from '@healthvisa/utils/tableFilter';
+import {capitalizeFirst, matchesSearch} from '@healthvisa/utils/tableFilter';
 import {NewMemberUpdateRequestParams} from '@healthvisa/models/admin/users/User';
 import {formatPrice} from '@healthvisa/utils';
 import moment from 'moment';
@@ -176,6 +176,7 @@ export const NewMembersListPage = () => {
 			title: 'Requested For',
 			dataIndex: 'appliedFor',
 			key: 'appliedFor',
+			render: (appliedFor) => capitalizeFirst(appliedFor),
 		},
 		{
 			title: 'Plan',

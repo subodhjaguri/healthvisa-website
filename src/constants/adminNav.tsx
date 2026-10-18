@@ -6,6 +6,7 @@ import {
 	MdLocalOffer,
 	MdSystemUpdate,
 	MdSick,
+	MdInsights,
 } from 'react-icons/md';
 import {
 	FaUsers,
@@ -36,6 +37,7 @@ export const ADMIN_NAV: AdminNavGroup[] = [
 		title: 'Overview',
 		items: [
 			{label: 'Dashboard', path: '/admin/dashboard', icon: <MdOutlineDashboard />},
+			{label: 'Analytics', path: '/admin/analytics', icon: <MdInsights />},
 		],
 	},
 	{
